@@ -1,0 +1,35 @@
+Dice Tables
+
+1d4;1d8
+.TS
+box;
+cFCW || cFCW | cFCW | cFCW | cFCW | cFCW | cFCW | cFCW | cFCW.
+	1	2	3	4	5	6	7	8
+=
+1	Q	P	Z	R	Y	9	X	8
+_
+2	G	F	2	T	V	D	W	0
+_
+3	S	3	J	N	5	4	K	H
+_
+4	C	E	6	M	U	A	7	L
+.TE
+
+2d6
+.TS
+box;
+cFCW || cFCW | cFCW | cFCW | cFCW | cFCW | cFCW.
+	1	2	3	4	5	6
+=
+1		Q	P	Z	9
+_
+2	Y	9	X	8	G	F
+_
+3	2	T	V	D	W	0
+_
+4	S	3	J	N	5	4
+_
+5	K	H	C	E	6	M
+_
+6		U	A	7	L
+.TE

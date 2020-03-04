@@ -1,0 +1,486 @@
+%!PS-Adobe-2.0
+(SSS32)
+(revision alpha-1)
+[
+(MIT License)
+()
+(Copyright (c) 2020 Blockstream)
+()
+(Permission is hereby granted, free of charge, to any person obtaining a copy)
+(of this software and associated documentation files (the "Software"), to deal)
+(in the Software without restriction, including without limitation the rights)
+(to use, copy, modify, merge, publish, distribute, sublicense, and/or sell)
+(copies of the Software, and to permit persons to whom the Software is)
+(furnished to do so, subject to the following conditions:)
+()
+(The above copyright notice and this permission notice shall be included in all)
+(copies or substantial portions of the Software.)
+()
+(THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR)
+(IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,)
+(FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE)
+(AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER)
+(LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,)
+(OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE)
+(SOFTWARE.)
+]
+[
+(WARNING: Seriously, this is a work in progress, and it is only a concept right now.)
+(If you try to use this for your valuable data, I promise you will lose your data.)
+(You will lose this document and come back here only to find that I have made incompatible changes,)
+(and your data is lost forever. Even if you don't lose this document, there is no warranty or)
+(guarantee of any kind that you will be able to recover successfully recover your data.)
+()
+(MATERIALS: Scissors, X-Acto knife, brass fasteners)
+()
+(CONSTRUCTION:)
+(The bottom discs are the discs with a small circle in the center of them.)
+(The top discs are the discs with a small cross in the centre. All the top discs are identical. Cut out each disc.)
+(Cut out the small centre circle in each the bottom discs. Cut out each of the 32 squares of each top disc.)
+(Cut a slit along one one of the small lines of the cross in each of the top discs.)
+(Pass the brass fastener through a top disc and bottom disc.)
+(Fold the legs of the fastener apart to secure the top and bottom discs together.)
+(The two discs should now be able to rotate about their common centre.)
+(Note: the "Make Share" discs are experimental and are not needed if you will be using the lookup tables.)
+()
+(CREATING SHARES:)
+(How to construct a 2-of-n (Shamir's) Secret Sharing Scheme for splitting secret data encoded in the Bech32 alphabet.)
+(For this document n cannot exceed 31.)
+(It is strongly advised that the secret data contain a strong error correcting code to allow robust recovery.)
+(Write out the secret share.  We will name this the Q share.)
+(Generate a random share of the same length.  We will name this the P share. To generate a random character)
+(you can use 1d8 and 1d4 or use two distinct d6s and look up a character from the dice tables.)
+(If you use d6s, you will have to re-roll if the entry is blank.)
+(To generate other shares, turn to the table on the page of the first letter of your P share.)
+(Find the row that corresponds to the first letter of your Q share.)
+(The first column tells you the first letter of the Z share; the second column tells you the first letter of the R share.)
+(Use as many columns as shares you need.)
+(Repeat this process for every pair of letters of from your P and Q shares.)
+(Securely store your P share, Z share, R share, and so forth, labeling the shares with their share name.)
+(Securely dispose your Q share and worksheets.)
+()
+(SECRET RECOVERY:)
+(Find 2 of your secured shares.)
+(Find the pair of the share names you have in the Recovery Table to find their two associated recovery symbols.)
+(Translate each share, character by character, by setting the Recovery disc's dial to the associated symbol found above.)
+(Add the two translated shares, character by character, using the Addition disc. The result is your secret share Q.)
+]
+/README exch def
+/MIT exch def
+/ver exch def
+/name exch def
+
+/pgsize {612 792} def % letter size
+/code (QPZRY9X8GF2TVDW0S3JN54KHCE6MUA7L) def
+/code2 (cj\245y*q\252hxnav\250l\251\300wbpudgrokmet\247izs) def
+% /code2 (\300abcdefghijklmnopqrstuvwxyz\247\250\251\252\245) def
+/perm [15 10 17 21 20 26 30 7 5 29 24 13 25 9 8 23 18 22 31 27 19 1 0 3 16 11 28 12 14 6 4 2] def
+% Generator for GF(32) is alpha^5 = alpha^3 + 1
+/gf32mulalpha % x  -> x * alpha in GF32 where alpha is represted by 0b00000010
+        { 2 mul dup 32 ge { 37 xor } if } bind def
+/gf32mul % x * y -> x * y in GF32
+        { 1 index 1 and 1 eq { dup } { 0 exch } ifelse gf32mulalpha
+          2 index 2 and 2 eq { exch 1 index xor exch } if gf32mulalpha
+          2 index 4 and 4 eq { exch 1 index xor exch } if gf32mulalpha
+          2 index 8 and 8 eq { exch 1 index xor exch } if gf32mulalpha
+          2 index 16 and 16 eq { exch 1 index xor exch } if
+          pop exch pop
+        } bind def
+/gf32inv % x -> x ^ -1 in GF32
+       { dup dup gf32mul dup gf32mul gf32mul % x^5
+         dup dup gf32mul gf32mul % x^15
+         dup gf32mul % x^30 = x^-1
+       } bind def
+
+/lagrange % x j arr -> l
+       { 1 exch { dup 3 index xor dup 0 eq { pop pop } { gf32inv exch 4 index xor gf32mul gf32mul } ifelse } forall 
+         exch pop exch pop
+       } bind def
+
+/makeShare % sp sq i -> si
+       { exch 1 index 0 [0 1] lagrange gf32mul
+         3 1 roll 1 [0 1] lagrange gf32mul
+         xor
+       } bind def 
+
+/centreshow {dup stringwidth pop 2 div neg 0 rmoveto show} bind def
+/centresquare {dup neg 2 div dup rmoveto dup 0 rlineto dup 0 exch rlineto neg 0 rlineto closepath stroke} bind def
+/concatstrings % (a) (b) -> (ab)  
+   { exch dup length    
+     2 index length add string    
+     dup dup 4 2 roll copy length
+     4 -1 roll putinterval
+   } bind def
+
+% From BLUEBOOK Program #10
+/outsidecircletext 
+  { circtextdict begin
+      /radius exch def
+      /centerangle exch def
+      /ptsize exch def
+      /str exch def
+      /xradius radius ptsize 4 div add def
+
+      gsave
+        centerangle str findhalfangle add rotate
+
+        str
+          { /charcode exch def
+            ( ) dup 0 charcode put outsideplacechar
+          } forall
+      grestore
+    end
+  } def
+
+/insidecircletext
+{ circtextdict begin
+  /radius exch def /centerangle exch def
+  /ptsize exch def /str exch def
+  /xradius radius ptsize 3 div sub def
+  gsave
+   centerangle str findhalfangle sub rotate
+   str
+    { /charcode exch def
+      ( ) dup 0 charcode put insideplacechar
+    } forall
+  grestore
+  end
+} def
+
+/circtextdict 16 dict def
+circtextdict begin
+ /findhalfangle
+  { stringwidth pop 2 div
+    2 xradius mul pi mul div 360 mul
+  } def
+
+/outsideplacechar
+    { /char exch def
+      /halfangle char findhalfangle def
+      gsave
+        halfangle neg rotate
+        radius 0 translate
+        -90 rotate
+        char stringwidth pop 2 div neg 0 moveto
+        char show
+      grestore
+      halfangle 2 mul neg rotate
+    } def
+
+/insideplacechar
+ { /char exch def
+   /halfangle char findhalfangle def
+   gsave
+    halfangle rotate
+    radius 0 translate
+    90 rotate
+    char stringwidth pop 2 div neg 0 moveto
+    char show
+   grestore
+   halfangle 2 mul rotate
+ } def
+
+/pi 3.1415923 def
+end
+
+/showBottomWheelPage
+ {
+   /title exch def
+   /binop exch def
+   pgsize 2 div exch 2 div exch translate
+   newpath 0 0 6 40 mul 0 360 arc stroke
+   newpath 0 0 6 40 mul 28 add 0 360 arc stroke
+   newpath 0 0 6 0 360 arc stroke
+   /Helvetica findfont 12 scalefont setfont
+   title 12 270 30 insidecircletext
+   /Helvetica findfont 6 scalefont setfont
+   0 30 360 {title 6 2 index 262 outsidecircletext} for
+   outerfont findfont 18 scalefont setfont
+   perm {0 38 sqrt 40 mul moveto outercode exch 1 getinterval centreshow -11.25 rotate} forall
+   /Courier findfont 12 scalefont setfont
+   180 rotate
+   0 1 31 {139 rotate perm {0 2 index 2 add sqrt 40 mul moveto 1 index 31 exch sub perm exch get binop code exch 1 getinterval centreshow -11.25 rotate} forall pop} for
+   showpage
+ } bind def
+
+/showTopWheelPage
+ {
+   pgsize 2 div exch 2 div exch translate
+   0.8 setgray
+   newpath 0 0 7.25 40 mul 140 40 arc fill
+   1 setgray
+   newpath 0 0 6 40 mul 0 360 arc fill
+   0 setgray
+   newpath 0 0 6 40 mul 0 360 arc stroke
+   newpath 0 6 moveto 0 -6 lineto stroke
+   newpath 6 0 moveto -6 0 lineto stroke
+   newpath 0 6 40 mul moveto 10 -20 rlineto -20 0 rlineto closepath fill
+   /Courier findfont 12 scalefont setfont
+   180 rotate
+   0 1 31 {139 rotate dup 2 add sqrt 40 mul 2.5 add newpath 0 exch 2 copy moveto 12 centresquare moveto 9 -3 rmoveto (\254) /Symbol findfont 12 scalefont setfont show
+            31 exch sub perm exch get code exch 1 getinterval /Courier findfont 12 scalefont setfont show} for
+   showpage
+ } bind def
+
+/showShareTable {
+/offset exch def
+/Courier findfont 10 scalefont setfont
+70 offset moveto (Page: ) show
+/Courier-Bold findfont 10 scalefont setfont
+dup code exch 1 getinterval show
+2 1 31 {
+dup 10 mul 50 add offset 10 sub moveto
+code exch 1 getinterval show
+} for
+
+0 1 31 { 2 copy 
+/Courier-Bold findfont 10 scalefont setfont
+50 offset 20 sub 2 index 10 mul sub moveto
+dup code exch perm exch get 1 getinterval show
+/Courier findfont 10 scalefont setfont
+2 1 31 {
+dup 10 mul 50 add offset 20 sub 3 index 10 mul sub moveto
+exch perm exch get exch 3 copy makeShare exch pop code exch 1 getinterval show
+} for pop } for
+pop pop
+} bind def
+
+%%Pages: 26
+%%Page: 1 1
+/Helvetica findfont 6 scalefont setfont
+40 750 moveto
+MIT {gsave show grestore 0 -8 rmoveto} forall
+/Helvetica findfont 20 scalefont setfont
+0 -22 rmoveto
+gsave name show grestore 0 -12 rmoveto
+/Helvetica findfont 10 scalefont setfont
+gsave ver show grestore 0 -24 rmoveto
+README {gsave show grestore 0 -12 rmoveto} forall
+showpage
+
+%%Page: 2 2
+
+%cat <<EOF | tbl | groff -Tps
+%Dice Tables
+%
+%1d4;1d8
+%.TS
+%box;
+%cFCW || cFCW | cFCW | cFCW | cFCW | cFCW | cFCW | cFCW | cFCW.
+%        1       2       3       4       5       6       7       8
+%=
+%1       Q       P       Z       R       Y       9       X       8
+%_
+%2       G       F       2       T       V       D       W       0
+%_
+%3       S       3       J       N       5       4       K       H
+%_
+%4       C       E       6       M       U       A       7       L
+%.TE
+%
+%2d6
+%.TS
+%box;
+%cFCW || cFCW | cFCW | cFCW | cFCW | cFCW | cFCW.
+%        1       2       3       4       5       6
+%=
+%1               Q       P       Z       9
+%_
+%2       Y       9       X       8       G       F
+%_
+%3       2       T       V       D       W       0
+%_
+%4       S       3       J       N       5       4
+%_
+%5       K       H       C       E       6       M
+%_
+%6               U       A       7       L
+%.TE
+%EOF
+/SC 32 def
+/E{0 rmoveto show}bind def
+/G{0 rmoveto 0 exch ashow}bind def
+/H{0 rmoveto 0 exch 0 SC 5 2 roll awidthshow}bind def
+/Q{moveto show}bind def
+/S{moveto 0 exch ashow}bind def
+/T{moveto 0 exch 0 SC 5 2 roll awidthshow}bind def
+/Cg/setgray load def
+/SN{
+transform
+.25 sub exch .25 sub exch
+round .25 add exch round .25 add exch
+itransform
+}bind def
+/LW/setlinewidth load def
+/DL{
+SN
+moveto
+SN
+lineto stroke
+}bind def
+/SF{
+findfont exch
+[exch dup 0 exch 0 exch neg 0 0]makefont
+dup setfont
+[exch/setfont cvx]cvx bind def
+}bind def
+/BP{
+1 setlinecap
+1 setlinejoin
+0 792 translate
+1 -1 scale
+}bind def
+/EP{
+showpage
+}def
+BP
+
+/F0 10/Courier SF(Dice T)72 12 Q(ables)-.8 E(1d4;1d8)72 36 Q .4 LW
+256 40.5 72 40.5 DL/F1 10/Courier SF 15(12345678)98 50 S 256 54.5 72
+54.5 DL 256 56.5 72 56.5 DL 15(1QPZRY9X8)77 66 S 256 70.5 72 70.5 DL 15
+(2GF2TVDW0)77 80 S 256 84.5 72 84.5 DL 15(3S3JN54KH)77 94 S 256 98.5 72
+98.5 DL 15(4CE6MUA7L)77 108 S 256 112.5 72 112.5 DL 237.5 40.5 237.5
+112.5 DL 216.5 40.5 216.5 112.5 DL 195.5 40.5 195.5 112.5 DL 174.5 40.5
+174.5 112.5 DL 153.5 40.5 153.5 112.5 DL 132.5 40.5 132.5 112.5 DL 111.5
+40.5 111.5 112.5 DL 89.5 40.5 89.5 112.5 DL 91.5 40.5 91.5 112.5 DL 256
+40.5 256 112.5 DL 72 40.5 72 112.5 DL F0(2d6)72 132 Q 214 136.5 72 136.5
+DL F1 15(123456)98 146 S 214 150.5 72 150.5 DL 214 152.5 72 152.5 DL 36
+(1Q)77 162 S 15(PZ9)-21 G 214 166.5 72 166.5 DL 15(2Y9X8GF)77 176 S 214
+180.5 72 180.5 DL 15(32TVDW0)77 190 S 214 194.5 72 194.5 DL 15(4S3JN54)
+77 204 S 214 208.5 72 208.5 DL 15(5KHCE6M)77 218 S 214 222.5 72 222.5 DL
+36(6U)77 232 S 15(A7L)-21 G 214 236.5 72 236.5 DL 195.5 136.5 195.5
+236.5 DL 174.5 136.5 174.5 236.5 DL 153.5 136.5 153.5 236.5 DL 132.5
+136.5 132.5 236.5 DL 111.5 136.5 111.5 236.5 DL 89.5 136.5 89.5 236.5 DL
+91.5 136.5 91.5 236.5 DL 214 136.5 214 236.5 DL 72 136.5 72 236.5 DL
+
+/row12 code2 0 1 [1 2] lagrange 1 getinterval code2 0 2 [1 2] lagrange 1 getinterval concatstrings def
+/row13 code2 0 1 [1 3] lagrange 1 getinterval code2 0 3 [1 3] lagrange 1 getinterval concatstrings def
+/row23 code2 0 2 [2 3] lagrange 1 getinterval code2 0 3 [2 3] lagrange 1 getinterval concatstrings def
+
+(Recovery Table) 29 256 Q
+2 1 31 { 1 1 2 index 1 sub { 1 index exch
+dup 19 mul 10 add 2 index 12 mul 244 add moveto
+/F0 5/Courier SF
+code 2 index 1 getinterval code 2 index 1 getinterval concatstrings (:) concatstrings show
+dup 19 mul 10 9 add add 2 index 12 mul 244 add moveto
+/F0 5/Symbol SF
+[ 3 1 roll ] dup 0 exch dup 0 get exch lagrange code2 exch 1 getinterval ( ) exch concatstrings
+            exch 0 exch dup 1 get exch lagrange code2 exch 1 getinterval concatstrings show
+} for pop } for
+
+0 Cg EP
+
+%%Page: 3 3
+% note 0 and 1 (aka chi and phi) are never used, so they could be removed from the wheel, freeing up character space.
+/outerfont /Symbol def
+/outercode code2 def
+{gf32mul} (Recovery Disc) showBottomWheelPage
+
+%%Page: 4 4
+/outerfont /Courier def
+/outercode code def
+{xor} (Addition) showBottomWheelPage
+
+%%Page: 5 5
+15 760 showShareTable
+10 400 showShareTable
+showpage
+
+%%Page: 6 6
+17 760 showShareTable
+21 400 showShareTable
+showpage
+
+%%Page: 7 7
+20 760 showShareTable
+26 400 showShareTable
+showpage
+
+%%Page: 8 8
+30 760 showShareTable
+7 400 showShareTable
+showpage
+
+%%Page: 9 9
+5 760 showShareTable
+29 400 showShareTable
+showpage
+
+%%Page: 10 10
+24 760 showShareTable
+13 400 showShareTable
+showpage
+
+%%Page: 11 11
+25 760 showShareTable
+9 400 showShareTable
+showpage
+
+%%Page: 12 12
+8 760 showShareTable
+23 400 showShareTable
+showpage
+
+%%Page: 13 13
+18 760 showShareTable
+22 400 showShareTable
+showpage
+
+% /perm [15 10 17 21 20 26 30 7 5 29 24 13 25 9 8 23 18 22 31 27 19 1 0 3 16 11 28 12 14 6 4 2] def
+%%Page: 14 14
+31 760 showShareTable
+27 400 showShareTable
+showpage
+
+%%Page: 15 15
+19 760 showShareTable
+1 400 showShareTable
+showpage
+
+%%Page: 16 16
+0 760 showShareTable
+3 400 showShareTable
+showpage
+
+%%Page: 17 17
+16 760 showShareTable
+11 400 showShareTable
+showpage
+
+%%Page: 18 18
+28 760 showShareTable
+12 400 showShareTable
+showpage
+
+%%Page: 19 19
+14 760 showShareTable
+6 400 showShareTable
+showpage
+
+%%Page: 20 20
+4 760 showShareTable
+2 400 showShareTable
+showpage
+
+%%Page: 21 21
+/outerfont /Courier def
+/outercode code def
+{2 makeShare} (Make Share ) code 2 1 getinterval concatstrings showBottomWheelPage
+
+%%Page: 22 22
+/outerfont /Courier def
+/outercode code def
+{3 makeShare} (Make Share ) code 3 1 getinterval concatstrings showBottomWheelPage
+
+%%Page: 23 23
+showTopWheelPage
+
+%%Page: 24 24
+showTopWheelPage
+
+%%Page: 25 25
+showTopWheelPage
+
+%%Page: 26 26
+showTopWheelPage
+
