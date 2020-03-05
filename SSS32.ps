@@ -1,6 +1,6 @@
 %!PS-Adobe-2.0
 (SSS32)
-(revision alpha-1.1)
+(revision alpha-2.0)
 [
 (MIT License)
 ()
@@ -47,23 +47,23 @@
 (How to construct a 2-of-n (Shamir's) Secret Sharing Scheme for splitting secret data encoded in the Bech32 alphabet.)
 (For this document n cannot exceed 31.)
 (It is strongly advised that the secret data contain a strong error correcting code to allow robust recovery.)
-(Write out the secret share.  We will name this the Q share.)
-(Generate a random share of the same length.  We will name this the P share. To generate a random character)
+(Write out the secret share.  We will name this the S share.)
+(Generate a random share of the same length.  We will name this the A share. To generate a random character)
 (you can use 1d8 and 1d4 or use two distinct d6s and look up a character from the dice tables.)
 (If you use d6s, you will have to re-roll if the entry is blank.)
-(To generate other shares, turn to the table on the page of the first letter of your P share.)
-(Find the row that corresponds to the first letter of your Q share.)
-(The first column tells you the first letter of the Z share; the second column tells you the first letter of the R share.)
+(To generate other shares, turn to the table on the page of the first letter of your A share.)
+(Find the row that corresponds to the first letter of your S share.)
+(The first column tells you the first letter of the C share; the second column tells you the first letter of the D share.)
 (Use as many columns as shares you need.)
-(Repeat this process for every pair of letters of from your P and Q shares.)
-(Securely store your P share, Z share, R share, and so forth, labeling the shares with their share name.)
-(Securely dispose your Q share and worksheets.)
+(Repeat this process for every pair of letters of from your A and S shares.)
+(Securely store your A share, C share, D share, and so forth, labeling the shares with their share name.)
+(Securely dispose your S share and worksheets.)
 ()
 (SECRET RECOVERY:)
 (Find 2 of your secured shares.)
 (Find the pair of the share names you have in the Recovery Table to find their two associated recovery symbols.)
 (Translate each share, character by character, by setting the Recovery disc's dial to the associated symbol found above.)
-(Add the two translated shares, character by character, using the Addition disc. The result is your secret share Q.)
+(Add the two translated shares, character by character, using the Addition disc. The result is your secret share S.)
 ]
 /README exch def
 /MIT exch def
@@ -75,6 +75,7 @@
 /code2 (cj\245y*q\252hxnav\250l\251\300wbpudgrokmet\247izs) def
 % /code2 (\300abcdefghijklmnopqrstuvwxyz\247\250\251\252\245) def
 /perm [29 24 13 25 9 8 23 18 22 31 27 19 1 0 3 16 11 28 12 14 6 4 2 15 10 17 21 20 26 30 7 5 ] def
+/permS [16 29 24 13 25 9 8 23 18 22 31 27 19 1 0 3 11 28 12 14 6 4 2 15 10 17 21 20 26 30 7 5 ] def
 % Generator for GF(32) is alpha^5 = alpha^3 + 1
 /gf32mulalpha % x  -> x * alpha in GF32 where alpha is represted by 0b00000010
         { 2 mul dup 32 ge { 37 xor } if } bind def
@@ -97,9 +98,9 @@
          exch pop exch pop
        } bind def
 
-/makeShare % sp sq i -> si
-       { exch 1 index 0 [0 1] lagrange gf32mul
-         3 1 roll 1 [0 1] lagrange gf32mul
+/makeShare % sA sS i -> si
+       { exch 1 index permS 0 get permS 0 2 getinterval lagrange gf32mul
+         3 1 roll permS 1 get permS 0 2 getinterval lagrange gf32mul
          xor
        } bind def 
 
@@ -232,6 +233,7 @@ end
 code page 1 getinterval show
 2 1 31 {
 dup 7 mul offsetx add offsety 10 sub moveto
+permS exch get
 code exch 1 getinterval show
 } for
 
@@ -242,6 +244,7 @@ dup code exch perm exch get 1 getinterval show
 /Courier findfont 8 scalefont setfont
 2 1 31 {
 dup 7 mul offsetx add offsety 20 sub 3 index 8 mul sub moveto
+permS exch get
 page exch perm 3 index get exch  makeShare code exch 1 getinterval show
 } for pop } for
 } bind def
@@ -370,11 +373,12 @@ DL F1 15(123456)98 146 S 214 150.5 72 150.5 DL 214 152.5 72 152.5 DL 36
 2 1 31 { 1 1 2 index 1 sub { 1 index exch
 dup 19 mul 10 add 2 index 12 mul 244 add moveto
 /F0 5/Courier SF
-code 2 index 1 getinterval code 2 index 1 getinterval concatstrings (:) concatstrings show
+code 2 index permS exch get 1 getinterval code 2 index permS exch get 1 getinterval concatstrings (:) concatstrings show
 dup 19 mul 10 9 add add 2 index 12 mul 244 add moveto
+permS exch get exch permS exch get exch
 /F0 5/Symbol SF
-[ 3 1 roll ] dup 0 exch dup 0 get exch lagrange code2 exch 1 getinterval ( ) exch concatstrings
-            exch 0 exch dup 1 get exch lagrange code2 exch 1 getinterval concatstrings show
+[ 3 1 roll ] dup permS 0 get exch dup 0 get exch lagrange code2 exch 1 getinterval ( ) exch concatstrings
+            exch permS 0 get exch dup 1 get exch lagrange code2 exch 1 getinterval concatstrings show
 } for pop } for
 
 0 Cg EP
@@ -417,12 +421,12 @@ dup 19 mul 10 9 add add 2 index 12 mul 244 add moveto
 %%Page: 13 13
 /outerfont /Courier def
 /outercode code def
-{2 makeShare} (Make Share ) code 2 1 getinterval concatstrings showBottomWheelPage
+{24 makeShare} (Make Share ) code 24 1 getinterval concatstrings showBottomWheelPage
 
 %%Page: 14 14
 /outerfont /Courier def
 /outercode code def
-{3 makeShare} (Make Share ) code 3 1 getinterval concatstrings showBottomWheelPage
+{13 makeShare} (Make Share ) code 13 1 getinterval concatstrings showBottomWheelPage
 
 %%Page: 15 15
 showTopWheelPage
