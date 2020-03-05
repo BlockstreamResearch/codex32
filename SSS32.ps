@@ -1,6 +1,6 @@
 %!PS-Adobe-2.0
 (SSS32)
-(revision alpha-1)
+(revision alpha-1.1)
 [
 (MIT License)
 ()
@@ -74,7 +74,7 @@
 /code (QPZRY9X8GF2TVDW0S3JN54KHCE6MUA7L) def
 /code2 (cj\245y*q\252hxnav\250l\251\300wbpudgrokmet\247izs) def
 % /code2 (\300abcdefghijklmnopqrstuvwxyz\247\250\251\252\245) def
-/perm [15 10 17 21 20 26 30 7 5 29 24 13 25 9 8 23 18 22 31 27 19 1 0 3 16 11 28 12 14 6 4 2] def
+/perm [29 24 13 25 9 8 23 18 22 31 27 19 1 0 3 16 11 28 12 14 6 4 2 15 10 17 21 20 26 30 7 5 ] def
 % Generator for GF(32) is alpha^5 = alpha^3 + 1
 /gf32mulalpha % x  -> x * alpha in GF32 where alpha is represted by 0b00000010
         { 2 mul dup 32 ge { 37 xor } if } bind def
@@ -223,29 +223,38 @@ end
  } bind def
 
 /showShareTable {
-/offset exch def
+/offsety exch def
+/offsetx exch def
+/page exch def
 /Courier findfont 10 scalefont setfont
-70 offset moveto (Page: ) show
-/Courier-Bold findfont 10 scalefont setfont
-dup code exch 1 getinterval show
+20 offsetx add offsety moveto (Page: ) show
+/Courier-Bold findfont 8 scalefont setfont
+code page 1 getinterval show
 2 1 31 {
-dup 10 mul 50 add offset 10 sub moveto
+dup 7 mul offsetx add offsety 10 sub moveto
 code exch 1 getinterval show
 } for
 
-0 1 31 { 2 copy 
-/Courier-Bold findfont 10 scalefont setfont
-50 offset 20 sub 2 index 10 mul sub moveto
+0 1 31 {
+/Courier-Bold findfont 8 scalefont setfont
+offsetx offsety 20 sub 2 index 8 mul sub moveto
 dup code exch perm exch get 1 getinterval show
-/Courier findfont 10 scalefont setfont
+/Courier findfont 8 scalefont setfont
 2 1 31 {
-dup 10 mul 50 add offset 20 sub 3 index 10 mul sub moveto
-exch perm exch get exch 3 copy makeShare exch pop code exch 1 getinterval show
+dup 7 mul offsetx add offsety 20 sub 3 index 8 mul sub moveto
+page exch perm 3 index get exch  makeShare code exch 1 getinterval show
 } for pop } for
-pop pop
 } bind def
 
-%%Pages: 26
+/showShareTablePage {
+325 400 showShareTable
+50 400 showShareTable
+325 720 showShareTable
+50 720 showShareTable
+showpage
+} bind def
+
+%%Pages: 18
 %%Page: 1 1
 /Helvetica findfont 6 scalefont setfont
 40 750 moveto
@@ -382,105 +391,47 @@ dup 19 mul 10 9 add add 2 index 12 mul 244 add moveto
 {xor} (Addition) showBottomWheelPage
 
 %%Page: 5 5
-15 760 showShareTable
-10 400 showShareTable
-showpage
+29 24 13 25 showShareTablePage
 
 %%Page: 6 6
-17 760 showShareTable
-21 400 showShareTable
-showpage
+9 8 23 18 showShareTablePage
 
 %%Page: 7 7
-20 760 showShareTable
-26 400 showShareTable
-showpage
+22 31 27 19 showShareTablePage
 
 %%Page: 8 8
-30 760 showShareTable
-7 400 showShareTable
-showpage
+1 0 3 16 showShareTablePage
 
 %%Page: 9 9
-5 760 showShareTable
-29 400 showShareTable
-showpage
+11 28 12 14 showShareTablePage
 
 %%Page: 10 10
-24 760 showShareTable
-13 400 showShareTable
-showpage
+6 4 2 15 showShareTablePage
 
 %%Page: 11 11
-25 760 showShareTable
-9 400 showShareTable
-showpage
+10 17 21 20 showShareTablePage
 
 %%Page: 12 12
-8 760 showShareTable
-23 400 showShareTable
-showpage
+26 30 7 5 showShareTablePage
 
 %%Page: 13 13
-18 760 showShareTable
-22 400 showShareTable
-showpage
-
-% /perm [15 10 17 21 20 26 30 7 5 29 24 13 25 9 8 23 18 22 31 27 19 1 0 3 16 11 28 12 14 6 4 2] def
-%%Page: 14 14
-31 760 showShareTable
-27 400 showShareTable
-showpage
-
-%%Page: 15 15
-19 760 showShareTable
-1 400 showShareTable
-showpage
-
-%%Page: 16 16
-0 760 showShareTable
-3 400 showShareTable
-showpage
-
-%%Page: 17 17
-16 760 showShareTable
-11 400 showShareTable
-showpage
-
-%%Page: 18 18
-28 760 showShareTable
-12 400 showShareTable
-showpage
-
-%%Page: 19 19
-14 760 showShareTable
-6 400 showShareTable
-showpage
-
-%%Page: 20 20
-4 760 showShareTable
-2 400 showShareTable
-showpage
-
-%%Page: 21 21
 /outerfont /Courier def
 /outercode code def
 {2 makeShare} (Make Share ) code 2 1 getinterval concatstrings showBottomWheelPage
 
-%%Page: 22 22
+%%Page: 14 14
 /outerfont /Courier def
 /outercode code def
 {3 makeShare} (Make Share ) code 3 1 getinterval concatstrings showBottomWheelPage
 
-%%Page: 23 23
+%%Page: 15 15
 showTopWheelPage
 
-%%Page: 24 24
+%%Page: 16 16
 showTopWheelPage
 
-%%Page: 25 25
+%%Page: 17 17
 showTopWheelPage
 
-%%Page: 26 26
+%%Page: 18 18
 showTopWheelPage
-
