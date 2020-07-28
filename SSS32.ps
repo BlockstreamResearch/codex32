@@ -1,6 +1,6 @@
 %!PS-Adobe-2.0
 (SSS32)
-(revision alpha-2.0)
+(revision alpha-3.0)
 [
 (MIT License)
 ()
@@ -78,7 +78,7 @@
 /permS [16 29 24 13 25 9 8 23 18 22 31 27 19 1 0 3 11 28 12 14 6 4 2 15 10 17 21 20 26 30 7 5 ] def
 % Generator for GF(32) is alpha^5 = alpha^3 + 1
 /gf32mulalpha % x  -> x * alpha in GF32 where alpha is represted by 0b00000010
-        { 2 mul dup 32 ge { 37 xor } if } bind def
+        { 2 mul dup 32 ge { 41 xor } if } bind def
 /gf32mul % x * y -> x * y in GF32
         { 1 index 1 and 1 eq { dup } { 0 exch } ifelse gf32mulalpha
           2 index 2 and 2 eq { exch 1 index xor exch } if gf32mulalpha
