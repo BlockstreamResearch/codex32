@@ -1,6 +1,6 @@
 %!PS-Adobe-2.0
 (SSS32)
-(revision alpha-3.0)
+(revision alpha-3.1)
 [
 (MIT License)
 ()
@@ -71,21 +71,27 @@
 /name exch def
 
 /pgsize {612 792} def % letter size
-/code (QPZRY9X8GF2TVDW0S3JN54KHCE6MUA7L) def
-/code2 (cj\245y*q\252hxnav\250l\251\300wbpudgrokmet\247izs) def
+/code (QPZRY9X8GF2TVDW0S3JN54KHCE6MUA7L ) def
+/code2 (cj\245y*q\252hxnav\250l\251\300wbpudgrokmet\247izs ) def
 % /code2 (\300abcdefghijklmnopqrstuvwxyz\247\250\251\252\245) def
 /perm [29 24 13 25 9 8 23 18 22 31 27 19 1 0 3 16 11 28 12 14 6 4 2 15 10 17 21 20 26 30 7 5 ] def
 /permS [16 29 24 13 25 9 8 23 18 22 31 27 19 1 0 3 11 28 12 14 6 4 2 15 10 17 21 20 26 30 7 5 ] def
 % Generator for GF(32) is alpha^5 = alpha^3 + 1
+
+/gf32mul % x y -> x + y in GF32
+/gf32add {2 copy 32 ge exch 32 ge or {pop pop 32} {xor} ifelse} bind def
+
 /gf32mulalpha % x  -> x * alpha in GF32 where alpha is represted by 0b00000010
         { 2 mul dup 32 ge { 41 xor } if } bind def
-/gf32mul % x * y -> x * y in GF32
-        { 1 index 1 and 1 eq { dup } { 0 exch } ifelse gf32mulalpha
+/gf32mul % x y -> x * y in GF32
+        { 2 copy 32 ge exch 32 ge or {pop pop 32} {
+          1 index 1 and 1 eq { dup } { 0 exch } ifelse gf32mulalpha
           2 index 2 and 2 eq { exch 1 index xor exch } if gf32mulalpha
           2 index 4 and 4 eq { exch 1 index xor exch } if gf32mulalpha
           2 index 8 and 8 eq { exch 1 index xor exch } if gf32mulalpha
           2 index 16 and 16 eq { exch 1 index xor exch } if
           pop exch pop
+          } ifelse
         } bind def
 /gf32inv % x -> x ^ -1 in GF32
        { dup dup gf32mul dup gf32mul gf32mul % x^5
@@ -103,6 +109,32 @@
          3 1 roll permS 1 get permS 0 2 getinterval lagrange gf32mul
          xor
        } bind def 
+
+/gf32mularray % x b -> x * b
+  { [ 3 1 roll { 1 index gf32mul exch } forall pop ]
+  } bind def
+
+/gf32addarray % a b -> a + b pointwise
+  { [ 3 1 roll 0 1 2 index length 1 sub { 2 index 1 index get 2 index 2 index get gf32add exch pop 3 1 roll } for pop pop ]
+  } bind def
+
+% /polymodulus [18 29 21 20 22 29] def % coefficents from c0 to c5 
+/polymodulus [29 22 20 21 29 18] def % coefficents from c5 to c0 
+
+/polymod0 % array -> [ c5 c4 c3 c2 c1 c0 ]
+ { [0 0 0 0 0 0]
+   exch
+   { [ exch 2 index 1 5 getinterval aload pop 6 5 roll ] exch 0 get polymodulus gf32mularray gf32addarray  } forall
+ } bind def
+
+/polymodshift2 % c7 c6 -> [ c5 c4 c3 c2 c1 c0 ]
+ {  [ 3 1 roll 0 0 0 0 0 0 ] polymod0
+ } bind def
+
+/polymodhrp % string -> [ c5 c4 c3 c2 c1 c0 ]
+ {
+   [ exch 1 exch dup { 32 idiv exch } forall 0 exch { 31 and } forall ] polymod0
+ } bind def
 
 /centreshow {dup stringwidth pop 2 div neg 0 rmoveto show} bind def
 /centresquare {dup neg 2 div dup rmoveto dup 0 rlineto dup 0 exch rlineto neg 0 rlineto closepath stroke} bind def
@@ -257,7 +289,12 @@ page exch perm 3 index get exch  makeShare code exch 1 getinterval show
 showpage
 } bind def
 
-%%Pages: 18
+/arraySpace 8 def
+/showArray {
+  { 3 copy pop moveto code exch 1 getinterval show exch arraySpace add exch } forall pop pop
+} bind def
+
+%%Pages: 20
 %%Page: 1 1
 /Helvetica findfont 6 scalefont setfont
 40 750 moveto
@@ -439,3 +476,167 @@ showTopWheelPage
 
 %%Page: 18 18
 showTopWheelPage
+
+%%Page: 19 19
+/Helvetica-bold findfont 10 scalefont setfont
+pgsize 40 sub exch 2 div exch
+moveto (Bech32 Checksum Table) centreshow
+
+0 1 31 {
+0 1 31 {
+2 copy 730 exch 7 mul sub 1 index 11 idiv 240 mul sub exch 11 mod 50 mul 30 add exch moveto
+2 copy
+perm exch get exch perm exch get exch
+2 copy
+code exch get exch code exch get exch 
+2 string dup 1 4 3 roll put dup 0 4 3 roll put
+/Courier-Bold findfont 8 scalefont setfont
+show
+3 0 rmoveto
+6 string
+3 1 roll
+polymodshift2 0 1 5 { 3 copy get code exch get 3 2 roll exch put } for
+pop
+/Courier findfont 8 scalefont setfont
+show
+pop
+} for
+pop
+} for
+showpage
+
+%%Page: 20 20
+/Helvetica-Bold findfont 10 scalefont setfont
+pgsize 40 sub exch 2 div exch
+moveto (Bech32 Checksum Worksheet for donotusesss32 Prefix) centreshow
+
+/Courier findfont 12 scalefont setfont
+
+100 650
+0 1 39 {
+3 copy pop
+0 1 4 index 2 mod 0 eq {7} {5} ifelse {
+3 copy pop
+moveto
+-0.5 -1.9 rmoveto
+0 10 rlineto
+arraySpace 0 rlineto
+0 -10 rlineto
+closepath
+dup 6 lt {0.2} {1} ifelse setlinewidth
+3 index dup 2 mod 0 eq 3 1 roll add 40 ge and { gsave 1 0.9 0.9 setrgbcolor fill grestore } if
+stroke
+exch arraySpace add exch
+} for
+pop pop
+2 mod 0 eq
+ { 10 sub exch arraySpace 2 mul add exch}
+ { 
+ 2 copy moveto -0.5 -1.9 rmoveto arraySpace 6 mul 0 rlineto 1 setlinewidth stroke 
+ 10 sub
+ } ifelse
+} for
+2 copy
+6 {
+2 copy
+moveto
+-0.5 -1.9 rmoveto
+0 10 rlineto
+arraySpace 0 rlineto
+0 -10 rlineto
+closepath
+0.25 setlinewidth
+stroke
+exch arraySpace add exch
+} repeat
+pop pop
+0.85 setgray
+[0 0 0 0 0 1] showArray
+0 setgray
+
+100 650
+% [16 10 19 29 27 25 15 15 22 25 25 1 16 25 24 3 25 11 27 29 16 11 25 3 16 25 25 13 16 25 24 28 3 25 18 10 11 3 16 1] % s2name00keepsecretmasterseedsecurej2trsp
+[ 40 {32} repeat ]
+(donotusesss32) polymodhrp
+exch
+0 2 2 index length 1 sub {
+ 5 copy
+ [ 4 1 roll 2 getinterval exch aload length dup 1 add exch roll aload pop ]
+ showArray
+ 5 3 roll 10 sub 5 1 roll arraySpace 2 mul add 5 1 roll
+ 5 copy
+ pop pop 0 2 getinterval aload pop polymodshift2 dup 4 1 roll showArray
+ [ 5 4 roll 2 4 getinterval aload pop 7 index 7 index 2 getinterval aload pop ] gf32addarray exch pop exch
+ 4 2 roll 10 sub 4 2 roll
+} for
+pop
+showArray
+
+100 420 moveto
+/Helvetica-bold findfont 10 scalefont setfont
+(Verifying Checksums) show
+100 400 moveto
+/Helvetica findfont 9 scalefont setfont
+(Write out the 40 character data portion in the) show
+100 390 moveto
+(bold boxes, two at a time, starting on the top) show
+100 380 moveto
+(row.  Working from the top row down, look up) show
+100 370 moveto
+(the first two characters of each odd row in the) show
+100 360 moveto
+(Bech32 Checksum Table and write the 6) show
+100 350 moveto
+(character word into the even row below it.  Fill) show
+100 340 moveto
+(in the odd rows by adding the two characters) show
+100 330 moveto
+(above each cell.  You may use either the) show
+100 320 moveto
+(addition wheel table.  The first few boxes are) show
+100 310 moveto
+(already filled in for you.  The last row will sum) show
+100 300 moveto
+(to QQQQQP if the checksum is valid.) show
+100 260 moveto
+/Helvetica-bold findfont 10 scalefont setfont
+(Creating Checksums) show
+100 240 moveto
+/Helvetica findfont 9 scalefont setfont
+(Follow the "Verifying Checksums" instructions) show
+100 230 moveto
+(to fill in everything but the pink cells. To fill in) show
+100 220 moveto
+(the pink cells, write QQQQQP into the bottom) show
+100 210 moveto
+(row.  Working from the bottom up, fill in the) show
+100 200 moveto
+(pink cells by adding the two characters below) show
+100 190 moveto
+(each cell.  The six characters in the bold pink) show
+100 180 moveto
+(boxes will be the checksum.) show
+
+250 650
+/offsety exch def
+/offsetx exch def
+/Courier findfont 10 scalefont setfont
+20 offsetx add offsety moveto (Addition Table) show
+/Courier-Bold findfont 8 scalefont setfont
+0 1 31 {
+dup 2 add 7 mul offsetx add offsety 10 sub moveto
+perm exch get
+code exch 1 getinterval show
+} for
+
+0 1 31 {
+/Courier-Bold findfont 8 scalefont setfont
+offsetx 34.5 7 mul add offsety 20 sub 2 index 8 mul sub moveto
+dup code exch perm exch get 1 getinterval show
+/Courier findfont 8 scalefont setfont
+dup 1 31 {
+dup 2 add 7 mul offsetx add offsety 20 sub 3 index 8 mul sub moveto
+perm exch get
+perm 2 index get gf32add code exch 1 getinterval show
+} for pop } for
+showpage
