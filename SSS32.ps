@@ -100,7 +100,7 @@
        } bind def
 
 /lagrange % x j arr -> l
-       { 1 exch { dup 3 index xor dup 0 eq { pop pop } { gf32inv exch 4 index xor gf32mul gf32mul } ifelse } forall 
+       { 1 exch { dup 3 index xor dup 0 eq { pop pop } { gf32inv exch 4 index xor gf32mul gf32mul } ifelse } forall
          exch pop exch pop
        } bind def
 
@@ -108,7 +108,7 @@
        { exch 1 index permS 0 get permS 0 2 getinterval lagrange gf32mul
          3 1 roll permS 1 get permS 0 2 getinterval lagrange gf32mul
          xor
-       } bind def 
+       } bind def
 
 /gf32mularray % x b -> x * b
   { [ 3 1 roll { 1 index gf32mul exch } forall pop ]
@@ -118,8 +118,8 @@
   { [ 3 1 roll 0 1 2 index length 1 sub { 2 index 1 index get 2 index 2 index get gf32add exch pop 3 1 roll } for pop pop ]
   } bind def
 
-% /polymodulus [18 29 21 20 22 29] def % coefficents from c0 to c5 
-/polymodulus [29 22 20 21 29 18] def % coefficents from c5 to c0 
+% /polymodulus [18 29 21 20 22 29] def % coefficents from c0 to c5
+/polymodulus [29 22 20 21 29 18] def % coefficents from c5 to c0
 
 /polymod0 % array -> [ c5 c4 c3 c2 c1 c0 ]
  { [0 0 0 0 0 0]
@@ -138,15 +138,15 @@
 
 /centreshow {dup stringwidth pop 2 div neg 0 rmoveto show} bind def
 /centresquare {dup neg 2 div dup rmoveto dup 0 rlineto dup 0 exch rlineto neg 0 rlineto closepath stroke} bind def
-/concatstrings % (a) (b) -> (ab)  
-   { exch dup length    
-     2 index length add string    
+/concatstrings % (a) (b) -> (ab)
+   { exch dup length
+     2 index length add string
      dup dup 4 2 roll copy length
      4 -1 roll putinterval
    } bind def
 
 % From BLUEBOOK Program #10
-/outsidecircletext 
+/outsidecircletext
   { circtextdict begin
       /radius exch def
       /centerangle exch def
@@ -488,7 +488,7 @@ moveto (Bech32 Checksum Table) centreshow
 2 copy
 perm exch get exch perm exch get exch
 2 copy
-code exch get exch code exch get exch 
+code exch get exch code exch get exch
 2 string dup 1 4 3 roll put dup 0 4 3 roll put
 /Courier-Bold findfont 8 scalefont setfont
 show
@@ -531,8 +531,8 @@ exch arraySpace add exch
 pop pop
 2 mod 0 eq
  { 10 sub exch arraySpace 2 mul add exch}
- { 
- 2 copy moveto -0.5 -1.9 rmoveto arraySpace 6 mul 0 rlineto 1 setlinewidth stroke 
+ {
+ 2 copy moveto -0.5 -1.9 rmoveto arraySpace 6 mul 0 rlineto 1 setlinewidth stroke
  10 sub
  } ifelse
 } for
