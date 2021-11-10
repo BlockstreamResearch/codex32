@@ -1,6 +1,6 @@
 %!PS-Adobe-2.0
 (SSS32)
-(revision alpha-3.1)
+(revision alpha-3.2)
 [
 (MIT License)
 ()
@@ -51,8 +51,8 @@
 (Generate a random share of the same length.  We will name this the A share. To generate a random character)
 (you can use 1d8 and 1d4 or use two distinct d6s and look up a character from the dice tables.)
 (If you use d6s, you will have to re-roll if the entry is blank.)
-(To generate other shares, turn to the table on the page of the first letter of your A share.)
-(Find the row that corresponds to the first letter of your S share.)
+(To generate other shares, turn to the table on the page of the first letter of your S share.)
+(Find the row that corresponds to the first letter of your A share.)
 (The first column tells you the first letter of the C share; the second column tells you the first letter of the D share.)
 (Use as many columns as shares you need.)
 (Repeat this process for every pair of letters of from your A and S shares.)
@@ -104,8 +104,8 @@
          exch pop exch pop
        } bind def
 
-/makeShare % sA sS i -> si
-       { exch 1 index permS 0 get permS 0 2 getinterval lagrange gf32mul
+/makeShare % sS sA i -> si
+       { 3 2 roll 1 index permS 0 get permS 0 2 getinterval lagrange gf32mul
          3 1 roll permS 1 get permS 0 2 getinterval lagrange gf32mul
          xor
        } bind def
