@@ -78,7 +78,7 @@
 /permS [16 29 24 13 25 9 8 23 18 22 31 27 19 1 0 3 11 28 12 14 6 4 2 15 10 17 21 20 26 30 7 5 ] def
 % Generator for GF(32) is alpha^5 = alpha^3 + 1
 
-/gf32mul % x y -> x + y in GF32
+/gf32add % x y -> x + y in GF32
 /gf32add {2 copy 32 ge exch 32 ge or {pop pop 32} {xor} ifelse} bind def
 
 /gf32mulalpha % x  -> x * alpha in GF32 where alpha is represted by 0b00000010
