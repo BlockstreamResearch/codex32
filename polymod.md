@@ -2,7 +2,7 @@
 
 ## Polymod
 
-See also <https://en.wikipedia.org/wiki/BCH_code>.
+See also <https://en.wikipedia.org/wiki/BCH_code> and <https://users.encs.concordia.ca/~msoleyma/ELEC464/ELEC_464_2019/RS-Decoding.pdf>.
 
 I requested a generator for a BCH code that can correct 4 errors on 57 data characters (supporting at least 285 bits) from sipa, who suggested three available generators with a 13 character checksum:
 
