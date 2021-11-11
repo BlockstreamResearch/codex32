@@ -104,11 +104,8 @@
  exch 32 ge or   % x y (y >= 32 || x >= 32)
  {pop pop 32}                 % 32
  {                            % x y
-   1 index 1 and 1 eq         % x y (x & 0b00001 == 0b00001)
-   { dup }                      % x y y
-   { 0 exch }                   % x 0 y
-   ifelse                     % x ((x & 0b00001) [*] y) y
-   gf32mulalpha               % x ((x & 0b00001) [*] y) (y [*] alpha)
+   dup 2 index 1 and mul      % x y ((x & 0b00001) [*] y)
+   exch gf32mulalpha          % x ((x & 0b00001) [*] y) (y [*] alpha)
    2 index 2 and 2 eq         % x ((x & 0b00001) [*] y) (y [*] alpha) (x & 0b00010 == 0b00010)
    { exch 1 index xor exch }    % x ((x & 0b00001) [*] y [+] (y [*] alpha)) (y [*] alpha)
    if                         % x ((x & 0b00011) [*] y) (y [*] alpha)
