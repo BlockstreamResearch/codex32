@@ -78,31 +78,85 @@
 /permS [16 29 24 13 25 9 8 23 18 22 31 27 19 1 0 3 11 28 12 14 6 4 2 15 10 17 21 20 26 30 7 5 ] def
 % Generator for GF(32) is alpha^5 = alpha^3 + 1
 
-/gf32add % x y -> x + y in GF32
-/gf32add {2 copy 32 ge exch 32 ge or {pop pop 32} {xor} ifelse} bind def
+/gf32add % x y -> x [+] y where [+] is addition in GF32.
+         % returns 32 if x or y is out of range.
+         % Note that x [+] y = x [-] y in GF32.
+{               % x y
+ 2 copy 32 ge   % x y x (y >= 32)
+ exch 32 ge or  % x y (y >= 32 || x >= 32)
+ {pop pop 32}     % 32
+ {xor}            % x [+] y
+ ifelse         % if (y >= 32 || x >= 32) then 32 else (x [+] y)
+} bind def
 
-/gf32mulalpha % x  -> x * alpha in GF32 where alpha is represted by 0b00000010
-        { 2 mul dup 32 ge { 41 xor } if } bind def
-/gf32mul % x y -> x * y in GF32
-        { 2 copy 32 ge exch 32 ge or {pop pop 32} {
-          1 index 1 and 1 eq { dup } { 0 exch } ifelse gf32mulalpha
-          2 index 2 and 2 eq { exch 1 index xor exch } if gf32mulalpha
-          2 index 4 and 4 eq { exch 1 index xor exch } if gf32mulalpha
-          2 index 8 and 8 eq { exch 1 index xor exch } if gf32mulalpha
-          2 index 16 and 16 eq { exch 1 index xor exch } if
-          pop exch pop
-          } ifelse
-        } bind def
-/gf32inv % x -> x ^ -1 in GF32
-       { dup dup gf32mul dup gf32mul gf32mul % x^5
-         dup dup gf32mul gf32mul % x^15
-         dup gf32mul % x^30 = x^-1
-       } bind def
+/gf32mulalpha % x -> x [*] alpha where [*] is multiplicaiton in GF32 and alpha is represted by 0b00010.
+{               % x
+ 2 mul          % 2*x
+ dup 32 ge      % 2*x (2*x >= 0b100000)
+ { 41 xor }       % 2*x `xor` 0b101001
+ if             % if (2*x >= 0xb100000) then 2*x `xor` 0x0b101001 else 2*x
+ } bind def
 
-/lagrange % x j arr -> l
-       { 1 exch { dup 3 index xor dup 0 eq { pop pop } { gf32inv exch 4 index xor gf32mul gf32mul } ifelse } forall
-         exch pop exch pop
-       } bind def
+/gf32mul % x y -> x [*] y where [*] is multiplication in GF32.
+         % returns 32 if x or y is out of range.
+{                % x y
+ 2 copy 32 ge    % x y x (y >= 32)
+ exch 32 ge or   % x y (y >= 32 || x >= 32)
+ {pop pop 32}                 % 32
+ {                            % x y
+   1 index 1 and 1 eq         % x y (x & 0b00001 == 0b00001)
+   { dup }                      % x y y
+   { 0 exch }                   % x 0 y
+   ifelse                     % x ((x & 0b00001) [*] y) y
+   gf32mulalpha               % x ((x & 0b00001) [*] y) (y [*] alpha)
+   2 index 2 and 2 eq         % x ((x & 0b00001) [*] y) (y [*] alpha) (x & 0b00010 == 0b00010)
+   { exch 1 index xor exch }    % x ((x & 0b00001) [*] y [+] (y [*] alpha)) (y [*] alpha)
+   if                         % x ((x & 0b00011) [*] y) (y [*] alpha)
+   gf32mulalpha               % x ((x & 0b00011) [*] y) (y [*] alpha[^2])
+   2 index 4 and 4 eq         % x ((x & 0b00011) [*] y) (y [*] alpha[^2]) (x & 0b00100 == 0b00100)
+   { exch 1 index xor exch }    % x ((x & 0b00011) [*] y [+] (y [*] alpha[^2])) (y [*] alpha[^2])
+   if                         % x ((x & 0b00111) [*] y) (y [*] alpha[^2])
+   gf32mulalpha               % x ((x & 0b00111) [*] y) (y [*] alpha[^3])
+   2 index 8 and 8 eq         % x ((x & 0b00111) [*] y) (y [*] alpha[^3]) (x & 0b01000 == 0b01000)
+   { exch 1 index xor exch }    % x ((x & 0b00111) [*] y [+] (y [*] alpha[^3])) (y [*] alpha[^3])
+   if                         % x ((x & 0b01111) [*] y) (y [*] alpha[^3])
+   gf32mulalpha               % x ((x & 0b01111) [*] y) (y [*] alpha[^4])
+   2 index 16 and 16 eq       % x ((x & 0b01111) [*] y) (y [*] alpha[^4]) (x & 0b10000 == 0b10000)
+   { exch 1 index xor exch }    % x ((x & 0b01111) [*] y [+] (y [*] alpha[^4])) (y [*] alpha[^4])
+   if                         % x ((x & 0b11111) [*] y) (y [*] alpha[^4])
+   pop exch pop               % (x [*] y)
+ } ifelse        % if (y >= 32 || x >= 32) then 32 else (x [*] y)
+} bind def
+
+/gf32inv % x -> x [^-1] where [^-1] is the inverse operation in GF32.
+         % returns 0 when given 0.
+         % returns 32 if x is out of range.
+{                        % x
+ dup dup gf32mul         % x x[^2]
+ dup gf32mul gf32mul     % x[^5]
+ dup dup gf32mul gf32mul % x[^15]
+ dup gf32mul             % x[^30]
+                         % x[^-1]
+} bind def
+
+/lagrange % x xj [x[0] .. x[k]] -> l[j](x)
+          % returns the lagrange basis polynomial l[j] evaluated at x for interpolation of coordinates [x[0] .. x[k]].
+          % Requires xj `elem` [x[0] ... x[k]]
+{                   % x xj [x[0] .. x[k]]
+ 1 exch             % x xj 1 [x[0] .. x[k]]
+ {                    % let P = product [(x [-] x[m]) [/] (xj [-] x[m]) | m <- [0..i-1], x[m] /= xj]
+                      % x xj P x[i]
+   dup 3 index xor    % x xj P x[i] (xj [-] x[i])
+   dup 0 eq           % x xj P x[i] (xj [-] x[i]) (xj [-] x[i] == 0)
+   { pop pop }          % x xj P
+   { gf32inv            % x xj P x[i] (xj [-] x[i])[^-1]
+     exch 4 index xor   % x xj P (xj [-] x[i])[^-1] (x [-] x[i])
+     gf32mul gf32mul    % x xj (P [*] (x [-] x[i]) [/] (xj [-] x[i]))
+   }
+   ifelse             % x xj (if xj == x[i] then P else (P [*] (x [-] x[i]) [/] (xj [-] x[i]))
+ } forall           % x xj (product [(x [-] x[m]) [/] (xj [-] x[m]) | m <- [0..k], x[m] /= xj])
+ exch pop exch pop  % (product [(x [-] x[m]) [/] (xj [-] x[m]) | m <- [0..k], x[m] /= xj])
+} bind def
 
 /makeShare % sS sA i -> si
        { 3 2 roll 1 index permS 0 get permS 0 2 getinterval lagrange gf32mul
