@@ -95,34 +95,26 @@
  dup 32 ge      % 2*x (2*x >= 0b100000)
  { 41 xor }       % 2*x `xor` 0b101001
  if             % if (2*x >= 0xb100000) then 2*x `xor` 0x0b101001 else 2*x
- } bind def
+} bind def
 
 /gf32mul % x y -> x [*] y where [*] is multiplication in GF32.
          % returns 32 if x or y is out of range.
 {                % x y
- 2 copy 32 ge    % x y x (y >= 32)
- exch 32 ge or   % x y (y >= 32 || x >= 32)
- {pop pop 32}                 % 32
- {                            % x y
-   dup 2 index 1 and mul      % x y ((x & 0b00001) [*] y)
-   exch gf32mulalpha          % x ((x & 0b00001) [*] y) (y [*] alpha)
-   2 index 2 and 2 eq         % x ((x & 0b00001) [*] y) (y [*] alpha) (x & 0b00010 == 0b00010)
-   { exch 1 index xor exch }    % x ((x & 0b00001) [*] y [+] (y [*] alpha)) (y [*] alpha)
-   if                         % x ((x & 0b00011) [*] y) (y [*] alpha)
-   gf32mulalpha               % x ((x & 0b00011) [*] y) (y [*] alpha[^2])
-   2 index 4 and 4 eq         % x ((x & 0b00011) [*] y) (y [*] alpha[^2]) (x & 0b00100 == 0b00100)
-   { exch 1 index xor exch }    % x ((x & 0b00011) [*] y [+] (y [*] alpha[^2])) (y [*] alpha[^2])
-   if                         % x ((x & 0b00111) [*] y) (y [*] alpha[^2])
-   gf32mulalpha               % x ((x & 0b00111) [*] y) (y [*] alpha[^3])
-   2 index 8 and 8 eq         % x ((x & 0b00111) [*] y) (y [*] alpha[^3]) (x & 0b01000 == 0b01000)
-   { exch 1 index xor exch }    % x ((x & 0b00111) [*] y [+] (y [*] alpha[^3])) (y [*] alpha[^3])
-   if                         % x ((x & 0b01111) [*] y) (y [*] alpha[^3])
-   gf32mulalpha               % x ((x & 0b01111) [*] y) (y [*] alpha[^4])
-   2 index 16 and 16 eq       % x ((x & 0b01111) [*] y) (y [*] alpha[^4]) (x & 0b10000 == 0b10000)
-   { exch 1 index xor exch }    % x ((x & 0b01111) [*] y [+] (y [*] alpha[^4])) (y [*] alpha[^4])
-   if                         % x ((x & 0b11111) [*] y) (y [*] alpha[^4])
-   pop exch pop               % (x [*] y)
- } ifelse        % if (y >= 32 || x >= 32) then 32 else (x [*] y)
+ 10 dict begin
+ { /y /x } {exch def} forall
+ x 32 ge y 32 ge or  % (y >= 32 || x >= 32)
+ {32}                  % 32
+ {
+   /xShift x def
+   /yAlpha y def
+   0                   % 0
+   5 {                                % ((x & 0b001..1) [*] y) (x >> i) (y [*] alpha[^i])
+     xShift 1 and yAlpha mul xor      % ((x & 0b001..1) [*] y [+] ((x >> i) & 1) * (y [*] alpha [^i]))
+     /xShift xShift -1 bitshift def
+     /yAlpha yAlpha gf32mulalpha def
+   } repeat            % ((x & 0b11111) [*] y)
+ } ifelse            % if (y >= 32 || x >= 32) then 32 else (x [*] y)
+ end
 } bind def
 
 /gf32inv % x -> x [^-1] where [^-1] is the inverse operation in GF32.
@@ -139,20 +131,22 @@
 /lagrange % x xj [x[0] .. x[k]] -> l[j](x)
           % returns the lagrange basis polynomial l[j] evaluated at x for interpolation of coordinates [x[0] .. x[k]].
           % Requires xj `elem` [x[0] ... x[k]]
-{                   % x xj [x[0] .. x[k]]
- 1 exch             % x xj 1 [x[0] .. x[k]]
- {                    % let P = product [(x [-] x[m]) [/] (xj [-] x[m]) | m <- [0..i-1], x[m] /= xj]
-                      % x xj P x[i]
-   dup 3 index xor    % x xj P x[i] (xj [-] x[i])
-   dup 0 eq           % x xj P x[i] (xj [-] x[i]) (xj [-] x[i] == 0)
-   { pop pop }          % x xj P
-   { gf32inv            % x xj P x[i] (xj [-] x[i])[^-1]
-     exch 4 index xor   % x xj P (xj [-] x[i])[^-1] (x [-] x[i])
-     gf32mul gf32mul    % x xj (P [*] (x [-] x[i]) [/] (xj [-] x[i]))
+{               % x xj [x[0] .. x[k]]
+ 10 dict begin
+ { /xs /xj /x } {exch def} forall
+ 1 xs           % 1 [x[0] .. x[k]]
+ {                % let P = product [(x [-] x[m]) [/] (xj [-] x[m]) | m <- [0..i-1], x[m] /= xj]
+                  % P x[i]
+   /xi exch def   % P
+   xi xj xor      % P (xj [-] x[i])
+   dup 0 eq       % P (xj [-] x[i]) (xj [-] x[i] == 0)
+   { pop }             % P
+   { gf32inv gf32mul   % (P [/] (xj [-] x[i])
+     xi x xor gf32mul  % (P [*] (x [-] x[i]) [/] (xj [-] x[i]))
    }
-   ifelse             % x xj (if xj == x[i] then P else (P [*] (x [-] x[i]) [/] (xj [-] x[i]))
- } forall           % x xj (product [(x [-] x[m]) [/] (xj [-] x[m]) | m <- [0..k], x[m] /= xj])
- exch pop exch pop  % (product [(x [-] x[m]) [/] (xj [-] x[m]) | m <- [0..k], x[m] /= xj])
+   ifelse         % (if xj == x[i] then P else (P [*] (x [-] x[i]) [/] (xj [-] x[i]))
+ } forall       % x xj (product [(x [-] x[m]) [/] (xj [-] x[m]) | m <- [0..k], x[m] /= xj])
+ end
 } bind def
 
 /makeShare % sS sA i -> si
