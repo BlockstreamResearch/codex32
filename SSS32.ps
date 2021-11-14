@@ -538,14 +538,14 @@ perm exch get exch perm exch get exch
 2 copy
 code exch get exch code exch get exch
 2 string dup 1 4 3 roll put dup 0 4 3 roll put
-/Courier-Bold findfont 8 scalefont setfont
+/Courier-Bold findfont polymodulus length 6 le {8} {4.5} ifelse scalefont setfont
 show
 3 0 rmoveto
 polymodulus length string
 3 1 roll
 polymodshift2 0 1 polymodulus length 1 sub { 3 copy get code exch get 3 2 roll exch put } for
 pop
-/Courier findfont 8 scalefont setfont
+/Courier findfont polymodulus length 6 le {8} {4.5} ifelse scalefont setfont
 show
 pop
 } for
