@@ -165,15 +165,18 @@
 
 % /polymodulus [18 29 21 20 22 29] def % coefficents from c0 to c5
 /polymodulus [29 22 20 21 29 18] def % coefficents from c5 to c0
+% /polymodulus [10 30 14 26 0 17 28 18 18 5 26 6 22] def % coefficents from c12 to c0
+/checksum {[polymodulus length 1 sub {0} repeat 1]} bind def
+/checksumstring { polymodulus length string checksum 0 1 polymodulus length 1 sub {3 copy exch 1 index get code exch 1 getinterval putinterval pop } for pop } bind def
 
 /polymod0 % array -> [ c5 c4 c3 c2 c1 c0 ]
- { [0 0 0 0 0 0]
+ { [ polymodulus length {0} repeat ]
    exch
-   { [ exch 2 index 1 5 getinterval aload pop 6 5 roll ] exch 0 get polymodulus gf32mularray gf32addarray  } forall
+   { [ exch 2 index 1 polymodulus length 1 sub getinterval aload pop polymodulus length dup 1 sub roll ] exch 0 get polymodulus gf32mularray gf32addarray  } forall
  } bind def
 
 /polymodshift2 % c7 c6 -> [ c5 c4 c3 c2 c1 c0 ]
- {  [ 3 1 roll 0 0 0 0 0 0 ] polymod0
+ {  [ 3 1 roll polymodulus length {0} repeat ] polymod0
  } bind def
 
 /polymodhrp % string -> [ c5 c4 c3 c2 c1 c0 ]
@@ -538,9 +541,9 @@ code exch get exch code exch get exch
 /Courier-Bold findfont 8 scalefont setfont
 show
 3 0 rmoveto
-6 string
+polymodulus length string
 3 1 roll
-polymodshift2 0 1 5 { 3 copy get code exch get 3 2 roll exch put } for
+polymodshift2 0 1 polymodulus length 1 sub { 3 copy get code exch get 3 2 roll exch put } for
 pop
 /Courier findfont 8 scalefont setfont
 show
@@ -560,7 +563,7 @@ moveto (Bech32 Checksum Worksheet for donotusesss32 Prefix) centreshow
 100 650
 0 1 39 {
 3 copy pop
-0 1 4 index 2 mod 0 eq {7} {5} ifelse {
+0 1 4 index 2 mod 0 eq {polymodulus length 1 add} {polymodulus length 1 sub} ifelse {
 3 copy pop
 moveto
 -0.5 -1.9 rmoveto
@@ -568,7 +571,7 @@ moveto
 arraySpace 0 rlineto
 0 -10 rlineto
 closepath
-dup 6 lt {0.2} {1} ifelse setlinewidth
+dup polymodulus length lt {0.2} {1} ifelse setlinewidth
 3 index dup 2 mod 0 eq 3 1 roll add 40 ge and { gsave 1 0.9 0.9 setrgbcolor fill grestore } if
 stroke
 exch arraySpace add exch
@@ -577,12 +580,12 @@ pop pop
 2 mod 0 eq
  { 10 sub exch arraySpace 2 mul add exch}
  {
- 2 copy moveto -0.5 -1.9 rmoveto arraySpace 6 mul 0 rlineto 1 setlinewidth stroke
+ 2 copy moveto -0.5 -1.9 rmoveto arraySpace polymodulus length mul 0 rlineto 1 setlinewidth stroke
  10 sub
  } ifelse
 } for
 2 copy
-6 {
+polymodulus length {
 2 copy
 moveto
 -0.5 -1.9 rmoveto
@@ -596,7 +599,7 @@ exch arraySpace add exch
 } repeat
 pop pop
 0.85 setgray
-[0 0 0 0 0 1] showArray
+checksum showArray
 0 setgray
 
 100 650
@@ -611,7 +614,7 @@ exch
  5 3 roll 10 sub 5 1 roll arraySpace 2 mul add 5 1 roll
  5 copy
  pop pop 0 2 getinterval aload pop polymodshift2 dup 4 1 roll showArray
- [ 5 4 roll 2 4 getinterval aload pop 7 index 7 index 2 getinterval aload pop ] gf32addarray exch pop exch
+ [ 5 4 roll 2 polymodulus length 2 sub getinterval aload pop polymodulus length 1 add index polymodulus length 1 add index 2 getinterval aload pop ] gf32addarray exch pop exch
  4 2 roll 10 sub 4 2 roll
 } for
 pop
@@ -630,7 +633,7 @@ showArray
 100 370 moveto
 (the first two characters of each odd row in the) show
 100 360 moveto
-(Bech32 Checksum Table and write the 6) show
+(Bech32 Checksum Table and write the ) polymodulus length 10 string cvs concatstrings show
 100 350 moveto
 (character word into the even row below it.  Fill) show
 100 340 moveto
@@ -642,7 +645,7 @@ showArray
 100 310 moveto
 (already filled in for you.  The last row will sum) show
 100 300 moveto
-(to QQQQQP if the checksum is valid.) show
+(to ) checksumstring ( if the checksum is valid.) concatstrings concatstrings show
 100 260 moveto
 /Helvetica-bold findfont 10 scalefont setfont
 (Creating Checksums) show
@@ -652,7 +655,7 @@ showArray
 100 230 moveto
 (to fill in everything but the pink cells. To fill in) show
 100 220 moveto
-(the pink cells, write QQQQQP into the bottom) show
+(the pink cells, write ) checksumstring ( into the bottom) concatstrings concatstrings show
 100 210 moveto
 (row.  Working from the bottom up, fill in the) show
 100 200 moveto
