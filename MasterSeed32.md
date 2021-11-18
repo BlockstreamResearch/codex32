@@ -39,7 +39,7 @@ SLIP-0039 also directly contains a two-level sharing scheme, while a companion s
 This specification reuses the Bech32 character set encoding from [BIP-173](https://en.bitcoin.it/wiki/BIP_0173) to encode the shares.
 Following the Bech32 format, a MS32 string consists of:
 
-* A human-readable part, which is the string "ms32" or "MS32".
+* A human-readable part, which is the string "ms" or "MS".
 * A separator, which is always "1".
 * A data part which is in turn subdivided into:
   + A threshold parameter, which is a single digit between "2" and "9", or the digit "0".  Note that the digit "0" only occurs in the unshared format (see section "Unshared Secret").
