@@ -42,22 +42,46 @@ Following the Bech32 format, a MS32 string consists of:
 * A human-readable part, which is the string "ms32" or "MS32".
 * A separator, which is always "1".
 * A data part which is in turn subdivided into:
-  + A threshold parameter, which is a single digit between "2" and "9", or the digit "0" which is only allowed in the unshared format (see section "Unshared Secret").
-  + A "unique" identifier consisting of 3 Bech32 characters.
-  + A share index, which is any Bech32 character.  Note that the a share index value of "S" is special and denotes the unshared format (see section "Unshared Secret").
-  + A secret share which is 16 to 32 bytes encoded as a sequence of 26 to 52 Bech32 characters using the same procedure as Bech32's segwit address format.
+  + A threshold parameter, which is a single digit between "2" and "9", or the digit "0".  Note that the digit "0" only occurs in the unshared format (see section "Unshared Secret").
+  + A "unique" identifier consisting of 4 Bech32 characters.
+  + A share index, which is any Bech32 character.  Note that the a share index value of "S" (or "s")  is special and denotes the unshared format (see section "Unshared Secret").
+  + A secret share which is a sequence of upto 74 Bech32 characters.
   + A checksum which consists of 13 Bech32 characters as described below.
 
 As with Bech32 strings, a MS32 string must be entirely uppercase or entirely lowercase, with lowercase being the canonical choice.
 
 ### Checksum
 
-## Recovery
+```python
+MS32_CONST = 0x10ce0795c2fd1e62a
+
+def ms32_polymod(values):
+  GEN = [0x0af3b408f2522e8d6, 0x14af3a05c5ad57585, 0x011c660b2f5aa4f0a, 0x0232de02dbbd0bf34, 0x0465bc05167317b61]
+  chk = 0x3181b3
+  for v in values:
+    b = (chk >> 60)
+    chk = (chk & 0x0fffffffffffffff) << 5 ^ v
+    for i in range(5):
+      chk ^= GEN[i] if ((b >> i) & 1) else 0
+  return chk
+
+def ms32_verify_checksum(data):
+  return ms32_polymod(data) == MS32_CONST
+
+def ms32_create_checksum(data):
+  values = data
+  polymod = ms32_polymod(values + [0] * 13) ^ MS32_CONST
+  return [(polymod >> 5 * (12 - i)) & 31 for i in range(13)]
+```
+
+### Correcting Errors
 
 ## Unshared Secret
 
+## Recovering Master Seed
+
 ## Generating Shares
 
-### Sharing existing master seed
+### For an existing master seed
 
-### Generating a fresh master seed
+### For a fresh master seed
