@@ -76,6 +76,7 @@
 % /code2 (\300abcdefghijklmnopqrstuvwxyz\247\250\251\252\245) def
 /perm [29 24 13 25 9 8 23 18 22 31 27 19 1 0 3 16 11 28 12 14 6 4 2 15 10 17 21 20 26 30 7 5 ] def
 /permS [16 29 24 13 25 9 8 23 18 22 31 27 19 1 0 3 11 28 12 14 6 4 2 15 10 17 21 20 26 30 7 5 ] def
+/permV [22 11 10 29 31 28 17 24 27 12 21 13 19 14 20 25 1 6 26 9 0 4 30 8 3 2 7 23 16 15 5 18 ] def
 % Generator for GF(32) is alpha^5 = alpha^3 + 1
 
 /gf32add % x y -> x [+] y where [+] is addition in GF32.
@@ -290,7 +291,7 @@ end
        perm {
            0 2 index 2 add sqrt 40 mul moveto % move to 0, 2.5 + 40*sqrt(outer index + 2)
            1 index 31 exch sub % 31 - outer index
-           perm exch get binop % apply binary operation to the permuted letter and the inner index
+           permV exch get binop % apply binary operation to the permuted letter and the inner index
            code exch 1 getinterval centreshow % display the result
            -11.25 rotate % rotate by 1/32nd of a circle
        } forall pop
@@ -328,7 +329,7 @@ end
        9 -3 rmoveto % Move to the right
        (\254) /Symbol findfont 12 scalefont setfont show % Draw a left-arrow
        31 exch sub % 31 - loop index
-       perm exch get code exch 1 getinterval % Permute index and extract 1-char substring of alphabet
+       permV exch get code exch 1 getinterval % Permute index and extract 1-char substring of alphabet
        /Courier findfont 12 scalefont setfont show % ...and draw it
    } for
    showpage
