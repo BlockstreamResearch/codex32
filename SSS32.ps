@@ -326,11 +326,11 @@ end
        2 copy moveto
        12 centresquare % draw square
        moveto % return to midpoint
-       9 -3 rmoveto % Move to the right
-       (\254) /Symbol findfont 12 scalefont setfont show % Draw a left-arrow
+       -26 -3 rmoveto % Move to the left
        31 exch sub % 31 - loop index
        permV exch get code exch 1 getinterval % Permute index and extract 1-char substring of alphabet
        /Courier findfont 12 scalefont setfont show % ...and draw it
+       (\256) /Symbol findfont 12 scalefont setfont show % Draw a right arrow
    } for
    showpage
  } bind def
