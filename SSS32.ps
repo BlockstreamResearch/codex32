@@ -286,7 +286,7 @@ end
    /Courier findfont 12 scalefont setfont
    180 rotate
    0 1 31 { % Draw 32 circles of increasing radius
-       139 rotate
+       94 rotate
        perm {
            0 2 index 2 add sqrt 40 mul moveto % move to 0, 2.5 + 40*sqrt(outer index + 2)
            1 index 31 exch sub % 31 - outer index
@@ -318,7 +318,7 @@ end
    /Courier findfont 12 scalefont setfont
    180 rotate
    0 1 31 {
-       139 rotate
+       94 rotate
        dup 2 add sqrt 40 mul 2.5 add % lam = 2.5 + 40*sqrt(idx + 2)
        newpath
        0 exch % set midpoint: 0 lam
