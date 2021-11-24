@@ -63,7 +63,7 @@ To construct a valid checksum given the data-part characters (excluding the chec
 MS32_CONST = 0x10ce0795c2fd1e62a
 
 def ms32_polymod(values):
-  GEN = [0x0af3b408f2522e8d6, 0x14af3a05c5ad57585, 0x011c660b2f5aa4f0a, 0x0232de02dbbd0bf34, 0x0465bc05167317b61]
+  GEN = [0x1f28f80fffe92f842, 0x1751a20bdef255484, 0x07a316039ceda0d08, 0x0e0e2c0739da09a10, 0x1c164a0e739d13129]
   residue = 0x3181b3
   for v in values:
     b = (residue >> 60)
