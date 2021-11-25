@@ -164,9 +164,8 @@
   { [ 3 1 roll 0 1 2 index length 1 sub { 2 index 1 index get 2 index 2 index get gf32add exch pop 3 1 roll } for pop pop ]
   } bind def
 
-% /polymodulus [18 29 21 20 22 29] def % coefficents from c0 to c5
 /polymodulus [29 22 20 21 29 18] def % coefficents from c5 to c0
-% /polymodulus [10 30 14 26 0 17 28 18 18 5 26 6 22] def % coefficents from c12 to c0
+% /polymodulus [31 5 3 28 0 31 31 31 9 5 30 2 2] def % coefficents from c12 to c0
 /checksum {[polymodulus length 1 sub {0} repeat 1]} bind def
 /checksumstring { polymodulus length string checksum 0 1 polymodulus length 1 sub {3 copy exch 1 index get code exch 1 getinterval putinterval pop } for pop } bind def
 
@@ -377,7 +376,27 @@ showpage
 
 /arraySpace 8 def
 /showArray {
-  { 3 copy pop moveto code exch 1 getinterval show exch arraySpace add exch } forall pop pop
+  10 dict begin
+  { /word /y /x } {exch def} forall
+  word { x y moveto code exch 1 getinterval show
+         /x x arraySpace add def
+       } forall
+  end
+} bind def
+
+/showBox {
+  10 dict begin
+  { /word /y /x /decoration } {exch def} forall
+  word length 1 neg 1
+    { x y moveto decoration
+      /x x arraySpace add def
+    } for
+  end
+} bind def
+
+/showArrayBox {
+  4 copy showBox
+  showArray pop
 } bind def
 
 %%Pages: 20
@@ -592,71 +611,57 @@ pop
 showpage
 
 %%Page: 20 20
+/hrp (donotusesss32) def
+% /hrp (ms) def
+/box { -0.5 -1.9 rmoveto
+       0 10 rlineto
+       arraySpace 0 rlineto
+       0 -10 rlineto
+       closepath
+       setlinewidth
+       le { gsave 1 0.9 0.9 setrgbcolor fill grestore } if
+       stroke
+     } bind def
+/thick 1 def
+/thin 0.2 def
 /Helvetica-Bold findfont 10 scalefont setfont
 pgsize 40 sub exch 2 div exch
-moveto (Bech32 Checksum Worksheet for donotusesss32 Prefix) centreshow
+moveto (Bech32 Checksum Worksheet for ) hrp ( Prefix) concatstrings concatstrings centreshow
 
 /Courier findfont 12 scalefont setfont
 
-100 650
-0 1 39 {
-3 copy pop
-0 1 4 index 2 mod 0 eq {polymodulus length 1 add} {polymodulus length 1 sub} ifelse {
-3 copy pop
-moveto
--0.5 -1.9 rmoveto
-0 10 rlineto
-arraySpace 0 rlineto
-0 -10 rlineto
-closepath
-dup polymodulus length lt {0.2} {1} ifelse setlinewidth
-3 index dup 2 mod 0 eq 3 1 roll add 40 ge and { gsave 1 0.9 0.9 setrgbcolor fill grestore } if
-stroke
-exch arraySpace add exch
-} for
-pop pop
-2 mod 0 eq
- { 10 sub exch arraySpace 2 mul add exch}
- {
- 2 copy moveto -0.5 -1.9 rmoveto arraySpace polymodulus length mul 0 rlineto 1 setlinewidth stroke
- 10 sub
- } ifelse
-} for
-2 copy
-polymodulus length {
-2 copy
-moveto
--0.5 -1.9 rmoveto
-0 10 rlineto
-arraySpace 0 rlineto
-0 -10 rlineto
-closepath
-0.25 setlinewidth
-stroke
-exch arraySpace add exch
-} repeat
-pop pop
-0.85 setgray
-checksum showArray
-0 setgray
-
-100 650
+120 650
 % [16 10 19 29 27 25 15 15 22 25 25 1 16 25 24 3 25 11 27 29 16 11 25 3 16 25 25 13 16 25 24 28 3 25 18 10 11 3 16 1] % s2name00keepsecretmasterseedsecurej2trsp
 [ 40 {32} repeat ]
-(donotusesss32) polymodhrp
-exch
-0 2 2 index length 1 sub {
- 5 copy
- [ 4 1 roll 2 getinterval exch aload length dup 1 add exch roll aload pop ]
- showArray
- 5 3 roll 10 sub 5 1 roll arraySpace 2 mul add 5 1 roll
- 5 copy
- pop pop 0 2 getinterval aload pop polymodshift2 dup 4 1 roll showArray
- [ 5 4 roll 2 polymodulus length 2 sub getinterval aload pop polymodulus length 1 add index polymodulus length 1 add index 2 getinterval aload pop ] gf32addarray exch pop exch
- 4 2 roll 10 sub 4 2 roll
-} for
-pop
-showArray
+10 dict begin
+{ /codeword /y /x } {exch def} forall
+/odd polymodulus length codeword length add 2 mod def
+/n polymodulus length odd sub def
+  {0 thick box} x arraySpace odd mul add y codeword 0 n getinterval showArrayBox
+/y y 10 sub def
+/reduction [hrp polymodhrp aload pop n {0} repeat ] polymod0 def
+  {0 thin box} x arraySpace odd mul add y reduction odd n getinterval showArrayBox
+/y y 10 sub def
+/residue reduction [1 odd eq {0} if codeword 0 n getinterval aload pop ] gf32addarray def
+
+{
+n codeword length ge {exit} if
+  {n polymodulus length add codeword length sub thin box} x y residue showArrayBox
+  {n 2 add polymodulus length add codeword length sub thick box} x arraySpace polymodulus length mul add y codeword n 2 getinterval showArrayBox
+  /x x arraySpace 2 mul add def
+  /y y 10 sub def
+  /reduction residue 0 2 getinterval aload pop polymodshift2 def
+  {0 thin box} x y reduction showArrayBox
+  /y y 10 sub def
+  /residue reduction [residue 2 polymodulus length 2 sub getinterval aload pop codeword n 2 getinterval aload pop] gf32addarray def
+  /n n 2 add def
+} loop
+
+gsave 0.85 setgray x y checksum showArray grestore
+{0 thin box} x y residue showArrayBox
+
+
+end
 
 100 420 moveto
 /Helvetica-bold findfont 10 scalefont setfont
@@ -691,15 +696,15 @@ showArray
 /Helvetica findfont 9 scalefont setfont
 (Follow the "Verifying Checksums" instructions) show
 100 230 moveto
-(to fill in everything but the pink cells. To fill in) show
+(to fill in everything but the shaded cells. To fill in) show
 100 220 moveto
-(the pink cells, write ) checksumstring ( into the bottom) concatstrings concatstrings show
+(the shaded cells, write ) checksumstring ( into the bottom) concatstrings concatstrings show
 100 210 moveto
 (row.  Working from the bottom up, fill in the) show
 100 200 moveto
-(pink cells by adding the two characters below) show
+(shaded cells by adding the two characters below) show
 100 190 moveto
-(each cell.  The six characters in the bold pink) show
+(each cell.  The six characters in the bold shaded) show
 100 180 moveto
 (boxes will be the checksum.) show
 
