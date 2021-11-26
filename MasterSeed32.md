@@ -64,7 +64,7 @@ MS32_CONST = 0x10ce0795c2fd1e62a
 
 def ms32_polymod(values):
   GEN = [0x1f28f80fffe92f842, 0x1751a20bdef255484, 0x07a316039ceda0d08, 0x0e0e2c0739da09a10, 0x1c164a0e739d13129]
-  residue = 0x3181b3
+  residue = 0x23181b3
   for v in values:
     b = (residue >> 60)
     residue = (residue & 0x0fffffffffffffff) << 5 ^ v
