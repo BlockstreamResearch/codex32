@@ -1,6 +1,7 @@
-%!PS-Adobe-2.0
+%!PS-Adobe-3.0
+%%Orientation: Portrait
 (SSS32)
-(revision alpha-4.1)
+(revision alpha-4.2)
 [
 (MIT License)
 ()
@@ -373,7 +374,7 @@ page exch perm 3 index get exch  makeShare code exch 1 getinterval show
 showpage
 } bind def
 
-/arraySpace 8 def
+/arraySpace 13 def
 /showArray {
   10 dict begin
   { /word /y /x } {exch def} forall
@@ -398,6 +399,9 @@ showpage
   showArray pop
 } bind def
 
+%%BeginSetup
+  << /Orientation 0 >> setpagedevice
+%%EndSetup
 %%Pages: 20
 %%Page: 1 1
 /Helvetica findfont 6 scalefont setfont
@@ -610,11 +614,16 @@ pop
 showpage
 
 %%Page: 20 20
+%%PageOrientation: Landscape
+%%BeginPageSetup
+  << /Orientation 3 >> setpagedevice
+  90 rotate 0 -750 translate
+%%EndPageSetup
 /hrp (ms) def
-/box { -0.5 -1.9 rmoveto
-       0 10 rlineto
+/box { -1.2 -1.9 rmoveto
+       0 14 rlineto
        arraySpace 0 rlineto
-       0 -10 rlineto
+       0 -14 rlineto
        closepath
        setlinewidth
        le { gsave 1 0.9 0.9 setrgbcolor fill grestore } if
@@ -623,12 +632,12 @@ showpage
 /thick 1 def
 /thin 0.2 def
 /Helvetica-Bold findfont 10 scalefont setfont
-pgsize 40 sub exch 2 div exch
+pgsize exch pop 2 div 700
 moveto (ms32 Checksum Worksheet) centreshow
 
-/Courier findfont 12 scalefont setfont
+/Courier findfont 17 scalefont setfont
 
-120 650
+120 670
 % [10 29 19 13 4 16 20 8 16 7 4 13 6 8 27 31 28 14 17 21 31 25 19 15 1 3 13 29 22 5 8 31 9 17 15 30 19 15 21 16 19 26 16 22 31]
 [ 45 {32} repeat ]
 10 dict begin
@@ -636,10 +645,10 @@ moveto (ms32 Checksum Worksheet) centreshow
 /odd polymodulus length codeword length add 2 mod def
 /n polymodulus length odd sub def
   {0 thick box} x arraySpace odd mul add y codeword 0 n getinterval showArrayBox
-/y y 10 sub def
+/y y 14 sub def
 /reduction [hrp polymodhrp aload pop n {0} repeat ] polymod0 def
   {0 thin box} x arraySpace odd mul add y reduction odd n getinterval showArrayBox
-/y y 11 sub def
+/y y 15 sub def
 /residue reduction [1 odd eq {0} if codeword 0 n getinterval aload pop ] gf32addarray def
 
 {
@@ -647,10 +656,10 @@ n codeword length ge {exit} if
   {n polymodulus length add codeword length sub thin box} x y residue showArrayBox
   {n 2 add polymodulus length add codeword length sub thick box} x arraySpace polymodulus length mul add y codeword n 2 getinterval showArrayBox
   /x x arraySpace 2 mul add def
-  /y y 10 sub def
+  /y y 14 sub def
   /reduction residue 0 2 getinterval aload pop polymodshift2 def
   {0 thin box} x y reduction showArrayBox
-  /y y 11 sub def
+  /y y 15 sub def
   /residue reduction [residue 2 polymodulus length 2 sub getinterval aload pop codeword n 2 getinterval aload pop] gf32addarray def
   /n n 2 add def
 } loop
@@ -706,7 +715,7 @@ end
 100 180 moveto
 (boxes will be the checksum.) show
 
-250 650
+450 650
 /offsety exch def
 /offsetx exch def
 /Courier findfont 10 scalefont setfont
