@@ -1,5 +1,8 @@
 %!PS-Adobe-3.0
 %%Orientation: Portrait
+%%Pages: 20
+%%EndComments
+%%BeginSetup
 (SSS32)
 (revision alpha-4.2)
 [
@@ -398,11 +401,8 @@ showpage
   4 copy showBox
   showArray pop
 } bind def
-
-%%BeginSetup
-  << /Orientation 0 >> setpagedevice
 %%EndSetup
-%%Pages: 20
+
 %%Page: 1 1
 /Helvetica findfont 6 scalefont setfont
 40 750 moveto
@@ -615,10 +615,7 @@ showpage
 
 %%Page: 20 20
 %%PageOrientation: Landscape
-%%BeginPageSetup
-  << /Orientation 3 >> setpagedevice
-  90 rotate 0 -750 translate
-%%EndPageSetup
+90 rotate 0 -750 translate
 /hrp (ms) def
 /box { -1.2 -1.9 rmoveto
        0 14 rlineto
@@ -738,3 +735,4 @@ perm exch get
 perm 2 index get gf32add code exch 1 getinterval show
 } for pop } for
 showpage
+%%EOF
