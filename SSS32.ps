@@ -1,6 +1,6 @@
 %!PS-Adobe-2.0
 (SSS32)
-(revision alpha-3.6)
+(revision alpha-4.0)
 [
 (MIT License)
 ()
@@ -164,9 +164,8 @@
   { [ 3 1 roll 0 1 2 index length 1 sub { 2 index 1 index get 2 index 2 index get gf32add exch pop 3 1 roll } for pop pop ]
   } bind def
 
-/polymodulus [29 22 20 21 29 18] def % coefficents from c5 to c0
-% /polymodulus [31 5 3 28 0 31 31 31 9 5 30 2 2] def % coefficents from c12 to c0
-/checksum {[polymodulus length 1 sub {0} repeat 1]} bind def
+/polymodulus [31 5 3 28 0 31 31 31 9 5 30 2 2] def % coefficents from c12 to c0
+/checksum [16 25 24 3 25 11 16 23 29 3 25 17 10] def
 /checksumstring { polymodulus length string checksum 0 1 polymodulus length 1 sub {3 copy exch 1 index get code exch 1 getinterval putinterval pop } for pop } bind def
 
 /polymod0 % array -> [ c5 c4 c3 c2 c1 c0 ]
@@ -611,8 +610,7 @@ pop
 showpage
 
 %%Page: 20 20
-/hrp (donotusesss32) def
-% /hrp (ms) def
+/hrp (ms) def
 /box { -0.5 -1.9 rmoveto
        0 10 rlineto
        arraySpace 0 rlineto
@@ -631,8 +629,8 @@ moveto (Bech32 Checksum Worksheet for ) hrp ( Prefix) concatstrings concatstring
 /Courier findfont 12 scalefont setfont
 
 120 650
-% [16 10 19 29 27 25 15 15 22 25 25 1 16 25 24 3 25 11 27 29 16 11 25 3 16 25 25 13 16 25 24 28 3 25 18 10 11 3 16 1] % s2name00keepsecretmasterseedsecurej2trsp
-[ 40 {32} repeat ]
+% [10 29 19 13 4 16 20 8 16 7 4 13 6 8 27 31 28 14 17 21 31 25 19 15 1 3 13 29 22 5 8 31 9 17 15 30 19 15 21 16 19 26 16 22 31]
+[ 45 {32} repeat ]
 10 dict begin
 { /codeword /y /x } {exch def} forall
 /odd polymodulus length codeword length add 2 mod def
@@ -641,7 +639,7 @@ moveto (Bech32 Checksum Worksheet for ) hrp ( Prefix) concatstrings concatstring
 /y y 10 sub def
 /reduction [hrp polymodhrp aload pop n {0} repeat ] polymod0 def
   {0 thin box} x arraySpace odd mul add y reduction odd n getinterval showArrayBox
-/y y 10 sub def
+/y y 11 sub def
 /residue reduction [1 odd eq {0} if codeword 0 n getinterval aload pop ] gf32addarray def
 
 {
@@ -652,7 +650,7 @@ n codeword length ge {exit} if
   /y y 10 sub def
   /reduction residue 0 2 getinterval aload pop polymodshift2 def
   {0 thin box} x y reduction showArrayBox
-  /y y 10 sub def
+  /y y 11 sub def
   /residue reduction [residue 2 polymodulus length 2 sub getinterval aload pop codeword n 2 getinterval aload pop] gf32addarray def
   /n n 2 add def
 } loop
