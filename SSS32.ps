@@ -4,7 +4,7 @@
 %%EndComments
 %%BeginSetup
 (SSS32)
-(revision alpha-4.2)
+(revision alpha-4.3)
 [
 (MIT License)
 ()
@@ -637,7 +637,7 @@ showpage
 /labeledbox {
   10 dict begin
   { /beginred /n } {exch def} forall
-  /n n 1 add def % convert from computer index to human index
+  /n n hrp length add 2 add def
   gsave
     n beginred thick box
   grestore
@@ -659,8 +659,9 @@ moveto (ms32 Checksum Worksheet) centreshow
 [ 45 {32} repeat ]
 10 dict begin
 { /codeword /y /x } {exch def} forall
+x y moveto hrp (1) concatstrings dup stringwidth pop neg 3 sub 0 rmoveto show
 /odd polymodulus length codeword length add 2 mod def
-/edge codeword length polymodulus length sub 1 add def
+/edge codeword length polymodulus length sub hrp length add 2 add def
 /k polymodulus length odd sub def
   {edge labeledbox} x arraySpace odd mul add y codeword 0 k showArrayBox
 /y y 14 sub def
