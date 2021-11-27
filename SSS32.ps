@@ -1,6 +1,6 @@
 %!PS-Adobe-3.0
 %%Orientation: Portrait
-%%Pages: 20
+%%Pages: 21
 %%EndComments
 %%BeginSetup
 (SSS32)
@@ -34,7 +34,8 @@
 (You will lose this document and come back here only to find that I have made incompatible changes,)
 (and your data is lost forever. Even if you don't lose this document, there is no warranty or)
 (guarantee of any kind that you will be able to recover successfully recover your data.)
-()
+]
+[
 (MATERIALS: Scissors, X-Acto knife, brass fasteners)
 ()
 (CONSTRUCTION:)
@@ -65,20 +66,26 @@
 ()
 (SECRET RECOVERY:)
 (Find 2 of your secured shares.)
-(Find the pair of the share names you have in the Recovery Table to find their two associated recovery symbols.)
-(Translate each share, character by character, by setting the Recovery disc's dial to the associated symbol found above.)
-(Add the two translated shares, character by character, using the Addition disc. The result is your secret share S.)
+(Make sure all your shares have the same identifier and a valid checksum (see checksum worksheet).)
+(Dial the recover share disc to the share index of the first secured share (the 5th character).)
+(Look up the symbol associated with the share index of the other share.)
+(Set your translation disc to that symbol and translate the first secured share by looking up every charater in turn.)
+(Dial the recover share disc to the share index of the second secured share (the 5th character).)
+(Look up the symbol associated with the share index of the first share.)
+(Set your translation disc to that symbol and translate the second secured share by looking up every charater in turn.)
+(Add the two translated shares, character by character, using the Addition disc.)
+(The result is your secret share and will have share index S and a valid checksum.)
 ]
 /README exch def
+/warning exch def
 /MIT exch def
 /ver exch def
 /name exch def
 
 /pgsize {612 792} def % letter size
-/magic 94 def
+/magic 94 def % a magic angle for making nice looking spirals.
 /code (QPZRY9X8GF2TVDW0S3JN54KHCE6MUA7L ) def
-% /code2 (cj\245y*q\252hxnav\250l\251\300wbpudgrokmet\247izs ) def
-/code2 (\245\300abcdefghijklmnopqrstuvwxyz\247\250\251\252 ) def
+/code2 (\245\300abcdefghijklmnopqrstuvwxyz\247\250\251\252 \264) def
 /perm [29 24 13 25 9 8 23 18 22 31 27 19 1 0 3 16 11 28 12 14 6 4 2 15 10 17 21 20 26 30 7 5 ] def
 /permS [16 29 24 13 25 9 8 23 18 22 31 27 19 1 0 3 11 28 12 14 6 4 2 15 10 17 21 20 26 30 7 5 ] def
 /permV [22 11 10 29 31 28 17 24 27 12 21 13 19 14 20 25 1 6 26 9 0 4 30 8 3 2 7 23 16 15 5 18 ] def
@@ -144,11 +151,11 @@
  {                % let P = product [(x [-] x[m]) [/] (xj [-] x[m]) | m <- [0..i-1], x[m] /= xj]
                   % P x[i]
    /xi exch def   % P
-   xi xj xor      % P (xj [-] x[i])
+   xi xj gf32add  % P (xj [-] x[i])
    dup 0 eq       % P (xj [-] x[i]) (xj [-] x[i] == 0)
-   { pop }             % P
-   { gf32inv gf32mul   % (P [/] (xj [-] x[i])
-     xi x xor gf32mul  % (P [*] (x [-] x[i]) [/] (xj [-] x[i]))
+   { pop }                 % P
+   { gf32inv gf32mul       % (P [/] (xj [-] x[i])
+     xi x gf32add gf32mul  % (P [*] (x [-] x[i]) [/] (xj [-] x[i]))
    }
    ifelse         % (if xj == x[i] then P else (P [*] (x [-] x[i]) [/] (xj [-] x[i]))
  } forall       % x xj (product [(x [-] x[m]) [/] (xj [-] x[m]) | m <- [0..k], x[m] /= xj])
@@ -275,8 +282,12 @@ circtextdict begin
 end
 
 /drawBottomWheelPage
- {
+ { 10 dict begin
    /outerperm exch def
+   /outercode exch def
+   /outerfont exch def
+   /innercode exch def
+   /innerfont exch def
    /title exch def
    /binop exch def
    /angle 360 outerperm length div neg def
@@ -298,18 +309,19 @@ end
    outerfont findfont 18 scalefont setfont
    outerperm {0 38 sqrt 40 mul moveto outercode exch 1 getinterval centreshow angle rotate} forall
    % Draw inside contents
-   /Courier findfont 12 scalefont setfont
+   innerfont findfont 12 scalefont setfont
    180 rotate
    0 1 31 { % Draw 32 circles of increasing radius
        magic rotate
        outerperm {
            0 2 index 2 add sqrt 40 mul moveto % move to 0, 2.5 + 40*sqrt(outer index + 2)
-           1 index 31 exch sub % 31 - outer index
+           1 index 31 exch sub % 31 - inner index
            permV exch get binop % apply binary operation to the permuted letter and the inner index
-           code exch 1 getinterval centreshow % display the result
+           innercode exch 1 getinterval centreshow % display the result
            angle rotate % rotate one entry
        } forall pop
    } for
+   end
  } bind def
 
 /showTopWheelPage
@@ -417,8 +429,12 @@ MIT {gsave show grestore 0 -8 rmoveto} forall
 0 -22 rmoveto
 gsave name show grestore 0 -12 rmoveto
 /Helvetica findfont 10 scalefont setfont
-gsave ver show grestore 0 -24 rmoveto
-README {gsave show grestore 0 -12 rmoveto} forall
+gsave ver show grestore 0 -16 rmoveto
+/Helvetica findfont 6 scalefont setfont
+warning {gsave show grestore 0 -7 rmoveto} forall
+0 -16 rmoveto
+/Helvetica findfont 8 scalefont setfont
+README {gsave show grestore 0 -10 rmoveto} forall
 showpage
 
 %%Page: 2 2
@@ -516,28 +532,21 @@ DL F1 15(123456)98 146 S 214 150.5 72 150.5 DL 214 152.5 72 152.5 DL 36
 136.5 132.5 236.5 DL 111.5 136.5 111.5 236.5 DL 89.5 136.5 89.5 236.5 DL
 91.5 136.5 91.5 236.5 DL 214 136.5 214 236.5 DL 72 136.5 72 236.5 DL
 
-/row12 code2 0 1 [1 2] lagrange 1 getinterval code2 0 2 [1 2] lagrange 1 getinterval concatstrings def
-/row13 code2 0 1 [1 3] lagrange 1 getinterval code2 0 3 [1 3] lagrange 1 getinterval concatstrings def
-/row23 code2 0 2 [2 3] lagrange 1 getinterval code2 0 3 [2 3] lagrange 1 getinterval concatstrings def
-
-(Recovery Table) 29 256 Q
-2 1 31 { 1 1 2 index 1 sub { 1 index exch
-dup 19 mul 10 add 2 index 12 mul 244 add moveto
-/F0 5/Courier SF
-code 2 index permS exch get 1 getinterval code 2 index permS exch get 1 getinterval concatstrings (:) concatstrings show
-dup 19 mul 10 9 add add 2 index 12 mul 244 add moveto
-permS exch get exch permS exch get exch
-/F0 5/Symbol SF
-[ 3 1 roll ] dup permS 0 get exch dup 0 get exch lagrange code2 exch 1 getinterval ( ) exch concatstrings
-            exch permS 0 get exch dup 1 get exch lagrange code2 exch 1 getinterval concatstrings show
-} for pop } for
-
 0 Cg EP
 
 %%Page: 3 3
+{ 10 dict begin
+  /in exch def
+  /out exch def
+  16 out [ in out ] lagrange
+  dup 1 le {pop 33} if
+  end
+}
+(Recover Share) /Symbol code2 /Courier code [ 32 permS 1 31 getinterval aload pop ] drawBottomWheelPage
+showpage
+
+%%Page: 4 4
 % note 0 and 1 are never used, so they are removed from the wheel.
-/outerfont /Symbol def
-/outercode code2 def
 gsave
 pgsize 2 div exch 2 div exch translate
 360 64 div rotate
@@ -546,50 +555,41 @@ pgsize 2 div exch 2 div exch translate
   360 16 div rotate
 } repeat
 grestore
-{gf32mul} (Recovery Translation) [32 32 2 1 31 {} for] drawBottomWheelPage
+{gf32mul} (Translation) /Courier code /Symbol code2 [32 32 2 1 31 {} for] drawBottomWheelPage
 showpage
 
-%%Page: 4 4
-/outerfont /Courier def
-/outercode code def
-{xor} (Addition) perm drawBottomWheelPage showpage
-
 %%Page: 5 5
-29 24 13 25 showShareTablePage
+{xor} (Addition) /Courier code 2 copy perm drawBottomWheelPage showpage
 
 %%Page: 6 6
-9 8 23 18 showShareTablePage
+29 24 13 25 showShareTablePage
 
 %%Page: 7 7
-22 31 27 19 showShareTablePage
+9 8 23 18 showShareTablePage
 
 %%Page: 8 8
-1 0 3 16 showShareTablePage
+22 31 27 19 showShareTablePage
 
 %%Page: 9 9
-11 28 12 14 showShareTablePage
+1 0 3 16 showShareTablePage
 
 %%Page: 10 10
-6 4 2 15 showShareTablePage
+11 28 12 14 showShareTablePage
 
 %%Page: 11 11
-10 17 21 20 showShareTablePage
+6 4 2 15 showShareTablePage
 
 %%Page: 12 12
-26 30 7 5 showShareTablePage
+10 17 21 20 showShareTablePage
 
 %%Page: 13 13
-/outerfont /Courier def
-/outercode code def
-{24 makeShare} (Make Share ) code 24 1 getinterval concatstrings perm drawBottomWheelPage showpage
+26 30 7 5 showShareTablePage
 
 %%Page: 14 14
-/outerfont /Courier def
-/outercode code def
-{13 makeShare} (Make Share ) code 13 1 getinterval concatstrings perm drawBottomWheelPage showpage
+{24 makeShare} (Make Share ) code 24 1 getinterval concatstrings /Courier code 2 copy perm drawBottomWheelPage showpage
 
 %%Page: 15 15
-showTopWheelPage
+{13 makeShare} (Make Share ) code 13 1 getinterval concatstrings /Courier code 2 copy perm drawBottomWheelPage showpage
 
 %%Page: 16 16
 showTopWheelPage
@@ -601,6 +601,9 @@ showTopWheelPage
 showTopWheelPage
 
 %%Page: 19 19
+showTopWheelPage
+
+%%Page: 20 20
 /Helvetica-bold findfont 10 scalefont setfont
 pgsize 40 sub exch 2 div exch
 moveto (ms32 Checksum Table) centreshow
@@ -628,7 +631,7 @@ pop
 } for
 showpage
 
-%%Page: 20 20
+%%Page: 21 21
 %%PageOrientation: Landscape
 90 rotate 0 -750 translate
 /hrp (ms) def
