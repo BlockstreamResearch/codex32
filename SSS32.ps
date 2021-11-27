@@ -4,7 +4,7 @@
 %%EndComments
 %%BeginSetup
 (SSS32)
-(revision alpha-4.3)
+(revision alpha-4.4)
 [
 (MIT License)
 ()
@@ -75,9 +75,10 @@
 /name exch def
 
 /pgsize {612 792} def % letter size
+/magic 94 def
 /code (QPZRY9X8GF2TVDW0S3JN54KHCE6MUA7L ) def
-/code2 (cj\245y*q\252hxnav\250l\251\300wbpudgrokmet\247izs ) def
-% /code2 (\300abcdefghijklmnopqrstuvwxyz\247\250\251\252\245) def
+% /code2 (cj\245y*q\252hxnav\250l\251\300wbpudgrokmet\247izs ) def
+/code2 (\245\300abcdefghijklmnopqrstuvwxyz\247\250\251\252 ) def
 /perm [29 24 13 25 9 8 23 18 22 31 27 19 1 0 3 16 11 28 12 14 6 4 2 15 10 17 21 20 26 30 7 5 ] def
 /permS [16 29 24 13 25 9 8 23 18 22 31 27 19 1 0 3 11 28 12 14 6 4 2 15 10 17 21 20 26 30 7 5 ] def
 /permV [22 11 10 29 31 28 17 24 27 12 21 13 19 14 20 25 1 6 26 9 0 4 30 8 3 2 7 23 16 15 5 18 ] def
@@ -273,10 +274,12 @@ circtextdict begin
 /pi 3.1415923 def
 end
 
-/showBottomWheelPage
+/drawBottomWheelPage
  {
+   /outerperm exch def
    /title exch def
    /binop exch def
+   /angle 360 outerperm length div neg def
    % Move cursor to center of page
    pgsize 2 div exch 2 div exch translate
    % Draw white interior circle
@@ -288,23 +291,25 @@ end
    title 12 270 30 insidecircletext
    % Draw letters (using human-centric ABCD... permutation)
    /Helvetica findfont 6 scalefont setfont
-   0 30 360 {title 6 2 index 262 outsidecircletext} for
+   gsave
+   360 16 div 360 64 div sub rotate
+   0 360 8 div 360 {title 6 2 index 262 outsidecircletext} for
+   grestore
    outerfont findfont 18 scalefont setfont
-   perm {0 38 sqrt 40 mul moveto outercode exch 1 getinterval centreshow -11.25 rotate} forall
+   outerperm {0 38 sqrt 40 mul moveto outercode exch 1 getinterval centreshow angle rotate} forall
    % Draw inside contents
    /Courier findfont 12 scalefont setfont
    180 rotate
    0 1 31 { % Draw 32 circles of increasing radius
-       94 rotate
-       perm {
+       magic rotate
+       outerperm {
            0 2 index 2 add sqrt 40 mul moveto % move to 0, 2.5 + 40*sqrt(outer index + 2)
            1 index 31 exch sub % 31 - outer index
            permV exch get binop % apply binary operation to the permuted letter and the inner index
            code exch 1 getinterval centreshow % display the result
-           -11.25 rotate % rotate by 1/32nd of a circle
+           angle rotate % rotate one entry
        } forall pop
    } for
-   showpage
  } bind def
 
 /showTopWheelPage
@@ -327,7 +332,7 @@ end
    /Courier findfont 12 scalefont setfont
    180 rotate
    0 1 31 {
-       94 rotate
+       magic rotate
        dup 2 add sqrt 40 mul 2.5 add % lam = 2.5 + 40*sqrt(idx + 2)
        newpath
        0 exch % set midpoint: 0 lam
@@ -530,15 +535,24 @@ permS exch get exch permS exch get exch
 0 Cg EP
 
 %%Page: 3 3
-% note 0 and 1 (aka chi and phi) are never used, so they could be removed from the wheel, freeing up character space.
+% note 0 and 1 are never used, so they are removed from the wheel.
 /outerfont /Symbol def
 /outercode code2 def
-{gf32mul} (Recovery Disc) showBottomWheelPage
+gsave
+pgsize 2 div exch 2 div exch translate
+360 64 div rotate
+16 {
+  newpath 0 6 40 mul moveto 0 28 rlineto stroke
+  360 16 div rotate
+} repeat
+grestore
+{gf32mul} (Recovery Translation) [32 32 2 1 31 {} for] drawBottomWheelPage
+showpage
 
 %%Page: 4 4
 /outerfont /Courier def
 /outercode code def
-{xor} (Addition) showBottomWheelPage
+{xor} (Addition) perm drawBottomWheelPage showpage
 
 %%Page: 5 5
 29 24 13 25 showShareTablePage
@@ -567,12 +581,12 @@ permS exch get exch permS exch get exch
 %%Page: 13 13
 /outerfont /Courier def
 /outercode code def
-{24 makeShare} (Make Share ) code 24 1 getinterval concatstrings showBottomWheelPage
+{24 makeShare} (Make Share ) code 24 1 getinterval concatstrings perm drawBottomWheelPage showpage
 
 %%Page: 14 14
 /outerfont /Courier def
 /outercode code def
-{13 makeShare} (Make Share ) code 13 1 getinterval concatstrings showBottomWheelPage
+{13 makeShare} (Make Share ) code 13 1 getinterval concatstrings perm drawBottomWheelPage showpage
 
 %%Page: 15 15
 showTopWheelPage
