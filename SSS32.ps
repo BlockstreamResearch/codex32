@@ -698,7 +698,7 @@ x y moveto hrp (1) concatstrings dup stringwidth pop neg 3 sub 0 rmoveto show
 } loop
 
 gsave 0.85 setgray x y checksum dup length 0 exch showArray grestore
-{0 thin box} x y residue dup length 0 exch showArrayBox
+{residue length thin box} x y residue dup length 0 exch showArrayBox
 
 
 end
