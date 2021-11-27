@@ -85,7 +85,7 @@
 /pgsize {612 792} def % letter size
 /magic 94 def % a magic angle for making nice looking spirals.
 /code (QPZRY9X8GF2TVDW0S3JN54KHCE6MUA7L ) def
-/code2 (\245\300abcdefghijklmnopqrstuvwxyz\247\250\251\252 \264) def
+/code2 (\264\300abcdefghijklmnopqrstuvwxyz\247\250\251\252 ) def
 /perm [29 24 13 25 9 8 23 18 22 31 27 19 1 0 3 16 11 28 12 14 6 4 2 15 10 17 21 20 26 30 7 5 ] def
 /permS [16 29 24 13 25 9 8 23 18 22 31 27 19 1 0 3 11 28 12 14 6 4 2 15 10 17 21 20 26 30 7 5 ] def
 /permV [22 11 10 29 31 28 17 24 27 12 21 13 19 14 20 25 1 6 26 9 0 4 30 8 3 2 7 23 16 15 5 18 ] def
@@ -539,7 +539,7 @@ DL F1 15(123456)98 146 S 214 150.5 72 150.5 DL 214 152.5 72 152.5 DL 36
   /in exch def
   /out exch def
   16 out [ in out ] lagrange
-  dup 1 le {pop 33} if
+  dup 1 eq {pop 0} if % X out trying to recover a share with itself.
   end
 }
 (Recover Share) /Symbol code2 /Courier code [ 32 permS 1 31 getinterval aload pop ] drawBottomWheelPage
@@ -555,7 +555,7 @@ pgsize 2 div exch 2 div exch translate
   360 16 div rotate
 } repeat
 grestore
-{gf32mul} (Translation) /Courier code /Symbol code2 [32 32 2 1 31 {} for] drawBottomWheelPage
+{gf32mul} (Translation) /Courier code /Symbol code2 [32 1 1 31 {} for] drawBottomWheelPage
 showpage
 
 %%Page: 5 5
