@@ -439,6 +439,24 @@ showpage
 
 %%Page: 2 2
 
+10 dict begin
+  250 450
+  /offsety exch def
+  /offsetx exch def
+  /Helvetica findfont 15 scalefont setfont
+  20 offsetx add offsety moveto (Multiplication Table) show
+  1 1 31 {
+    /Symbol findfont 8 scalefont setfont
+    offsetx 34.5 7 mul add offsety 5 sub 2 index 8 mul sub moveto
+    dup code2 exch 1 getinterval show
+    /Symbol findfont 8 scalefont setfont
+    dup 1 31 {
+    dup 2 add 7 mul offsetx add offsety 5 sub 3 index 8 mul sub moveto
+    1 index gf32mul code2 exch 1 getinterval show
+  } for pop } for
+end
+
+10 dict begin
 %cat <<EOF | tbl | groff -Tps
 %Dice Tables
 %
@@ -533,6 +551,7 @@ DL F1 15(123456)98 146 S 214 150.5 72 150.5 DL 214 152.5 72 152.5 DL 36
 91.5 136.5 91.5 236.5 DL 214 136.5 214 236.5 DL 72 136.5 72 236.5 DL
 
 0 Cg EP
+end
 
 %%Page: 3 3
 { 10 dict begin
