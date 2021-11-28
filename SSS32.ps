@@ -1,6 +1,6 @@
 %!PS-Adobe-3.0
 %%Orientation: Portrait
-%%Pages: 23
+%%Pages: 21
 %%EndComments
 %%BeginSetup
 (SSS32)
@@ -46,7 +46,6 @@
 (Pass the brass fastener through a top disc and bottom disc.)
 (Fold the legs of the fastener apart to secure the top and bottom discs together.)
 (The two discs should now be able to rotate about their common centre.)
-(Note: the "Make Share" discs are experimental and are not needed if you will be using the lookup tables.)
 ()
 (CREATING SHARES:)
 (How to construct a 2-of-n (Shamir's) Secret Sharing Scheme for splitting secret data encoded in the Bech32 alphabet.)
@@ -582,34 +581,34 @@ showpage
 {xor} (Addition) /Courier code 2 copy perm drawBottomWheelPage showpage
 
 %%Page: 6 6
-29 24 13 25 showShareTablePage
+showpage
 
 %%Page: 7 7
-9 8 23 18 showShareTablePage
+29 24 13 25 showShareTablePage
 
 %%Page: 8 8
-22 31 27 19 showShareTablePage
+9 8 23 18 showShareTablePage
 
 %%Page: 9 9
-1 0 3 16 showShareTablePage
+22 31 27 19 showShareTablePage
 
 %%Page: 10 10
-11 28 12 14 showShareTablePage
+1 0 3 16 showShareTablePage
 
 %%Page: 11 11
-6 4 2 15 showShareTablePage
+11 28 12 14 showShareTablePage
 
 %%Page: 12 12
-10 17 21 20 showShareTablePage
+6 4 2 15 showShareTablePage
 
 %%Page: 13 13
-26 30 7 5 showShareTablePage
+10 17 21 20 showShareTablePage
 
 %%Page: 14 14
-{24 makeShare} (Make Share ) code 24 1 getinterval concatstrings /Courier code 2 copy perm drawBottomWheelPage showpage
+26 30 7 5 showShareTablePage
 
 %%Page: 15 15
-{13 makeShare} (Make Share ) code 13 1 getinterval concatstrings /Courier code 2 copy perm drawBottomWheelPage showpage
+showTopWheelPage
 
 %%Page: 16 16
 showTopWheelPage
@@ -618,12 +617,6 @@ showTopWheelPage
 showTopWheelPage
 
 %%Page: 18 18
-showTopWheelPage
-
-%%Page: 19 19
-showTopWheelPage
-
-%%Page: 20 20
    10 dict begin
 
    gsave
@@ -648,7 +641,7 @@ showTopWheelPage
 
 showpage
 
-%%Page: 21 21
+%%Page: 19 19
    10 dict begin
 
    gsave
@@ -679,7 +672,7 @@ showpage
    end
 showpage
 
-%%Page: 22 22
+%%Page: 20 20
 /Helvetica-bold findfont 10 scalefont setfont
 pgsize 40 sub exch 2 div exch
 moveto (ms32 Checksum Table) centreshow
@@ -707,7 +700,7 @@ pop
 } for
 showpage
 
-%%Page: 23 23
+%%Page: 21 21
 %%PageOrientation: Landscape
 90 rotate 0 -750 translate
 /hrp (ms) def
