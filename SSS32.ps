@@ -1,6 +1,6 @@
 %!PS-Adobe-3.0
 %%Orientation: Portrait
-%%Pages: 21
+%%Pages: 23
 %%EndComments
 %%BeginSetup
 (SSS32)
@@ -89,6 +89,7 @@
 /perm [29 24 13 25 9 8 23 18 22 31 27 19 1 0 3 16 11 28 12 14 6 4 2 15 10 17 21 20 26 30 7 5 ] def
 /permS [16 29 24 13 25 9 8 23 18 22 31 27 19 1 0 3 11 28 12 14 6 4 2 15 10 17 21 20 26 30 7 5 ] def
 /permV [22 11 10 29 31 28 17 24 27 12 21 13 19 14 20 25 1 6 26 9 0 4 30 8 3 2 7 23 16 15 5 18 ] def
+/permP [0 1 2 4 8 16 9 18 13 26 29 19 15 30 21 3 6 12 24 25 27 31 23 7 14 28 17 11 22 5 10 20] def
 % Generator for GF(32) is alpha^5 = alpha^3 + 1
 
 /gf32add % x y -> x [+] y where [+] is addition in GF32.
@@ -623,6 +624,62 @@ showTopWheelPage
 showTopWheelPage
 
 %%Page: 20 20
+   10 dict begin
+
+   gsave
+   /title (Multiplicaton) def
+   /angle 360 31 div neg def
+   % Move cursor to center of page
+   pgsize 2 div exch 2 div exch translate
+   % Draw white interior circle
+   newpath 0 0 6 38.5 mul 29 sub 0 360 arc stroke
+   newpath 0 0 6 38.5 mul 0 360 arc stroke
+   newpath 0 0 6 0 360 arc stroke
+   % Draw letters
+   /Helvetica findfont 6 scalefont setfont
+   gsave
+   90 title 6 2 index 225 outsidecircletext
+   grestore
+   /Symbol findfont 18 scalefont setfont
+   permP 1 31 getinterval {0 210 moveto code2 exch 1 getinterval centreshow angle rotate} forall
+   grestore
+
+   end
+
+showpage
+
+%%Page: 21 21
+   10 dict begin
+
+   gsave
+   /title (Multiplicaton) def
+   /angle 360 31 div neg def
+   % Move cursor to center of page
+   pgsize 2 div exch 2 div exch translate
+   % Draw white interior circle
+   newpath 0 0 6 38.5 mul 29 sub 0 360 arc stroke
+   % Draw centre cross
+   newpath 0 6 moveto 0 -6 lineto stroke
+   newpath 6 0 moveto -6 0 lineto stroke
+   % Draw title
+   /Helvetica findfont 12 scalefont setfont
+   title 12 270 30 insidecircletext
+   % Draw letters
+   /Symbol findfont 18 scalefont setfont
+   /sz 8 def
+   permP 1 31 getinterval {
+      0 187 sz 2 mul sub moveto code2 exch 1 getinterval centreshow
+      % Draw indicator arrow
+      newpath 0 6 38.5 mul 29 sub moveto sz sz 2 mul neg rlineto sz 2 mul neg 0 rlineto closepath fill
+      angle rotate
+      /sz 3 def
+   } forall
+   grestore
+
+   end
+showpage
+
+%%Page: 22 22
 /Helvetica-bold findfont 10 scalefont setfont
 pgsize 40 sub exch 2 div exch
 moveto (ms32 Checksum Table) centreshow
@@ -650,7 +707,7 @@ pop
 } for
 showpage
 
-%%Page: 21 21
+%%Page: 23 23
 %%PageOrientation: Landscape
 90 rotate 0 -750 translate
 /hrp (ms) def
