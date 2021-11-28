@@ -718,16 +718,16 @@ showpage
    % Move cursor to center of page
    pgsize 2 div exch 2 div exch translate
    % Draw white interior circle
-   newpath 0 0 6 38.5 mul 29 sub 0 360 arc stroke
-   newpath 0 0 6 38.5 mul 0 360 arc stroke
+   newpath 0 0 6 40 mul 29 sub 0 360 arc stroke
+   newpath 0 0 6 40 mul 0 360 arc stroke
    newpath 0 0 6 0 360 arc stroke
    % Draw letters
    /Helvetica findfont 6 scalefont setfont
    gsave
-   90 title 6 2 index 225 outsidecircletext
+   0 360 8 div 360 {title 6 2 index 234 outsidecircletext} for
    grestore
    /Symbol findfont 18 scalefont setfont
-   permP 1 31 getinterval {0 210 moveto code2 exch 1 getinterval centreshow angle rotate} forall
+   permP 1 31 getinterval {0 38 sqrt 40 mul 29 sub moveto code2 exch 1 getinterval centreshow angle rotate} forall
    grestore
 
    end
@@ -743,7 +743,7 @@ showpage
    % Move cursor to center of page
    pgsize 2 div exch 2 div exch translate
    % Draw white interior circle
-   newpath 0 0 6 38.5 mul 29 sub 0 360 arc stroke
+   newpath 0 0 6 40 mul 29 sub 0 360 arc stroke
    % Draw centre cross
    newpath 0 6 moveto 0 -6 lineto stroke
    newpath 6 0 moveto -6 0 lineto stroke
@@ -754,9 +754,9 @@ showpage
    /Symbol findfont 18 scalefont setfont
    /sz 8 def
    permP 1 31 getinterval {
-      0 187 sz 2 mul sub moveto code2 exch 1 getinterval centreshow
+      0 24 sqrt 40 mul sz 2 mul sub moveto code2 exch 1 getinterval centreshow
       % Draw indicator arrow
-      newpath 0 6 38.5 mul 29 sub moveto sz sz 2 mul neg rlineto sz 2 mul neg 0 rlineto closepath fill
+      newpath 0 6 40 mul 29 sub moveto sz sz 2 mul neg rlineto sz 2 mul neg 0 rlineto closepath fill
       angle rotate
       /sz 3 def
    } forall
