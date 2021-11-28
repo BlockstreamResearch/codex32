@@ -1,6 +1,6 @@
 %!PS-Adobe-3.0
 %%Orientation: Portrait
-%%Pages: 21
+%%Pages: 27
 %%EndComments
 %%BeginSetup
 (SSS32)
@@ -422,6 +422,66 @@ showpage
   } forall
   end
 } bind def
+
+
+% Draw the table
+/draw3tablecell {
+  10 dict begin
+  { /c /b /a /y /x } {exch def} forall
+
+  x y moveto
+
+  % Permute a/b/c
+  /a permS a get def
+  /b permS b get def
+  /c permS c get def
+
+  /Courier findfont 8 scalefont setfont
+  code a 1 getinterval show
+  code b 1 getinterval show
+  code c 1 getinterval show
+  (:) show
+  4 0 rmoveto
+
+  /la 16 a [a b c] lagrange def
+  /lb 16 b [a b c] lagrange def
+  /lc 16 c [a b c] lagrange def
+
+  /Symbol findfont 8 scalefont setfont
+  code2 la 1 getinterval gsave centreshow grestore
+  6 0 rmoveto
+  code2 lb 1 getinterval gsave centreshow grestore
+  6 0 rmoveto
+  code2 lc 1 getinterval gsave centreshow grestore
+
+  end
+} bind def
+
+/draw3tablecolumn % astart bstart cstart x y count -> aend bend cend
+{
+  10 dict begin
+  { /rows /y /x /c /b /a } {exch def} forall
+
+  1 1 rows { % for
+      pop % drop the array index
+
+      x y a b c draw3tablecell
+      /y y 9.25 sub def
+
+      /c c 1 add def
+      c 32 eq {
+          /b b 1 add def
+          b 31 eq {
+              /a a 1 add def
+              /b a 1 add def
+          } if
+          /c b 1 add def
+      } if
+  } for
+
+  a b c % Leave a b c on the stack for the next call
+  end
+} bind def
 %%EndSetup
 
 %%Page: 1 1
@@ -766,6 +826,160 @@ showpage
 showpage
 
 %%Page: 20 20
+    10 dict begin
+    gsave
+
+    72 720
+    468 12
+    (Recovering the Secret)
+    [
+    (Recovering a secret is very similar to constructing the shares: the process is to assemble k shares,)
+    (find translation symbols for each of them, then add the translated shares together.)
+    ( )
+    (However, unlike the situation when constructing shares, the translation symbols to use depend on)
+    (the indices of the specific shares used for reconstruction. Since for large k, there are millions)
+    (of possible sets of indices, we cannot provide compact tables. \(Although for the specific case)
+    (k = 3, there are only about 4500 possibilities, and we have provided a table in Appendix B.\))
+    ( )
+    (In detail, the recovery process is as follows.)
+    (    1. Assemble exactly k shares. If you have more than k available, set all but k aside.)
+    (    2. For each share, spin the Recovery Share volvelle to point at that share's index.)
+    (    3. Look up the symbols for the k-1 other shares.)
+    (    4. Using the Multiplication Slide Ruler, or the Multiplication Table, multiply all these symbols.)
+    (    5. Translate the share using the result of the multiplication)
+    (    6. Repeat steps 2-5 for all k shares.)
+    (    7. Add together all k translated shares.)
+    ( )
+    (Notice that when k = 2, Step 3 involves only a single lookup and Step 4 is vacuous.)
+    ( )
+    (For k = 3, Step 3 involves lookup up two indices and Step 4 involves a single multiplication.)
+    (Alternately, in Appendix B, a precomputed symbol is provided. Order the available shares)
+    (alphabetically by index, with letters preceding numbers, and look them up their three symbols)
+    (in the table.)
+    ]
+    drawParagraph
+
+    grestore
+    end
+showpage
+
+%%Page: 21 21
+    10 dict begin
+    gsave
+
+    /Helvetica-bold findfont 10 scalefont setfont
+    pgsize 40 sub exch 2 div exch
+    moveto (Appendix B: 3-of-N Recovery Symbol Table) centreshow
+
+    /x 48 def
+    /y 735 def
+
+    1 2 3
+    1 1 12 {
+        pop % drop the array index
+        x y 75 draw3tablecolumn
+        /x x 43 add def
+    } for
+
+    grestore
+    end
+showpage
+
+%%Page: 22 22
+    10 dict begin
+    gsave
+
+    /Helvetica-bold findfont 10 scalefont setfont
+    pgsize 40 sub exch 2 div exch
+    moveto (Appendix B: 3-of-N Recovery Symbol Table) centreshow
+
+    /x 48 def
+    /y 735 def
+
+    3 6 13
+    1 1 12 {
+        pop % drop the array index
+        x y 75 draw3tablecolumn
+        /x x 43 add def
+    } for
+
+    grestore
+    end
+showpage
+
+%%Page: 23 23
+    10 dict begin
+    gsave
+
+    /Helvetica-bold findfont 10 scalefont setfont
+    pgsize 40 sub exch 2 div exch
+    moveto (Appendix B: 3-of-N Recovery Symbol Table) centreshow
+
+    /x 48 def
+    /y 735 def
+
+    5 17 28
+    1 1 12 {
+        pop % drop the array index
+        x y 75 draw3tablecolumn
+        /x x 43 add def
+    } for
+
+    grestore
+    end
+showpage
+
+%%Page: 24 24
+    10 dict begin
+    gsave
+
+    /Helvetica-bold findfont 10 scalefont setfont
+    pgsize 40 sub exch 2 div exch
+    moveto (Appendix B: 3-of-N Recovery Symbol Table) centreshow
+
+    /x 48 def
+    /y 735 def
+
+    8 24 29
+    1 1 12 {
+        pop % drop the array index
+        x y 75 draw3tablecolumn
+        /x x 43 add def
+    } for
+
+    grestore
+    end
+showpage
+
+%%Page: 25 25
+    10 dict begin
+    gsave
+
+    /Helvetica-bold findfont 10 scalefont setfont
+    pgsize 40 sub exch 2 div exch
+    moveto (Appendix B: 3-of-N Recovery Symbol Table) centreshow
+
+    /x 48 def
+    /y 735 def
+
+    13 18 31
+    1 1 7 {
+        pop % drop the array index
+        x y 75 draw3tablecolumn
+        /x x 43 add def
+    } for
+    % Shorten last 5 columns by 1
+    1 1 5 {
+        pop % drop the array index
+        x y 74 draw3tablecolumn
+        /x x 43 add def
+    } for
+
+    grestore
+    end
+showpage
+
+%%Page: 26 26
 /Helvetica-bold findfont 10 scalefont setfont
 pgsize 40 sub exch 2 div exch
 moveto (ms32 Checksum Table) centreshow
@@ -793,7 +1007,7 @@ pop
 } for
 showpage
 
-%%Page: 21 21
+%%Page: 27 27
 %%PageOrientation: Landscape
 90 rotate 0 -750 translate
 /hrp (ms) def
