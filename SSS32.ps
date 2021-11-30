@@ -987,20 +987,23 @@ showpage
   } bind def
 
   /x 96 def
-  /y 660 def
+  /y 670 def
 
-  3 { %repeat
+  5 { %repeat n sections
     x y (ms1) drawRow
     /y y 14 sub def
-    4 { %repeat
-      x y (  +) drawRow
-      /y y 2 sub def
-      x 2 sub y moveto arraySpace 47.75 mul 2 add 0 rlineto 1 setlinewidth stroke
-      /y y 12 sub def
+    x y (  +) drawRow
+    /y y 20 sub def
+    1 { %repeat n +s within section
       x y (  =) drawRow
+%      /y y 2 sub def
+%      x 2 sub y moveto arraySpace 47.75 mul 2 add 0 rlineto 1 setlinewidth stroke
+      /y y 14 sub def
+      x y (  +) drawRow
       /y y 20 sub def
     } repeat
-    /y y 20 sub def
+    x y (  =) drawRow
+    /y y 35 sub def
   } repeat
 
   end
