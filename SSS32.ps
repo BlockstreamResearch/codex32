@@ -404,6 +404,22 @@ showpage
   showArray pop
 } bind def
 
+% Helper function that can be passed as `decoration` to
+% `showBox` or `showArrayBox`
+/box {
+  10 dict begin
+  { /width /beginred /n } {exch def} forall
+  -1.2 -1.9 rmoveto
+  0 14 rlineto
+  arraySpace 0 rlineto
+  0 -14 rlineto
+  closepath
+  width setlinewidth
+  n beginred ge { gsave 1 0.9 0.9 setrgbcolor fill grestore } if
+  stroke
+  end
+} bind def
+
 /drawParagraph {
   10 dict begin
   { /lines /title /height /width /y /x } {exch def} forall
@@ -799,19 +815,6 @@ showpage
 /hrp (ms) def
 /thick 1 def
 /thin 0.2 def
-/box {
-  10 dict begin
-  { /width /beginred /n } {exch def} forall
-  -1.2 -1.9 rmoveto
-  0 14 rlineto
-  arraySpace 0 rlineto
-  0 -14 rlineto
-  closepath
-  width setlinewidth
-  n beginred ge { gsave 1 0.9 0.9 setrgbcolor fill grestore } if
-  stroke
-  end
-} bind def
 
 /labeledbox {
   10 dict begin
