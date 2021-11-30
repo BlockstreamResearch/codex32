@@ -940,7 +940,7 @@ perm 2 index get gf32add code exch 1 getinterval show
 } for pop } for
 showpage
 
-%%Page: 21 21
+%%Page: 22 22
 %%PageOrientation: Landscape
   10 dict begin
   gsave
@@ -952,19 +952,58 @@ showpage
 
   /labeledbox {
     10 dict begin
-    /n exch def
+    /n exch 1 add def
     gsave
-      n beginred thick box
-  grestore
-  gsave
-    arraySpace 6 sub 14 5 sub rmoveto
-    /Courier findfont 3 scalefont setfont
-    n 10 le { ( ) show } if n 2 string cvs show
-  grestore
+      n 1000 0.2 box
+    grestore
+    gsave
+      arraySpace 6 sub 14 5 sub rmoveto
+      /Courier findfont 3 scalefont setfont
+      n 10 le { ( ) show } if n 2 string cvs show
+    grestore
   end
-} bind def
+  } bind def
 
-   end
+
+  /drawRow {
+    10 dict begin
+    { /hrp /y /x } { exch def } forall
+      x y moveto hrp dup stringwidth pop neg 3 sub 0 rmoveto show
+      /k hrp length def
+
+      /init k k 4 mod sub 4 add k sub def
+      {labeledbox} x y [] k init showBox
+      /x x init 0.25 add arraySpace mul add def
+      /k k init add def
+      {
+        k 48 ge {exit} if
+
+        {labeledbox} x y [] k 4 showBox
+
+        /x x 4.25 arraySpace mul add def
+        /k k 4 add def
+    } loop
+    end
+  } bind def
+
+  /x 96 def
+  /y 660 def
+
+  3 { %repeat
+    x y (ms1) drawRow
+    /y y 14 sub def
+    4 { %repeat
+      x y (  +) drawRow
+      /y y 2 sub def
+      x 2 sub y moveto arraySpace 47.75 mul 2 add 0 rlineto 1 setlinewidth stroke
+      /y y 12 sub def
+      x y (  =) drawRow
+      /y y 20 sub def
+    } repeat
+    /y y 20 sub def
+  } repeat
+
+  end
 showpage
 
 %%EOF
