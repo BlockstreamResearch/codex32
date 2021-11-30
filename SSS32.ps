@@ -823,6 +823,31 @@ showpage
    /angle 360 31 div neg def
    % Move cursor to center of page
    pgsize 2 div exch 2 div exch translate
+
+   % Draw handle
+   1 0 0 setrgbcolor
+   newpath 6 40 mul 29 sub 7.25 40 mul moveto
+   0 0 6 40 mul 29 sub 0 180 arc
+   6 40 mul 29 sub neg 7.25 40 mul lineto
+   closepath
+   clip
+   newpath 10 0 moveto
+   30 0 lineto
+   36 7.5 40 mul 29 sub 0 7.5 40 mul 29 sub 5 arct
+   -36 7.5 40 mul 29 sub -30 0 5 arct
+   -36 0 lineto
+   -10 0 lineto
+   -10 6 40 mul 8 sub lineto
+   10 6 40 mul 8 sub lineto
+   closepath
+   0.8 setgray
+   fill
+   0 setgray
+   initclip
+
+   % Draw indicator arrow
+   newpath 0 6 40 mul 8 sub moveto 8 16 rlineto -16 0 rlineto closepath fill
+
    % Draw white interior circle
    newpath 0 0 6 40 mul 29 sub 0 360 arc stroke
    % Draw centre cross
@@ -833,13 +858,12 @@ showpage
    title 12 270 30 insidecircletext
    % Draw letters
    /Symbol findfont 18 scalefont setfont
-   /sz 8 def
+   /sz 3 def
    permP 1 31 getinterval {
       0 24 sqrt 40 mul sz 2 mul sub moveto code2 exch 1 getinterval centreshow
       % Draw indicator arrow
       newpath 0 6 40 mul 29 sub moveto sz sz 2 mul neg rlineto sz 2 mul neg 0 rlineto closepath fill
       angle rotate
-      /sz 3 def
    } forall
    grestore
 
