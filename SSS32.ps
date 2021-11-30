@@ -1,6 +1,6 @@
 %!PS-Adobe-3.0
 %%Orientation: Portrait
-%%Pages: 21
+%%Pages: 22
 %%EndComments
 %%BeginSetup
 (SSS32)
@@ -939,4 +939,32 @@ perm exch get
 perm 2 index get gf32add code exch 1 getinterval show
 } for pop } for
 showpage
+
+%%Page: 21 21
+%%PageOrientation: Landscape
+  10 dict begin
+  gsave
+
+  90 rotate 0 -750 translate
+  /Helvetica-Bold findfont 10 scalefont setfont
+  pgsize exch pop 2 div 700
+  moveto (Addition Worksheet) centreshow
+
+  /labeledbox {
+    10 dict begin
+    /n exch def
+    gsave
+      n beginred thick box
+  grestore
+  gsave
+    arraySpace 6 sub 14 5 sub rmoveto
+    /Courier findfont 3 scalefont setfont
+    n 10 le { ( ) show } if n 2 string cvs show
+  grestore
+  end
+} bind def
+
+   end
+showpage
+
 %%EOF
