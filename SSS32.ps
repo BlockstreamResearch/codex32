@@ -637,6 +637,7 @@ showTopWheelPage
 
     /x 104 def
     /y 400 def
+    /rowtitle 6 string def
     mink 1 maxk {
         /k exch def
 
@@ -646,8 +647,7 @@ showTopWheelPage
             /Courier-Bold findfont 12 scalefont setfont
             rowidx 0 eq {
                 % First row (heading)
-                /rowtitle (k =   ) def
-                k rowtitle 4 2 getinterval cvs pop
+                k (k =   ) rowtitle copy 4 2 getinterval cvs pop
                 rowtitle show
 
                 k mink sub { 12 0 rmoveto } repeat
@@ -657,9 +657,8 @@ showTopWheelPage
                 } for % horizontal loop
             } {
                 % Symbol rows
-                /rowtitle (      ) def
                 /xinterp rowidx 1 sub def % x coord to interpolate at
-                rowtitle 2 permS xinterp get code exch 1 getinterval putinterval
+                (      ) rowtitle copy 2 permS xinterp get code exch 1 getinterval putinterval
                 rowtitle show
 
                 /Symbol findfont 12 scalefont setfont
