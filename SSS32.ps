@@ -341,7 +341,6 @@ end
        /Courier findfont 12 scalefont setfont underlineshow % ...and draw it
        (\256) /Symbol findfont 12 scalefont setfont show % Draw a right arrow
    } for
-   showpage
  } bind def
 
 /showShareTable {
@@ -375,7 +374,6 @@ page exch perm 3 index get exch  makeShare code exch 1 getinterval show
 50 400 showShareTable
 325 720 showShareTable
 50 720 showShareTable
-showpage
 } bind def
 
 /arraySpace 13 def
@@ -425,6 +423,7 @@ showpage
 %%EndSetup
 
 %%Page: 1 1
+/pgsave save def
 /Helvetica findfont 6 scalefont setfont
 40 750 moveto
 MIT {gsave show grestore 0 -8 rmoveto} forall
@@ -438,10 +437,11 @@ warning {gsave show grestore 0 -7 rmoveto} forall
 0 -16 rmoveto
 /Helvetica findfont 8 scalefont setfont
 README {gsave show grestore 0 -10 rmoveto} forall
+pgsave restore
 showpage
 
 %%Page: 2 2
-
+/pgsave save def
 10 dict begin
   250 450
   /offsety exch def
@@ -530,9 +530,6 @@ dup setfont
 0 792 translate
 1 -1 scale
 }bind def
-/EP{
-showpage
-}def
 BP
 
 /F0 10/Courier SF(Dice T)72 12 Q(ables)-.8 E(1d4;1d8)72 36 Q .4 LW
@@ -553,10 +550,13 @@ DL F1 15(123456)98 146 S 214 150.5 72 150.5 DL 214 152.5 72 152.5 DL 36
 136.5 132.5 236.5 DL 111.5 136.5 111.5 236.5 DL 89.5 136.5 89.5 236.5 DL
 91.5 136.5 91.5 236.5 DL 214 136.5 214 236.5 DL 72 136.5 72 236.5 DL
 
-0 Cg EP
+0 Cg
 end
 
+pgsave restore
+showpage
 %%Page: 3 3
+/pgsave save def
 { 10 dict begin
   /in exch def
   /out exch def
@@ -565,9 +565,10 @@ end
   end
 }
 (Recover Share) /Symbol code2 /Courier code [ 32 permS 1 31 getinterval aload pop ] drawBottomWheelPage
+pgsave restore
 showpage
-
 %%Page: 4 4
+/pgsave save def
 % note 0 and 1 are never used, so they are removed from the wheel.
 gsave
 pgsize 2 div exch 2 div exch translate
@@ -578,21 +579,35 @@ pgsize 2 div exch 2 div exch translate
 } repeat
 grestore
 {gf32mul} (Translation) /Courier code /Symbol code2 [32 1 1 31 {} for] drawBottomWheelPage
+
+pgsave restore
 showpage
-
 %%Page: 5 5
-{xor} (Addition) /Courier code 2 copy perm drawBottomWheelPage showpage
+/pgsave save def
+{xor} (Addition) /Courier code 2 copy perm drawBottomWheelPage
 
+pgsave restore
+showpage
 %%Page: 6 6
+/pgsave save def
 showTopWheelPage
 
+pgsave restore
+showpage
 %%Page: 7 7
+/pgsave save def
 showTopWheelPage
 
+pgsave restore
+showpage
 %%Page: 8 8
+/pgsave save def
 showTopWheelPage
 
+pgsave restore
+showpage
 %%Page: 9 9
+/pgsave save def
     10 dict begin
     gsave
 
@@ -681,33 +696,59 @@ showTopWheelPage
     } for
 
     end
-showpage
 
+pgsave restore
+showpage
 %%Page: 10 10
+/pgsave save def
 29 24 13 25 showShareTablePage
 
+pgsave restore
+showpage
 %%Page: 11 11
+/pgsave save def
 9 8 23 18 showShareTablePage
 
+pgsave restore
+showpage
 %%Page: 12 12
+/pgsave save def
 22 31 27 19 showShareTablePage
 
+pgsave restore
+showpage
 %%Page: 13 13
+/pgsave save def
 1 0 3 16 showShareTablePage
 
+pgsave restore
+showpage
 %%Page: 14 14
+/pgsave save def
 11 28 12 14 showShareTablePage
 
+pgsave restore
+showpage
 %%Page: 15 15
+/pgsave save def
 6 4 2 15 showShareTablePage
 
+pgsave restore
+showpage
 %%Page: 16 16
+/pgsave save def
 10 17 21 20 showShareTablePage
 
+pgsave restore
+showpage
 %%Page: 17 17
+/pgsave save def
 26 30 7 5 showShareTablePage
 
+pgsave restore
+showpage
 %%Page: 18 18
+/pgsave save def
    10 dict begin
 
    gsave
@@ -730,9 +771,10 @@ showpage
 
    end
 
+pgsave restore
 showpage
-
 %%Page: 19 19
+/pgsave save def
    10 dict begin
 
    gsave
@@ -761,9 +803,11 @@ showpage
    grestore
 
    end
-showpage
 
+pgsave restore
+showpage
 %%Page: 20 20
+/pgsave save def
 /Helvetica-bold findfont 10 scalefont setfont
 pgsize 40 sub exch 2 div exch
 moveto (ms32 Checksum Table) centreshow
@@ -789,10 +833,12 @@ pop
 } for
 pop
 } for
-showpage
 
+pgsave restore
+showpage
 %%Page: 21 21
 %%PageOrientation: Landscape
+/pgsave save def
 90 rotate 0 -750 translate
 /hrp (ms) def
 /thick 1 def
@@ -933,5 +979,7 @@ dup 2 add 7 mul offsetx add offsety 20 sub 3 index 8 mul sub moveto
 perm exch get
 perm 2 index get gf32add code exch 1 getinterval show
 } for pop } for
+
+pgsave restore
 showpage
 %%EOF
