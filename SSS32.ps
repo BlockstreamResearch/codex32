@@ -428,7 +428,7 @@ page exch perm 3 index get exch  makeShare code exch 1 getinterval show
 %%EndPageSetup
 /Helvetica findfont 6 scalefont setfont
 40 750 moveto
-MIT {gsave show grestore 0 -8 rmoveto} forall
+MIT {gsave ((c)) search {show pop /copyright glyphshow} if show grestore 0 -8 rmoveto} forall
 /Helvetica findfont 20 scalefont setfont
 0 -22 rmoveto
 gsave name show grestore 0 -12 rmoveto
