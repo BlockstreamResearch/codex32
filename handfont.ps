@@ -9,7 +9,13 @@
    dup mul neg 1 add sqrt
    exch
    atan
-} def
+} bind def
+/pen {
+  50 setlinewidth
+  1 setlinecap
+  1 setlinejoin
+  [] 0 setdash
+} bind def
 
 10 dict dup begin
 /FontType 3 def
@@ -99,25 +105,16 @@ CharacterDefs begin
          700 100 lineto
          200 300 moveto
          600 300 lineto
-       50 setlinewidth
-       1 setlinecap
-       1 setlinejoin
-       stroke } def
+       pen stroke } def
   /C { newpath
          400 400 300 2 3 div arccos -2 3 div arccos 180 add arc
-       50 setlinewidth
-       1 setlinecap
-       1 setlinejoin
-       stroke } def
+       pen stroke } def
   /D { newpath
          100 100 moveto
          300 400 300 270 90 arc
          100 700 lineto
          closepath
-       50 setlinewidth
-       1 setlinecap
-       1 setlinejoin
-       stroke } def
+       pen stroke } def
   /E { newpath
          600 700 moveto
          100 700 lineto
@@ -125,28 +122,19 @@ CharacterDefs begin
          600 100 lineto
          100 400 moveto
          400 400 lineto
-       50 setlinewidth
-       1 setlinecap
-       1 setlinejoin
-       stroke } def
+       pen stroke } def
   /F { newpath
          600 700 moveto
          100 700 lineto
          100 100 lineto
          100 400 moveto
          400 400 lineto
-       50 setlinewidth
-       1 setlinecap
-       1 setlinejoin
-       stroke } def
+       pen stroke } def
   /G { newpath
          400 400 300 2 3 div arccos -2 3 div arccos 180 add arc
          600 400 lineto
          400 400 lineto
-       50 setlinewidth
-       1 setlinecap
-       1 setlinejoin
-       stroke } def
+       pen stroke } def
   /H { newpath
          600 700 moveto
          600 100 lineto
@@ -154,10 +142,7 @@ CharacterDefs begin
          100 100 lineto
          100 400 moveto
          600 400 lineto
-       50 setlinewidth
-       1 setlinecap
-       1 setlinejoin
-       stroke } def
+       pen stroke } def
   /J { newpath
          600 700 moveto
          matrix currentmatrix
@@ -165,18 +150,12 @@ CharacterDefs begin
          1 4 5 div scale
          250 250 250 0 180 arcn
          setmatrix
-       50 setlinewidth
-       1 setlinecap
-       1 setlinejoin
-       stroke } def
+       pen stroke } def
   /L { newpath
          100 700 moveto
          100 100 lineto
          600 100 lineto
-       50 setlinewidth
-       1 setlinecap
-       1 setlinejoin
-       stroke } def
+       pen stroke } def
   /K { newpath
          600 700 moveto
          100 300 lineto
@@ -184,46 +163,31 @@ CharacterDefs begin
          100 100 lineto
          300 460 moveto
          600 100 lineto
-       50 setlinewidth
-       1 setlinecap
-       1 setlinejoin
-       stroke } def
+       pen stroke } def
   /M { newpath
          100 100 moveto
          100 700 lineto
          400 100 lineto
          700 700 lineto
          700 100 lineto
-       50 setlinewidth
-       1 setlinecap
-       1 setlinejoin
-       stroke } def
+       pen stroke } def
   /N { newpath
          600 700 moveto
          600 100 lineto
          100 700 lineto
          100 100 lineto
-       50 setlinewidth
-       1 setlinecap
-       1 setlinejoin
-       stroke } def
+       pen stroke } def
   /P { newpath
          100 400 moveto
          450 550 150 270 90 arc
          100 700 lineto
          100 100 lineto
-       50 setlinewidth
-       1 setlinecap
-       1 setlinejoin
-       stroke } def
+       pen stroke } def
   /Q { newpath
          400 400 300 0 360 arc
          500 250 moveto
          600 100 lineto
-       50 setlinewidth
-       1 setlinecap
-       1 setlinejoin
-       stroke } def
+       pen stroke } def
   /R { newpath
          100 400 moveto
          450 550 150 270 90 arc
@@ -231,10 +195,7 @@ CharacterDefs begin
          100 100 lineto
          400 400 moveto
          600 100 lineto
-       50 setlinewidth
-       1 setlinecap
-       1 setlinejoin
-       stroke } def
+       pen stroke } def
   /S { newpath
          matrix currentmatrix
          100 100 translate
@@ -250,19 +211,13 @@ CharacterDefs begin
           350 50 moveto
           350 750 lineto
          } if
-       50 setlinewidth
-       1 setlinecap
-       1 setlinejoin
-       stroke } def
+       pen stroke } def
   /T { newpath
          100 700 moveto
          700 700 lineto
          400 700 moveto
          400 100 lineto
-       50 setlinewidth
-       1 setlinecap
-       1 setlinejoin
-       stroke } def
+       pen stroke } def
   /U { newpath
          600 700 moveto
          matrix currentmatrix
@@ -271,47 +226,32 @@ CharacterDefs begin
          250 250 250 0 180 arcn
          setmatrix
          100 700 lineto
-       50 setlinewidth
-       1 setlinecap
-       1 setlinejoin
-       stroke } def
+       pen stroke } def
   /V { newpath
          100 700 moveto
          400 100 lineto
          700 700 lineto
-       50 setlinewidth
-       1 setlinecap
-       1 setlinejoin
-       stroke } def
+       pen stroke } def
   /W { newpath
          100 700 moveto
          300 100 lineto
          500 700 lineto
          700 100 lineto
          900 700 lineto
-       50 setlinewidth
-       1 setlinecap
-       1 setlinejoin
-       stroke } def
+       pen stroke } def
   /X { newpath
          100 100 moveto
          650 700 lineto
          150 700 moveto
          700 100 lineto
-       50 setlinewidth
-       1 setlinecap
-       1 setlinejoin
-       stroke } def
+       pen stroke } def
   /Y { newpath
          100 700 moveto
          400 400 lineto
          700 700 lineto
          400 400 moveto
          400 100 lineto
-       50 setlinewidth
-       1 setlinecap
-       1 setlinejoin
-       stroke } def
+       pen stroke } def
   /Z { newpath
          100 700 moveto
          600 700 lineto
@@ -321,10 +261,7 @@ CharacterDefs begin
           200 400 moveto
           500 400 lineto
          } if
-       50 setlinewidth
-       1 setlinecap
-       1 setlinejoin
-       stroke } def
+       pen stroke } def
   /zero { newpath
          matrix currentmatrix
          100 100 translate
@@ -335,10 +272,7 @@ CharacterDefs begin
           100 100 moveto
           600 700 lineto
          } if
-       50 setlinewidth
-       1 setlinecap
-       1 setlinejoin
-       stroke } def
+       pen stroke } def
   /two { newpath
          matrix currentmatrix
          150 400 translate
@@ -351,10 +285,7 @@ CharacterDefs begin
          300 300 300 90 180 arc
          setmatrix
          600 100 lineto
-       50 setlinewidth
-       1 setlinecap
-       1 setlinejoin
-       stroke } def
+       pen stroke } def
   /three { newpath
          matrix currentmatrix
          100 100 translate
@@ -366,19 +297,13 @@ CharacterDefs begin
          4 3 div 1 scale
          150 150 150 -90 90 1 3 div arccos add arc
          setmatrix
-       50 setlinewidth
-       1 setlinecap
-       1 setlinejoin
-       stroke } def
+       pen stroke } def
   /four { newpath
          500 100 moveto
          500 700 lineto
          100 250 lineto
          600 250 lineto
-       50 setlinewidth
-       1 setlinecap
-       1 setlinejoin
-       stroke } def
+       pen stroke } def
   /five { newpath
          matrix currentmatrix
          100 100 translate
@@ -387,10 +312,7 @@ CharacterDefs begin
          setmatrix
          150 700 lineto
          550 700 lineto
-       50 setlinewidth
-       1 setlinecap
-       1 setlinejoin
-       stroke } def
+       pen stroke } def
   /six { newpath
          matrix currentmatrix
          100 100 translate
@@ -402,10 +324,7 @@ CharacterDefs begin
          5 4 div 1 scale
          200 200 200 -90 90 arc
          setmatrix
-       50 setlinewidth
-       1 setlinecap
-       1 setlinejoin
-       stroke
+       pen stroke
          newpath
          matrix currentmatrix
          100 100 translate
@@ -428,10 +347,7 @@ CharacterDefs begin
           300 400 moveto
           500 400 lineto
          } if
-       50 setlinewidth
-       1 setlinecap
-       1 setlinejoin
-       stroke } def
+       pen stroke } def
   /eight { newpath
          matrix currentmatrix
          100 100 translate
@@ -443,10 +359,7 @@ CharacterDefs begin
          4 3 div 1 scale
          150 150 150 -90 270 arc
          setmatrix
-       50 setlinewidth
-       1 setlinecap
-       1 setlinejoin
-       stroke } def
+       pen stroke } def
   /nine { newpath
          matrix currentmatrix
          100 100 translate
@@ -458,10 +371,7 @@ CharacterDefs begin
          5 4 div 1 scale
          200 200 200 90 -90 arc
          setmatrix
-       50 setlinewidth
-       1 setlinecap
-       1 setlinejoin
-       stroke
+       pen stroke
          newpath
          matrix currentmatrix
          100 100 translate
