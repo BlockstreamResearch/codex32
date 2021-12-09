@@ -377,29 +377,32 @@ page exch perm 3 index get exch  makeShare code exch 1 getinterval show
 } bind def
 
 /arraySpace 13 def
+/gapSpace arraySpace 2 add def
 /showArray {
   10 dict begin
-  { /l /n /word /y /x } {exch def} forall
-  word n l getinterval
-    { x y moveto code exch 1 getinterval show
-      /x x arraySpace add def
-    } forall
+  { /n /spaces /word } {exch def} forall
+  spaces length string
+  0 1 spaces length 1 sub
+    { 2 copy code word n get 1 getinterval putinterval pop
+      /n n 1 add def
+    } for
+  spaces xshow
   end
 } bind def
 
 /showBox {
   10 dict begin
-  { /l /n /word /y /x /decoration } {exch def} forall
-  l { x y moveto n decoration
-      /x x arraySpace add def
+  { /n /spaces /word /decoration } {exch def} forall
+  spaces { gsave n decoration grestore
+      0 rmoveto
       /n n 1 add def
-    } repeat
+    } forall
   end
 } bind def
 
 /showArrayBox {
-  6 copy showBox
-  showArray pop
+  gsave 3 copy showArray grestore
+  showBox
 } bind def
 
 /drawParagraph {
@@ -927,29 +930,30 @@ moveto (ms32 Checksum Worksheet) centreshow
 x y moveto hrp (1) concatstrings dup stringwidth pop neg 3 sub 0 rmoveto show
 /odd polymodulus length codeword length add 2 mod def
 /edge codeword length polymodulus length sub hrp length add 2 add def
+/gaps [ 1 1 codeword length { 4 mod 1 eq {gapSpace} {arraySpace} ifelse } for ] def
 /k polymodulus length odd sub def
-  {edge labeledbox} x arraySpace odd mul add y codeword 0 k showArrayBox
+  {edge labeledbox} x arraySpace odd mul add y moveto codeword gaps 0 k getinterval 0 showArrayBox
 /y y 14 sub def
 /reduction [hrp polymodhrp aload pop k {0} repeat ] polymod0 def
-  {reduction length thin box} x arraySpace odd mul add y reduction odd k showArrayBox
+  {reduction length thin box} x arraySpace odd mul add y moveto reduction gaps 0 k getinterval odd showArrayBox
 /y y 15 sub def
 /residue reduction [1 odd eq {0} if codeword 0 k getinterval aload pop ] gf32addarray def
 
 {
   k codeword length ge {exit} if
-  { codeword length k sub thin box} x y residue dup length 0 exch showArrayBox
-  {edge labeledbox} x arraySpace polymodulus length mul add y codeword k 2 showArrayBox
-  /x x arraySpace 2 mul add def
+  { codeword length k sub thin box} x y moveto residue gaps k residue length sub residue length getinterval 0 showArrayBox
+  {edge labeledbox} codeword gaps k 2 getinterval k showArrayBox
+  /x x gaps k reduction length sub 2 getinterval aload pop add add def
   /y y 14 sub def
   /reduction residue 0 2 getinterval aload pop polymodshift2 def
-  {reduction length thin box} x y reduction dup length 0 exch showArrayBox
+  {reduction length thin box} x y moveto reduction gaps k reduction length 2 sub sub reduction length getinterval 0 showArrayBox
   /y y 15 sub def
   /residue reduction [residue 2 polymodulus length 2 sub getinterval aload pop codeword k 2 getinterval aload pop] gf32addarray def
   /k k 2 add def
 } loop
 
-gsave 0.85 setgray x y checksum dup length 0 exch showArray grestore
-{residue length thin box} x y residue dup length 0 exch showArrayBox
+gsave 0.85 setgray x y moveto checksum gaps k residue length sub residue length getinterval 0 showArray grestore
+{residue length thin box} x y moveto residue gaps k residue length sub residue length getinterval 0 showArrayBox
 
 
 end
