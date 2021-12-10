@@ -401,8 +401,8 @@ page exch perm 3 index get exch  makeShare code exch 1 getinterval show
 } bind def
 
 /showArrayBox {
-  gsave 3 copy showArray grestore
-  showBox
+  4 copy gsave showBox grestore
+  showArray pop
 } bind def
 
 /drawParagraph {
