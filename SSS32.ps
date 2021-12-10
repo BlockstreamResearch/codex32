@@ -71,9 +71,61 @@
     [611.842163 791.842163] % letter size
   } ifelse
 def
+
+/glyphwidth {
+  gsave
+  nulldevice newpath 0 0 moveto glyphshow currentpoint
+  grestore
+} bind def
+
 /magic 94 def % a magic angle for making nice looking spirals.
 /code [/Q /P /Z /R /Y /nine /X /eight /G /F /two /T /V /D /W /zero /S /three /J /N /five /four /K /H /C /E /six /M /U /A /seven /L /space] def
-/code2 [/multiply /aleph /alpha /beta /chi /delta /epsilon /phi /gamma /eta /iota /phi1 /kappa /lambda /mu /nu /omicron /phi /theta /rho /sigma /tau /upsilon /omega1 /omega /xi /psi /zeta /club /diamond /heart /spade /space] def
+/code2 [/multiply /aleph /alpha /beta /Gamma /Delta /epsilon /eta /Theta /Lambda /mu /Xi /Pi /rho /Sigma /Phi /Psi /Omega /at /numbersign /percent /cent /yen /Euro /currency /circleplus /dagger /daggerdbl /section /paragraph /diamond /heart /space ] def
+
+/Codex 15 dict dup begin
+/basefont /Courier findfont def
+/basechars basefont /CharStrings get def
+/backupfont /Symbol findfont def
+/makemetric {
+10 dict begin
+  /charname exch def
+  charname
+  gsave
+  basechars charname known
+  { basefont setfont [ charname glyphwidth ] }
+  { backupfont setfont [ charname glyphwidth ] } ifelse
+  grestore
+end
+} bind def
+/FontType 3 def
+/FontMatrix [1 0 0 1 0 0] def
+/FontBBox [0 0 0 0] def
+/Encoding StandardEncoding def
+/Metrics <<
+  /.notdef makemetric
+  /underscore makemetric
+  code {makemetric} forall
+  code2 {makemetric} forall
+>> def
+/BuildGlyph {
+10 dict begin
+   /charname exch def
+   /fontdict exch def
+   fontdict /Metrics get charname known not {/charname /.notdef def} if
+   fontdict /Metrics get charname get aload pop
+   % :TODO: create bounding box to run BBox charname get aload pop setcachedevice
+   % That would replace setcharwidth
+   setcharwidth
+   fontdict /basechars get charname known
+   { charname fontdict /basefont get setfont }
+   { charname fontdict /backupfont get setfont } ifelse
+   0 0 moveto glyphshow
+end
+} bind def
+/BuildChar { 1 index /Encoding get exch get 1 index /BuildGlyph get exec } bind def
+/UniqueID 2 def
+end definefont pop
+
 /perm [29 24 13 25 9 8 23 18 22 31 27 19 1 0 3 16 11 28 12 14 6 4 2 15 10 17 21 20 26 30 7 5 ] def
 /permS [16 29 24 13 25 9 8 23 18 22 31 27 19 1 0 3 11 28 12 14 6 4 2 15 10 17 21 20 26 30 7 5 ] def
 /permV [22 11 10 29 31 28 17 24 27 12 21 13 19 14 20 25 1 6 26 9 0 4 30 8 3 2 7 23 16 15 5 18 ] def
@@ -184,11 +236,6 @@ def
    [ exch 1 exch dup { 32 idiv exch } forall 0 exch { 31 and } forall ] polymod0
  } bind def
 
-/glyphwidth {
-  gsave
-  nulldevice newpath 0 0 moveto glyphshow currentpoint
-  grestore
-} bind def
 /underlineshow {
     dup dup /six eq exch /nine eq or { % if the string is (6) or (9)
         gsave /underscore glyphshow grestore % draw an underline
@@ -336,7 +383,7 @@ end
    % Draw indicator arrow
    newpath 0 6 40 mul moveto 10 -20 rlineto -20 0 rlineto closepath fill
    % Draw text
-   /Courier findfont 12 scalefont setfont
+   /Codex findfont 12 scalefont setfont
    180 rotate
    0 1 31 {
        magic rotate
@@ -349,7 +396,7 @@ end
        -26 -3 rmoveto % Move to the left
        31 exch sub % 31 - loop index
        permV exch get code exch get % Permute index and extract 1-char substring of alphabet
-       /Courier findfont 12 scalefont setfont underlineshow % ...and draw it
+       /Codex findfont 12 scalefont setfont underlineshow % ...and draw it
        /Symbol findfont 12 scalefont setfont /arrowright glyphshow % Draw a right arrow
    } for
  } bind def
@@ -465,10 +512,10 @@ showpage
   /Helvetica findfont 15 scalefont setfont
   20 offsetx add offsety moveto (Multiplication Table) show
   1 1 31 {
-    /Symbol findfont 8 scalefont setfont
+    /Codex findfont 8 scalefont setfont
     offsetx 34.5 7 mul add offsety 5 sub 2 index 8 mul sub moveto
     dup code2 exch get glyphshow
-    /Symbol findfont 8 scalefont setfont
+    /Codex findfont 8 scalefont setfont
     dup 1 31 {
     dup 2 add 7 mul offsetx add offsety 5 sub 3 index 8 mul sub moveto
     1 index gf32mul code2 exch get glyphshow
@@ -582,7 +629,7 @@ showpage
   dup 1 eq {pop 0} if % X out trying to recover a share with itself.
   end
 }
-(Recover Share) /Symbol code2 /Courier code [ 32 permS 1 31 getinterval aload pop ] drawBottomWheelPage
+(Recover Share) /Codex code2 /Codex code [ 32 permS 1 31 getinterval aload pop ] drawBottomWheelPage
 pgsave restore
 showpage
 %%Page: 4 4
@@ -598,7 +645,7 @@ pgsize aload pop 2 div exch 2 div exch translate
   360 16 div rotate
 } repeat
 grestore
-{gf32mul} (Translation) /Courier code /Symbol code2 [32 1 1 31 {} for] drawBottomWheelPage
+{gf32mul} (Translation) /Codex code /Codex code2 [32 1 1 31 {} for] drawBottomWheelPage
 
 pgsave restore
 showpage
@@ -606,7 +653,7 @@ showpage
 %%BeginPageSetup
 /pgsave save def
 %%EndPageSetup
-{xor} (Addition) /Courier code 2 copy perm drawBottomWheelPage
+{xor} (Addition) /Codex code 2 copy perm drawBottomWheelPage
 
 pgsave restore
 showpage
@@ -709,7 +756,7 @@ showpage
                 permS xinterp get code exch get glyphshow
                 (   ) show
 
-                /Symbol findfont 12 scalefont setfont
+                /Codex findfont 12 scalefont setfont
                 k mink sub { 12 0 rmoveto } repeat
                 k 1 31 {
                     permS exch get  % x coord to evaluate at
@@ -816,7 +863,7 @@ showpage
    gsave
    0 360 8 div 360 {title 6 3 -1 roll 234 outsidecircletext} for
    grestore
-   /Symbol findfont 18 scalefont setfont
+   /Codex findfont 18 scalefont setfont
    permP 1 31 getinterval {0 38 sqrt 40 mul 29 sub moveto code2 exch get centreglyphshow angle rotate} forall
    grestore
 
@@ -869,7 +916,7 @@ showpage
    /Helvetica findfont 12 scalefont setfont
    title 12 270 30 insidecircletext
    % Draw letters
-   /Symbol findfont 18 scalefont setfont
+   /Codex findfont 18 scalefont setfont
    /sz 3 def
    permP 1 31 getinterval {
       0 24 sqrt 40 mul sz 2 mul sub moveto code2 exch get centreglyphshow
@@ -946,7 +993,7 @@ showpage
   grestore
   gsave
     arraySpace 6 sub 14 5 sub rmoveto
-    /Courier findfont 3 scalefont setfont
+    /Codex findfont 3 scalefont setfont
     n 10 le { ( ) show } if n 2 string cvs show
   grestore
   end
@@ -955,14 +1002,15 @@ showpage
 pgsize aload pop exch pop 2 div 700
 moveto (ms32 Checksum Worksheet) centreshow
 
-/Courier findfont 15 scalefont setfont
 
 120 670
 % [10 29 19 13 4 16 20 8 16 7 4 13 6 8 27 31 28 14 17 21 31 25 19 15 1 3 13 29 22 5 8 31 9 17 15 30 19 15 21 16 19 26 16 22 31]
 [ 45 {32} repeat ]
 10 dict begin
 { /codeword /y /x } {exch def} forall
+/Courier findfont 15 scalefont setfont
 x y moveto hrp (1) concatstrings dup stringwidth pop neg 3 sub 0 rmoveto show
+/Codex findfont 15 scalefont setfont
 /odd polymodulus length codeword length add 2 mod def
 /edge codeword length polymodulus length sub hrp length add 2 add def
 /gaps [ 0 1 codeword length { 4 mod 1 eq {gapSpace} {arraySpace} ifelse } for ] def
