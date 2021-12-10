@@ -72,8 +72,8 @@
   } ifelse
 def
 /magic 94 def % a magic angle for making nice looking spirals.
-/code (QPZRY9X8GF2TVDW0S3JN54KHCE6MUA7L ) def
-/code2 (\264\300abcdefghijklmnopqrstuvwxyz\247\250\251\252 ) def
+/code [/Q /P /Z /R /Y /nine /X /eight /G /F /two /T /V /D /W /zero /S /three /J /N /five /four /K /H /C /E /six /M /U /A /seven /L /space] def
+/code2 [/multiply /aleph /alpha /beta /chi /delta /epsilon /phi /gamma /eta /iota /phi1 /kappa /lambda /mu /nu /omicron /phi /theta /rho /sigma /tau /upsilon /omega1 /omega /xi /psi /zeta /club /diamond /heart /spade /space] def
 /perm [29 24 13 25 9 8 23 18 22 31 27 19 1 0 3 16 11 28 12 14 6 4 2 15 10 17 21 20 26 30 7 5 ] def
 /permS [16 29 24 13 25 9 8 23 18 22 31 27 19 1 0 3 11 28 12 14 6 4 2 15 10 17 21 20 26 30 7 5 ] def
 /permV [22 11 10 29 31 28 17 24 27 12 21 13 19 14 20 25 1 6 26 9 0 4 30 8 3 2 7 23 16 15 5 18 ] def
@@ -167,7 +167,7 @@ def
 
 /polymodulus [31 5 3 28 0 31 31 31 9 5 30 2 2] def % coefficents from c12 to c0
 /checksum [16 25 24 3 25 11 16 23 29 3 25 17 10] def
-/checksumstring { polymodulus length string checksum 0 1 polymodulus length 1 sub {3 copy exch 1 index get code exch 1 getinterval putinterval pop } for pop } bind def
+/checksumstring { polymodulus length array checksum 0 1 polymodulus length 1 sub {3 copy exch 1 index get code exch 1 getinterval putinterval pop } for pop } bind def
 
 /polymod0 % array -> [ c5 c4 c3 c2 c1 c0 ]
  { [ polymodulus length {0} repeat ]
@@ -184,13 +184,19 @@ def
    [ exch 1 exch dup { 32 idiv exch } forall 0 exch { 31 and } forall ] polymod0
  } bind def
 
-/underlineshow {
-    dup dup (6) eq exch (9) eq or { % if the string is (6) or (9)
-        gsave (_) show grestore % draw an underline
-    } if
-    show
+/glyphwidth {
+  gsave
+  nulldevice newpath 0 0 moveto glyphshow currentpoint
+  grestore
 } bind def
-/centreshow {dup stringwidth pop 2 div neg 0 rmoveto underlineshow} bind def
+/underlineshow {
+    dup dup /six eq exch /nine eq or { % if the string is (6) or (9)
+        gsave /underscore glyphshow grestore % draw an underline
+    } if
+    glyphshow
+} bind def
+/centreshow {dup stringwidth pop 2 div neg 0 rmoveto show} bind def
+/centreglyphshow {dup glyphwidth pop 2 div neg 0 rmoveto underlineshow} bind def
 /centresquare {dup neg 2 div dup rmoveto dup 0 rlineto dup 0 exch rlineto neg 0 rlineto closepath stroke} bind def
 /concatstrings % (a) (b) -> (ab)
    { exch dup length
@@ -296,7 +302,7 @@ end
    0 360 8 div 360 {title 6 3 -1 roll 262 outsidecircletext} for
    grestore
    outerfont findfont 18 scalefont setfont
-   outerperm {0 38 sqrt 40 mul moveto outercode exch 1 getinterval centreshow angle rotate} forall
+   outerperm {0 38 sqrt 40 mul moveto outercode exch get centreglyphshow angle rotate} forall
    % Draw inside contents
    innerfont findfont 12 scalefont setfont
    180 rotate
@@ -306,7 +312,7 @@ end
            0 2 index 2 add sqrt 40 mul moveto % move to 0, 2.5 + 40*sqrt(outer index + 2)
            1 index 31 exch sub % 31 - inner index
            permV exch get binop % apply binary operation to the permuted letter and the inner index
-           innercode exch 1 getinterval centreshow % display the result
+           innercode exch get centreglyphshow % display the result
            angle rotate % rotate one entry
        } forall pop
    } for
@@ -342,9 +348,9 @@ end
        moveto % return to midpoint
        -26 -3 rmoveto % Move to the left
        31 exch sub % 31 - loop index
-       permV exch get code exch 1 getinterval % Permute index and extract 1-char substring of alphabet
+       permV exch get code exch get % Permute index and extract 1-char substring of alphabet
        /Courier findfont 12 scalefont setfont underlineshow % ...and draw it
-       (\256) /Symbol findfont 12 scalefont setfont show % Draw a right arrow
+       /Symbol findfont 12 scalefont setfont /arrowright glyphshow % Draw a right arrow
    } for
  } bind def
 
@@ -355,22 +361,22 @@ end
 /Courier findfont 10 scalefont setfont
 20 offsetx add offsety moveto (Page: ) show
 /Courier-Bold findfont 8 scalefont setfont
-code page 1 getinterval show
+code page get glyphshow
 2 1 31 {
 dup 7 mul offsetx add offsety 10 sub moveto
 permS exch get
-code exch 1 getinterval show
+code exch get glyphshow
 } for
 
 0 1 31 {
 /Courier-Bold findfont 8 scalefont setfont
 offsetx offsety 20 sub 2 index 8 mul sub moveto
-dup code exch perm exch get 1 getinterval show
+dup code exch perm exch get get glyphshow
 /Courier findfont 8 scalefont setfont
 2 1 31 {
 dup 7 mul offsetx add offsety 20 sub 3 index 8 mul sub moveto
 permS exch get
-page exch perm 3 index get exch  makeShare code exch 1 getinterval show
+page exch perm 3 index get exch  makeShare code exch get glyphshow
 } for pop } for
 } bind def
 
@@ -386,12 +392,11 @@ page exch perm 3 index get exch  makeShare code exch 1 getinterval show
 /showArray {
   10 dict begin
   { /n /spaces /word } {exch def} forall
-  spaces length string
   0 1 spaces length 1 sub
-    { 2 copy code word n get 1 getinterval putinterval pop
+    { code word n get get gsave glyphshow grestore
+      spaces exch get 0 rmoveto
       /n n 1 add def
     } for
-  spaces xshow
   end
 } bind def
 
@@ -462,11 +467,11 @@ showpage
   1 1 31 {
     /Symbol findfont 8 scalefont setfont
     offsetx 34.5 7 mul add offsety 5 sub 2 index 8 mul sub moveto
-    dup code2 exch 1 getinterval show
+    dup code2 exch get glyphshow
     /Symbol findfont 8 scalefont setfont
     dup 1 31 {
     dup 2 add 7 mul offsetx add offsety 5 sub 3 index 8 mul sub moveto
-    1 index gf32mul code2 exch 1 getinterval show
+    1 index gf32mul code2 exch get glyphshow
   } for pop } for
 end
 
@@ -694,14 +699,15 @@ showpage
 
                 k mink sub { 12 0 rmoveto } repeat
                 k 1 31 {
-                    permS exch get code exch 1 getinterval gsave centreshow grestore
+                    permS exch get code exch get gsave glyphshow grestore
                     12 0 rmoveto
                 } for % horizontal loop
             } {
                 % Symbol rows
                 /xinterp rowidx 1 sub def % x coord to interpolate at
-                (      ) rowtitle copy 2 permS xinterp get code exch 1 getinterval putinterval
-                rowtitle show
+                (  ) show
+                permS xinterp get code exch get glyphshow
+                (   ) show
 
                 /Symbol findfont 12 scalefont setfont
                 k mink sub { 12 0 rmoveto } repeat
@@ -710,7 +716,7 @@ showpage
                     permS xinterp get % x coord to interpolate at
                     permS 0 k getinterval % x coords to interpolate at
                     lagrange % symbol
-                    code2 exch 1 getinterval gsave centreshow grestore % print symbol
+                    code2 exch get gsave glyphshow grestore % print symbol
                     12 0 rmoveto
                 } for % horizontal loop
             } ifelse
@@ -811,7 +817,7 @@ showpage
    0 360 8 div 360 {title 6 3 -1 roll 234 outsidecircletext} for
    grestore
    /Symbol findfont 18 scalefont setfont
-   permP 1 31 getinterval {0 38 sqrt 40 mul 29 sub moveto code2 exch 1 getinterval centreshow angle rotate} forall
+   permP 1 31 getinterval {0 38 sqrt 40 mul 29 sub moveto code2 exch get centreglyphshow angle rotate} forall
    grestore
 
    end
@@ -866,7 +872,7 @@ showpage
    /Symbol findfont 18 scalefont setfont
    /sz 3 def
    permP 1 31 getinterval {
-      0 24 sqrt 40 mul sz 2 mul sub moveto code2 exch 1 getinterval centreshow
+      0 24 sqrt 40 mul sz 2 mul sub moveto code2 exch get centreglyphshow
       % Draw indicator arrow
       newpath 0 6 40 mul 29 sub moveto sz sz 2 mul neg rlineto sz 2 mul neg 0 rlineto closepath fill
       angle rotate
@@ -892,16 +898,15 @@ moveto (ms32 Checksum Table) centreshow
 perm exch get exch perm exch get exch
 2 copy
 code exch get exch code exch get exch
-2 string dup 1 4 3 roll put dup 0 4 3 roll put
 /Courier-Bold findfont polymodulus length 6 le {8} {4.5} ifelse scalefont setfont
-show
+exch glyphshow glyphshow
+/Courier findfont polymodulus length 6 le {8} {4.5} ifelse scalefont setfont
 3 0 rmoveto
-polymodulus length string
+polymodulus length array
 3 1 roll
 polymodshift2 0 1 polymodulus length 1 sub { 3 copy get code exch get 3 2 roll exch put } for
 pop
-/Courier findfont polymodulus length 6 le {8} {4.5} ifelse scalefont setfont
-show
+{glyphshow} forall
 pop
 } for
 pop
@@ -1013,7 +1018,7 @@ end
 100 310 moveto
 (already filled in for you.  The last row will sum) show
 100 300 moveto
-(to ) checksumstring ( if the checksum is valid.) concatstrings concatstrings show
+(to ) show checksumstring {glyphshow} forall ( if the checksum is valid.) show
 100 260 moveto
 /Helvetica-Bold findfont 10 scalefont setfont
 (Creating Checksums) show
@@ -1023,7 +1028,7 @@ end
 100 230 moveto
 (to fill in everything but the shaded cells. To fill in) show
 100 220 moveto
-(the shaded cells, write ) checksumstring ( into the bottom) concatstrings concatstrings show
+(the shaded cells, write ) show checksumstring {glyphshow} forall ( into the bottom) show
 100 210 moveto
 (row.  Working from the bottom up, fill in the) show
 100 200 moveto
@@ -1042,18 +1047,18 @@ end
 0 1 31 {
 dup 2 add 7 mul offsetx add offsety 10 sub moveto
 perm exch get
-code exch 1 getinterval show
+code exch get glyphshow
 } for
 
 0 1 31 {
 /Courier-Bold findfont 8 scalefont setfont
 offsetx 34.5 7 mul add offsety 20 sub 2 index 8 mul sub moveto
-dup code exch perm exch get 1 getinterval show
+dup code exch perm exch get get glyphshow
 /Courier findfont 8 scalefont setfont
 dup 1 31 {
 dup 2 add 7 mul offsetx add offsety 20 sub 3 index 8 mul sub moveto
 perm exch get
-perm 2 index get gf32add code exch 1 getinterval show
+perm 2 index get gf32add code exch get glyphshow
 } for pop } for
 
 pgsave restore
