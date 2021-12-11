@@ -86,11 +86,18 @@ def
 /basefont /Courier findfont def
 /basechars basefont /CharStrings get def
 /backupfont /Symbol findfont def
+/substitute <<
+  /Omega /uni03A9
+  /circleplus /uni2295
+>> def
 /makemetric {
 10 dict begin
   /charname exch def
   charname
   gsave
+  % try substituting the glyph name
+  substitute charname known basechars charname known not and
+    { basechars substitute charname get known { /charname substitute charname get def } if } if
   basechars charname known
   { basefont setfont [ charname glyphwidth ] }
   { backupfont setfont [ charname glyphwidth ] } ifelse
@@ -111,12 +118,17 @@ end
 10 dict begin
    /charname exch def
    /fontdict exch def
+   /basechars dup fontdict exch get def
+   /substitute dup fontdict exch get def
    fontdict /Metrics get charname known not {/charname /.notdef def} if
    fontdict /Metrics get charname get aload pop
    % :TODO: create bounding box to run BBox charname get aload pop setcachedevice
    % That would replace setcharwidth
    setcharwidth
-   fontdict /basechars get charname known
+   % try substituting the glyph name
+   substitute charname known basechars charname known not and
+     { basechars substitute charname get known { /charname substitute charname get def } if } if
+   basechars charname known
    { charname fontdict /basefont get setfont }
    { charname fontdict /backupfont get setfont } ifelse
    0 0 moveto glyphshow
