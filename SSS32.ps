@@ -65,7 +65,12 @@
 /ver exch def
 /name exch def
 
-/pgsize {612 792} def % letter size
+/pgsize currentpagedevice /PageSize known
+  { currentpagedevice /PageSize get
+  } {
+    [611.842163 791.842163] % letter size
+  } ifelse
+def
 /magic 94 def % a magic angle for making nice looking spirals.
 /code (QPZRY9X8GF2TVDW0S3JN54KHCE6MUA7L ) def
 /code2 (\264\300abcdefghijklmnopqrstuvwxyz\247\250\251\252 ) def
@@ -276,7 +281,7 @@ end
    /binop exch def
    /angle 360 outerperm length div neg def
    % Move cursor to center of page
-   pgsize 2 div exch 2 div exch translate
+   pgsize aload pop 2 div exch 2 div exch translate
    % Draw white interior circle
    newpath 0 0 6 40 mul 0 360 arc stroke
    newpath 0 0 6 40 mul 28 add 0 360 arc stroke
@@ -311,7 +316,7 @@ end
 /showTopWheelPage
  {
    % Move cursor to center of page
-   pgsize 2 div exch 2 div exch translate
+   pgsize aload pop 2 div exch 2 div exch translate
    % Draw gray "handle" and white interior circle
    0.8 setgray
    newpath 0 0 7.25 40 mul 140 40 arc fill
@@ -581,7 +586,7 @@ showpage
 %%EndPageSetup
 % note 0 and 1 are never used, so they are removed from the wheel.
 gsave
-pgsize 2 div exch 2 div exch translate
+pgsize aload pop 2 div exch 2 div exch translate
 360 64 div rotate
 16 {
   newpath 0 6 40 mul moveto 0 28 rlineto stroke
@@ -795,7 +800,7 @@ showpage
    /title (Multiplicaton) def
    /angle 360 31 div neg def
    % Move cursor to center of page
-   pgsize 2 div exch 2 div exch translate
+   pgsize aload pop 2 div exch 2 div exch translate
    % Draw white interior circle
    newpath 0 0 6 40 mul 29 sub 0 360 arc stroke
    newpath 0 0 6 40 mul 0 360 arc stroke
@@ -823,7 +828,7 @@ showpage
    /title (Multiplicaton) def
    /angle 360 31 div neg def
    % Move cursor to center of page
-   pgsize 2 div exch 2 div exch translate
+   pgsize aload pop 2 div exch 2 div exch translate
 
    % Draw handle
    1 0 0 setrgbcolor
@@ -877,7 +882,7 @@ showpage
 /pgsave save def
 %%EndPageSetup
 /Helvetica-Bold findfont 10 scalefont setfont
-pgsize 40 sub exch 2 div exch
+pgsize aload pop 40 sub exch 2 div exch
 moveto (ms32 Checksum Table) centreshow
 
 0 1 31 {
@@ -942,7 +947,7 @@ showpage
   end
 } bind def
 /Helvetica-Bold findfont 10 scalefont setfont
-pgsize exch pop 2 div 700
+pgsize aload pop exch pop 2 div 700
 moveto (ms32 Checksum Worksheet) centreshow
 
 /Courier findfont 15 scalefont setfont
