@@ -192,7 +192,6 @@
 /perm [29 24 13 25 9 8 23 18 22 31 27 19 1 0 3 16 11 28 12 14 6 4 2 15 10 17 21 20 26 30 7 5 ] def
 /permS [16 29 24 13 25 9 8 23 18 22 31 27 19 1 0 3 11 28 12 14 6 4 2 15 10 17 21 20 26 30 7 5 ] def
 /permV [22 11 10 29 31 28 17 24 27 12 21 13 19 14 20 25 1 6 26 9 0 4 30 8 3 2 7 23 16 15 5 18 ] def
-/permP [0 1 2 4 8 16 9 18 13 26 29 19 15 30 21 3 6 12 24 25 27 31 23 7 14 28 17 11 22 5 10 20] def
 
 /code [/Q /P /Z /R /Y /nine /X /eight /G /F /two /T /V /D /W /zero /S /three /J /N /five /four /K /H /C /E /six /M /U /A /seven /L /space] def
 /code2 [/multiply /aleph /alpha /beta /Gamma /Delta /epsilon /eta /Theta /Lambda /mu /Xi /Pi /rho /Sigma /Phi /Psi /Omega /at /numbersign /percent /cent /yen /Euro /currency /circleplus /dagger /daggerdbl /section /paragraph /diamond /heart /space ] def
@@ -473,6 +472,93 @@ end definefont pop
        /Symbol findfont 12 scalefont setfont /arrowright glyphshow % Draw a right arrow
    } for
  } bind def
+
+/drawBottomDisc {
+% arguments:
+%   /title (string)
+%   /radius (number)
+%   /outerglyphs (array of glyph names)
+%   /angle (optional number)
+10 dict copy begin
+   currentdict /angle known not
+   { /angle 360 outerglyphs length div def } if
+
+   % Draw white interior circle
+   newpath 0 0 radius 0 360 arc stroke
+   newpath 0 0 radius 29 sub 0 360 arc stroke
+   newpath 0 0 6 0 360 arc stroke
+   % Draw letters
+   gsave
+   /Helvetica findfont 6 scalefont setfont
+   0 360 8 div 360 {title 6 3 -1 roll radius 6 sub outsidecircletext} for
+   grestore
+   /Codex findfont 18 scalefont setfont
+   outerglyphs {0 radius 29 sub 18 0.2 mul add moveto centreglyphshow angle neg rotate} forall
+end
+} bind def
+
+/drawTopDisc {
+% arguments:
+%   /title (string)
+%   /radius (number)
+%   /innerglyphs (array of glyph names)
+%   /angle (optional number)
+10 dict copy begin
+   currentdict /angle known not
+   { /angle 360 innerglyphs length div def } if
+
+   % Draw handle
+   newpath radius 29 sub radius 60 add moveto
+   0 0 radius 29 sub 0 180 arc
+   radius 29 sub neg radius 60 add lineto
+   closepath
+   clip
+   newpath 10 0 moveto
+   30 0 lineto
+   36 radius 60 add 29 sub 0 radius 60 add 29 sub 5 arct
+   -36 radius 60 add 29 sub -30 0 5 arct
+   -36 0 lineto
+   -10 0 lineto
+   -10 radius 29 sub 18 add lineto
+   10 radius 29 sub 18 add lineto
+   closepath
+   0.8 setgray
+   fill
+   0 setgray
+   initclip
+
+   % Draw indicator arrow
+   /lgsz 8 def
+   newpath 0 radius 29 sub 18 add moveto lgsz dup 2 mul rlineto lgsz -2 mul 0 rlineto closepath fill
+
+   % Draw white interior circle
+   newpath 0 0 radius 29 sub 0 360 arc stroke
+   % Draw centre cross
+   newpath 0 6 moveto 0 -6 lineto stroke
+   newpath 6 0 moveto -6 0 lineto stroke
+   % Draw title
+   /Helvetica findfont 12 scalefont setfont
+   title 12 270 30 insidecircletext
+   % Draw letters
+   /Codex findfont 18 scalefont setfont
+   /sz 3 def
+   innerglyphs {
+      0 radius 29 18 0.8 mul add sub sz 2 mul sub moveto centreglyphshow
+      % Draw indicator arrow
+      newpath 0 radius 29 sub moveto sz sz 2 mul neg rlineto sz 2 mul neg 0 rlineto closepath fill
+      angle neg rotate
+   } forall
+
+end
+} bind def
+
+/multiplicationDisc <<
+  /title (Multiplication)
+  /radius 240
+  /outerglyphs [ [ 1 30 {dup gf32mulalpha} repeat ] {code2 exch get} forall ]
+  % innerglyphs are a copy of the outer glyphs
+  dup /innerglyphs exch
+>> def
 
 %******************
 %* Share Tables
@@ -958,27 +1044,9 @@ showpage
 %%BeginPageSetup
 /pgsave save def
 %%EndPageSetup
-   10 dict begin
-
-   gsave
-   /title (Multiplicaton) def
-   /angle 360 31 div neg def
-   % Move cursor to center of page
-   pgsize aload pop 2 div exch 2 div exch translate
-   % Draw white interior circle
-   newpath 0 0 6 40 mul 29 sub 0 360 arc stroke
-   newpath 0 0 6 40 mul 0 360 arc stroke
-   newpath 0 0 6 0 360 arc stroke
-   % Draw letters
-   /Helvetica findfont 6 scalefont setfont
-   gsave
-   0 360 8 div 360 {title 6 3 -1 roll 234 outsidecircletext} for
-   grestore
-   /Codex findfont 18 scalefont setfont
-   permP 1 31 getinterval {0 38 sqrt 40 mul 29 sub moveto code2 exch get centreglyphshow angle rotate} forall
-   grestore
-
-   end
+% Move cursor to center of page
+pgsize aload pop 2 div exch 2 div exch translate
+multiplicationDisc drawBottomDisc
 
 pgsave restore
 showpage
@@ -986,58 +1054,8 @@ showpage
 %%BeginPageSetup
 /pgsave save def
 %%EndPageSetup
-   10 dict begin
-
-   gsave
-   /title (Multiplicaton) def
-   /angle 360 31 div neg def
-   % Move cursor to center of page
-   pgsize aload pop 2 div exch 2 div exch translate
-
-   % Draw handle
-   1 0 0 setrgbcolor
-   newpath 6 40 mul 29 sub 7.25 40 mul moveto
-   0 0 6 40 mul 29 sub 0 180 arc
-   6 40 mul 29 sub neg 7.25 40 mul lineto
-   closepath
-   clip
-   newpath 10 0 moveto
-   30 0 lineto
-   36 7.5 40 mul 29 sub 0 7.5 40 mul 29 sub 5 arct
-   -36 7.5 40 mul 29 sub -30 0 5 arct
-   -36 0 lineto
-   -10 0 lineto
-   -10 6 40 mul 8 sub lineto
-   10 6 40 mul 8 sub lineto
-   closepath
-   0.8 setgray
-   fill
-   0 setgray
-   initclip
-
-   % Draw indicator arrow
-   newpath 0 6 40 mul 8 sub moveto 8 16 rlineto -16 0 rlineto closepath fill
-
-   % Draw white interior circle
-   newpath 0 0 6 40 mul 29 sub 0 360 arc stroke
-   % Draw centre cross
-   newpath 0 6 moveto 0 -6 lineto stroke
-   newpath 6 0 moveto -6 0 lineto stroke
-   % Draw title
-   /Helvetica findfont 12 scalefont setfont
-   title 12 270 30 insidecircletext
-   % Draw letters
-   /Codex findfont 18 scalefont setfont
-   /sz 3 def
-   permP 1 31 getinterval {
-      0 24 sqrt 40 mul sz 2 mul sub moveto code2 exch get centreglyphshow
-      % Draw indicator arrow
-      newpath 0 6 40 mul 29 sub moveto sz sz 2 mul neg rlineto sz 2 mul neg 0 rlineto closepath fill
-      angle rotate
-   } forall
-   grestore
-
-   end
+pgsize aload pop 2 div exch 2 div exch translate
+multiplicationDisc drawTopDisc
 
 pgsave restore
 showpage
