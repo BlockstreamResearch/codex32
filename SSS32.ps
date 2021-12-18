@@ -576,6 +576,8 @@ end definefont pop
   } bind def
 
   /drawTopDisc {
+     gsave decorateTopDisc grestore
+
      /Codex findfont innerglyphSz scalefont setfont
      /charwidth /space glyphwidth pop 1.2 mul def
      /handlewidth 54 def
@@ -625,6 +627,7 @@ end definefont pop
         angle rotate
      } forall
   } bind def
+  /decorateTopDisc {} def
 end
 
 % /translationDisc is a modified copy of multiplicaitonDisc.
@@ -632,6 +635,37 @@ multiplicationDisc dup maxlength dict copy dup /translationDisc exch def begin
   /title (Translation) def
   /logbase 23 def
   /coding code def
+end
+
+% /recoveryDisc is a modified copy of multiplicaitonDisc.
+multiplicationDisc dup maxlength dict copy dup /recoveryDisc exch def begin
+  /title (Recovery) def
+  /logbase 10 def
+  /outerglyphs {
+     [ [ 1 numglyphs 1 sub {dup logbase gf32inv gf32mul} repeat ]
+       {16 xor code exch get} forall ]
+  } bind def
+  /outerPointerSz -6 def
+  /innerglyphs {
+     [ [ 1 numglyphs 1 sub {dup logbase gf32inv gf32mul} repeat ]
+       { 16 xor [ exch 17 ] 16 17 3 -1 roll lagrange
+         dup 1 eq {pop 32} if
+         code2 exch get
+       } forall ]
+  } bind def
+  /innerPointerSz 0 def
+  /decorateTopDisc {
+     /littleR 1 def
+     /bigR innerRadius innerPointerSz sub innerglyphSz sub littleR sub def
+     thin line
+     0.8 setgray
+     1 1 numglyphs 2 idiv {
+       angle mul dup sin bigR mul exch cos bigR mul
+       newpath 2 copy littleR -180 180 arc
+       exch neg exch littleR 0 360 arc
+       stroke
+     } for
+  } bind def
 end
 
 %******************
@@ -1118,7 +1152,22 @@ showpage
 %%BeginPageSetup
 /pgsave save def
 %%EndPageSetup
-
+% gsave verythin line marginpath stroke grestore
+% Move cursor to center of page
+pgsize aload pop 2 div exch 2 div exch translate
+recoveryDisc begin
+% angle the page
+  /pageangle pgsize aload pop radius angleinbox def
+  /buffer 2 def
+  pageangle rotate
+  gsave
+    0 buffer innerRadius add neg translate
+    drawBottomDisc
+  grestore
+  0 buffer radius add translate
+  90 pageangle sub rotate
+  drawTopDisc
+end
 pgsave restore
 showpage
 %%Page: 20 20
