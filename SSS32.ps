@@ -1,6 +1,6 @@
 %!PS-Adobe-3.0
 %%Orientation: Portrait
-%%Pages: 22
+%%Pages: 23
 %%EndComments
 %%BeginSetup
 [(Shamir's Secret) (Sharing Codex)]
@@ -54,6 +54,39 @@
 /MIT exch def
 /ver exch def
 /title exch def
+
+%******************
+%* Main text content
+%*
+/allPageContent [
+  [
+    /section (Overview / Cheatsheet) /endsection
+
+    /section (Part I: High-Level Introduction) /endsection
+    /subsection (I.1. Bitcoin and Seed Values) /endsubsection
+    /subsection (I.2. Shamir Secret Sharing) /endsubsection
+    /subsection (I.3. Computers and Trust) /endsubsection
+    /subsection (I.4. Checksumming and Error Correction) /endsubsection
+
+    /section (Part II: Detailed Introduction) /endsection
+    /subsection (II.1. Bech32 and the Alphabet) /endsubsection
+    /subsection (II.2. Generating Random Bech32 Characters) /endsubsection
+  ] [ % pagebreak
+    /subsection (II.3. Tables, Volvelles and Slide Rulers) /endsubsection
+    /subsection (II.4. Storage and Headers) /endsubsection
+    /subsection (II.5. Initial Share Generation) /endsubsection
+    /subsubsection (II.5.a. Unshared Checksummed Secret) /endsubsubsection
+    /subsubsection (II.5.b. New Split Secret with Threshold k) /endsubsubsection
+    /subsection (II.6. Derived Share Generation) /endsubsection
+    /subsection (II.7. Distribution of Shares) /endsubsection
+    /subsection (II.8. Recovery) /endsubsection
+    /subsubsection (II.8.a. k = 2) /endsubsubsection
+    /subsubsection (II.8.b. k > 2) /endsubsubsection
+
+    /section (Module 0: Volvelles and Slide Rules) /endsection
+    /section (Module 1: Extra Worksheets) /endsection
+  ]
+] def
 
 %******************
 %* Helper Functions and Utilities
@@ -587,7 +620,75 @@ MIT {gsave ((c)) search {show pop /copyright glyphshow} if show grestore 0 -12 r
 pgsave restore
 showpage
 
+%****************************************************************
+%*
+%* Table of Contents
+%*
+%****************************************************************
 %%Page: 3 3
+%%BeginPageSetup
+/pgsave save def
+%%EndPageSetup
+
+/Helvetica-Bold findfont 18 scalefont setfont
+pgsize aload pop 72 sub exch 2 div exch
+moveto (Table of Contents) centreshow
+
+[1 4] 0 setdash
+/Helvetica findfont 14 scalefont setfont
+/pagenum 1 def
+
+<<
+  /x 72 def
+  /xnum pgsize aload pop pop 108 sub def
+  /y pgsize aload pop exch pop 108 sub def
+  /displaying false
+
+  /stringtype {
+    displaying {
+      % Section title
+      x y moveto show
+      % Horizontal line
+      % For aligned dots we go out of our way to start the line on the right hand side.
+      currentpoint xnum 5 sub y moveto lineto stroke
+      % Page number
+      xnum y moveto pagenum 2 string cvs show
+      /y y 24 sub store
+    } { pop } ifelse
+  }
+  /nametype {
+    <<
+      /section 1
+      /endsection -1
+      /subsection 2
+      /endsubsection -2
+      /subsubsection 3
+      /endsubsubsection -3
+    >> exch 2 copy known {
+      get
+      % For top-level sections bump y down an extra space
+      dup 1 eq { /y y 15 sub store } if
+      % For all sections just adjust x accordingly
+      /x 1 index 20 mul x add store
+      /displaying exch 0 gt store
+
+    } { pop pop } ifelse
+  }
+>> begin
+
+allPageContent { % forall pages
+  { % forall symbols in page
+    dup type exec
+  } forall
+  /pagenum pagenum 1 add store
+} forall
+
+end
+
+pgsave restore
+showpage
+
+%%Page: 4 4
 %%BeginPageSetup
 /pgsave save def
 %%EndPageSetup
@@ -704,7 +805,7 @@ end
 
 pgsave restore
 showpage
-%%Page: 4 4
+%%Page: 5 5
 %%BeginPageSetup
 /pgsave save def
 %%EndPageSetup
@@ -718,7 +819,7 @@ showpage
 (Recover Share) /Codex code2 /Codex code [ 32 permS 1 31 getinterval aload pop ] drawBottomWheelPage
 pgsave restore
 showpage
-%%Page: 5 5
+%%Page: 6 6
 %%BeginPageSetup
 /pgsave save def
 %%EndPageSetup
@@ -735,19 +836,11 @@ grestore
 
 pgsave restore
 showpage
-%%Page: 6 6
-%%BeginPageSetup
-/pgsave save def
-%%EndPageSetup
-{xor} (Addition) /Codex code 2 copy perm drawBottomWheelPage
-
-pgsave restore
-showpage
 %%Page: 7 7
 %%BeginPageSetup
 /pgsave save def
 %%EndPageSetup
-showTopWheelPage
+{xor} (Addition) /Codex code 2 copy perm drawBottomWheelPage
 
 pgsave restore
 showpage
@@ -768,6 +861,14 @@ showTopWheelPage
 pgsave restore
 showpage
 %%Page: 10 10
+%%BeginPageSetup
+/pgsave save def
+%%EndPageSetup
+showTopWheelPage
+
+pgsave restore
+showpage
+%%Page: 11 11
 %%BeginPageSetup
 /pgsave save def
 %%EndPageSetup
@@ -865,7 +966,7 @@ end
 
 pgsave restore
 showpage
-%%Page: 11 11
+%%Page: 12 12
 %%BeginPageSetup
 /pgsave save def
 %%EndPageSetup
@@ -873,7 +974,7 @@ showpage
 
 pgsave restore
 showpage
-%%Page: 12 12
+%%Page: 13 13
 %%BeginPageSetup
 /pgsave save def
 %%EndPageSetup
@@ -881,7 +982,7 @@ showpage
 
 pgsave restore
 showpage
-%%Page: 13 13
+%%Page: 14 14
 %%BeginPageSetup
 /pgsave save def
 %%EndPageSetup
@@ -889,7 +990,7 @@ showpage
 
 pgsave restore
 showpage
-%%Page: 14 14
+%%Page: 15 15
 %%BeginPageSetup
 /pgsave save def
 %%EndPageSetup
@@ -897,7 +998,7 @@ showpage
 
 pgsave restore
 showpage
-%%Page: 15 15
+%%Page: 16 16
 %%BeginPageSetup
 /pgsave save def
 %%EndPageSetup
@@ -905,7 +1006,7 @@ showpage
 
 pgsave restore
 showpage
-%%Page: 16 16
+%%Page: 17 17
 %%BeginPageSetup
 /pgsave save def
 %%EndPageSetup
@@ -913,7 +1014,7 @@ showpage
 
 pgsave restore
 showpage
-%%Page: 17 17
+%%Page: 18 18
 %%BeginPageSetup
 /pgsave save def
 %%EndPageSetup
@@ -921,7 +1022,7 @@ showpage
 
 pgsave restore
 showpage
-%%Page: 18 18
+%%Page: 19 19
 %%BeginPageSetup
 /pgsave save def
 %%EndPageSetup
@@ -929,7 +1030,7 @@ showpage
 
 pgsave restore
 showpage
-%%Page: 19 19
+%%Page: 20 20
 %%BeginPageSetup
 /pgsave save def
 %%EndPageSetup
@@ -957,7 +1058,7 @@ showpage
 
 pgsave restore
 showpage
-%%Page: 20 20
+%%Page: 21 21
 %%BeginPageSetup
 /pgsave save def
 %%EndPageSetup
@@ -1016,7 +1117,7 @@ showpage
 
 pgsave restore
 showpage
-%%Page: 21 21
+%%Page: 22 22
 %%BeginPageSetup
 /pgsave save def
 %%EndPageSetup
@@ -1047,7 +1148,7 @@ pop
 
 pgsave restore
 showpage
-%%Page: 22 22
+%%Page: 23 23
 %%PageOrientation: Landscape
 %%BeginPageSetup
 /pgsave save def
