@@ -17,7 +17,6 @@
 %*
 %* Arrays of raw data to be rendered more-or-less verbatim
 %*
-(SSS32)
 (revision alpha-4.5)
 [
 (MIT License)
@@ -77,7 +76,6 @@
 /warning exch def
 /MIT exch def
 /ver exch def
-/name exch def
 
 %******************
 %* Code Parameters
@@ -550,18 +548,39 @@ page exch perm 3 index get exch  makeShare code exch get glyphshow
 %************************************************************************
 %************************************************************************
 
+%****************************************************************
+%*
+%* Title Page
+%*
+%****************************************************************
 %%Page: 1 1
+%%BeginPageSetup
+/pgsave save def
+%%EndPageSetup
+
+/Times-Roman findfont 48 scalefont setfont
+pgsize aload pop exch 2 div exch 2 copy 2 copy
+300 sub moveto (Shamir's Secret) centreshow
+370 sub moveto (Sharing Codex) centreshow
+
+/Times-Roman findfont 16 scalefont setfont
+700 sub moveto ver centreshow
+
+pgsave restore
+showpage
+
+%****************************************************************
+%*
+%* License Information
+%*
+%****************************************************************
+%%Page: 2 2
 %%BeginPageSetup
 /pgsave save def
 %%EndPageSetup
 /Helvetica findfont 6 scalefont setfont
 40 750 moveto
 MIT {gsave ((c)) search {show pop /copyright glyphshow} if show grestore 0 -8 rmoveto} forall
-/Helvetica findfont 20 scalefont setfont
-0 -22 rmoveto
-gsave name show grestore 0 -12 rmoveto
-/Helvetica findfont 10 scalefont setfont
-gsave ver show grestore 0 -16 rmoveto
 /Helvetica findfont 6 scalefont setfont
 warning {gsave show grestore 0 -7 rmoveto} forall
 0 -16 rmoveto
@@ -570,7 +589,7 @@ README {gsave show grestore 0 -10 rmoveto} forall
 pgsave restore
 showpage
 
-%%Page: 2 2
+%%Page: 3 3
 %%BeginPageSetup
 /pgsave save def
 %%EndPageSetup
@@ -687,7 +706,7 @@ end
 
 pgsave restore
 showpage
-%%Page: 3 3
+%%Page: 4 4
 %%BeginPageSetup
 /pgsave save def
 %%EndPageSetup
@@ -701,7 +720,7 @@ showpage
 (Recover Share) /Codex code2 /Codex code [ 32 permS 1 31 getinterval aload pop ] drawBottomWheelPage
 pgsave restore
 showpage
-%%Page: 4 4
+%%Page: 5 5
 %%BeginPageSetup
 /pgsave save def
 %%EndPageSetup
@@ -718,19 +737,11 @@ grestore
 
 pgsave restore
 showpage
-%%Page: 5 5
-%%BeginPageSetup
-/pgsave save def
-%%EndPageSetup
-{xor} (Addition) /Codex code 2 copy perm drawBottomWheelPage
-
-pgsave restore
-showpage
 %%Page: 6 6
 %%BeginPageSetup
 /pgsave save def
 %%EndPageSetup
-showTopWheelPage
+{xor} (Addition) /Codex code 2 copy perm drawBottomWheelPage
 
 pgsave restore
 showpage
@@ -751,6 +762,14 @@ showTopWheelPage
 pgsave restore
 showpage
 %%Page: 9 9
+%%BeginPageSetup
+/pgsave save def
+%%EndPageSetup
+showTopWheelPage
+
+pgsave restore
+showpage
+%%Page: 10 10
 %%BeginPageSetup
 /pgsave save def
 %%EndPageSetup
@@ -848,7 +867,7 @@ end
 
 pgsave restore
 showpage
-%%Page: 10 10
+%%Page: 11 11
 %%BeginPageSetup
 /pgsave save def
 %%EndPageSetup
@@ -856,7 +875,7 @@ showpage
 
 pgsave restore
 showpage
-%%Page: 11 11
+%%Page: 12 12
 %%BeginPageSetup
 /pgsave save def
 %%EndPageSetup
@@ -864,7 +883,7 @@ showpage
 
 pgsave restore
 showpage
-%%Page: 12 12
+%%Page: 13 13
 %%BeginPageSetup
 /pgsave save def
 %%EndPageSetup
@@ -872,7 +891,7 @@ showpage
 
 pgsave restore
 showpage
-%%Page: 13 13
+%%Page: 14 14
 %%BeginPageSetup
 /pgsave save def
 %%EndPageSetup
@@ -880,7 +899,7 @@ showpage
 
 pgsave restore
 showpage
-%%Page: 14 14
+%%Page: 15 15
 %%BeginPageSetup
 /pgsave save def
 %%EndPageSetup
@@ -888,7 +907,7 @@ showpage
 
 pgsave restore
 showpage
-%%Page: 15 15
+%%Page: 16 16
 %%BeginPageSetup
 /pgsave save def
 %%EndPageSetup
@@ -896,7 +915,7 @@ showpage
 
 pgsave restore
 showpage
-%%Page: 16 16
+%%Page: 17 17
 %%BeginPageSetup
 /pgsave save def
 %%EndPageSetup
@@ -904,7 +923,7 @@ showpage
 
 pgsave restore
 showpage
-%%Page: 17 17
+%%Page: 18 18
 %%BeginPageSetup
 /pgsave save def
 %%EndPageSetup
@@ -912,7 +931,7 @@ showpage
 
 pgsave restore
 showpage
-%%Page: 18 18
+%%Page: 19 19
 %%BeginPageSetup
 /pgsave save def
 %%EndPageSetup
@@ -940,7 +959,7 @@ showpage
 
 pgsave restore
 showpage
-%%Page: 19 19
+%%Page: 20 20
 %%BeginPageSetup
 /pgsave save def
 %%EndPageSetup
@@ -999,7 +1018,7 @@ showpage
 
 pgsave restore
 showpage
-%%Page: 20 20
+%%Page: 21 21
 %%BeginPageSetup
 /pgsave save def
 %%EndPageSetup
@@ -1030,7 +1049,7 @@ pop
 
 pgsave restore
 showpage
-%%Page: 21 21
+%%Page: 22 22
 %%PageOrientation: Landscape
 %%BeginPageSetup
 /pgsave save def
