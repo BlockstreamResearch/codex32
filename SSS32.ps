@@ -56,6 +56,40 @@
 /title exch def
 
 %******************
+%* Main text content
+%*
+/allPageContent [
+  [
+    /section (Overview / Cheatsheet) /endsection
+  ] [ % pagebreak
+    /section (Part I: High-Level Introduction) /endsection
+  ] [ % pagebreak
+    /section (Part II: Detailed Introduction) /endsection
+    /subsection (II.1. Tables and Volvelles) /endsubsection
+    /subsection (II.2. Data Encoding) /endsubsection
+  ] [ % pagebreak
+    /subsection (II.3. Secret Sharing) /endsubsection
+    /subsubsection (II.3.a. Initial Share Generation) /endsubsubsection
+    /subsubsection (II.3.b. Derived Share Generation) /endsubsubsection
+    /subsubsection (II.3.c. Distribution) /endsubsubsection
+    /subsection (II.4. Recovery) /endsubsection
+  ] [ % pagebreak
+    /section (Part III: Worksheets) /endsection
+    /subsection (Dice Worksheet) /endsubsection
+  ] [ % pagebreak
+    /subsection (Checksum Worksheet) /endsubsection
+  ] [ % pagebreak
+    /subsection (Constructing Shares Worksheet) /endsubsection
+  ] [ % pagebreak
+    /subsection (Addition Worksheets) /endsubsection
+  ] [ % pagebreak
+
+    /section (Module 0: Volvelles) /endsection
+    /section (Module 1: Extra Worksheets) /endsection
+  ]
+] def
+
+%******************
 %* Helper Functions and Utilities
 %*
 
@@ -781,7 +815,80 @@ MIT {gsave ((c)) search {show pop /copyright glyphshow} if show grestore 0 -12 r
 pgsave restore
 showpage
 
+%****************************************************************
+%*
+%* Table of Contents
+%*
+%****************************************************************
 %%Page: 3 3
+%%BeginPageSetup
+/pgsave save def
+%%EndPageSetup
+
+/Helvetica-Bold findfont 18 scalefont setfont
+pgsize aload pop 72 sub exch 2 div exch
+moveto (Table of Contents) centreshow
+
+[1 4] 0 setdash
+/Helvetica findfont 14 scalefont setfont
+/pagenum 1 def
+
+<<
+  /x 72 def
+  /xnum pgsize aload pop pop 108 sub def
+  /y pgsize aload pop exch pop 108 sub def
+  /displaying false
+  /tocOn true
+
+  /stringtype {
+    displaying tocOn and {
+      % Section title
+      x y moveto show
+      % Horizontal line
+      % For aligned dots we go out of our way to start the line on the right hand side.
+      currentpoint xnum 5 sub y moveto lineto stroke
+      % Page number
+      xnum y moveto pagenum 2 string cvs show
+      /y y 24 sub store
+    } { pop } ifelse
+  }
+  /nametype {
+    <<
+      /section 1
+      /endsection -1
+      /subsection 2
+      /endsubsection -2
+      /subsubsection 3
+      /endsubsubsection -3
+    >> exch 2 copy known {
+      get
+      % For top-level sections bump y down an extra space
+      dup 1 eq { /y y 15 sub store } if
+      % For all sections just adjust x accordingly
+      /x 1 index 20 mul x add store
+      /displaying exch 0 gt store
+    } {
+      dup
+      /notoc eq { /tocOn false store } if
+      /toc eq { /tocOn true store } if
+      pop
+    } ifelse
+  }
+>> begin
+
+allPageContent { % forall pages
+  { % forall symbols in page
+    dup type exec
+  } forall
+  /pagenum pagenum 1 add store
+} forall
+
+end
+
+pgsave restore
+showpage
+
+%%Page: 4 4
 %%BeginPageSetup
 /pgsave save def
 %%EndPageSetup
@@ -898,7 +1005,7 @@ end
 
 pgsave restore
 showpage
-%%Page: 4 4
+%%Page: 5 5
 %%BeginPageSetup
 /pgsave save def
 %%EndPageSetup
@@ -912,7 +1019,7 @@ showpage
 (Recover Share) /Codex code2 /Codex code [ 32 permS 1 31 getinterval aload pop ] drawBottomWheelPage
 pgsave restore
 showpage
-%%Page: 5 5
+%%Page: 6 6
 %%BeginPageSetup
 /pgsave save def
 %%EndPageSetup
@@ -929,19 +1036,11 @@ grestore
 
 pgsave restore
 showpage
-%%Page: 6 6
-%%BeginPageSetup
-/pgsave save def
-%%EndPageSetup
-{xor} (Addition) /Codex code 2 copy perm drawBottomWheelPage
-
-pgsave restore
-showpage
 %%Page: 7 7
 %%BeginPageSetup
 /pgsave save def
 %%EndPageSetup
-showTopWheelPage
+{xor} (Addition) /Codex code 2 copy perm drawBottomWheelPage
 
 pgsave restore
 showpage
@@ -962,6 +1061,14 @@ showTopWheelPage
 pgsave restore
 showpage
 %%Page: 10 10
+%%BeginPageSetup
+/pgsave save def
+%%EndPageSetup
+showTopWheelPage
+
+pgsave restore
+showpage
+%%Page: 11 11
 %%BeginPageSetup
 /pgsave save def
 %%EndPageSetup
@@ -1059,7 +1166,7 @@ end
 
 pgsave restore
 showpage
-%%Page: 11 11
+%%Page: 12 12
 %%BeginPageSetup
 /pgsave save def
 %%EndPageSetup
@@ -1067,7 +1174,7 @@ showpage
 
 pgsave restore
 showpage
-%%Page: 12 12
+%%Page: 13 13
 %%BeginPageSetup
 /pgsave save def
 %%EndPageSetup
@@ -1075,7 +1182,7 @@ showpage
 
 pgsave restore
 showpage
-%%Page: 13 13
+%%Page: 14 14
 %%BeginPageSetup
 /pgsave save def
 %%EndPageSetup
@@ -1083,7 +1190,7 @@ showpage
 
 pgsave restore
 showpage
-%%Page: 14 14
+%%Page: 15 15
 %%BeginPageSetup
 /pgsave save def
 %%EndPageSetup
@@ -1091,7 +1198,7 @@ showpage
 
 pgsave restore
 showpage
-%%Page: 15 15
+%%Page: 16 16
 %%BeginPageSetup
 /pgsave save def
 %%EndPageSetup
@@ -1099,7 +1206,7 @@ showpage
 
 pgsave restore
 showpage
-%%Page: 16 16
+%%Page: 17 17
 %%BeginPageSetup
 /pgsave save def
 %%EndPageSetup
@@ -1107,7 +1214,7 @@ showpage
 
 pgsave restore
 showpage
-%%Page: 17 17
+%%Page: 18 18
 %%BeginPageSetup
 /pgsave save def
 %%EndPageSetup
@@ -1115,7 +1222,7 @@ showpage
 
 pgsave restore
 showpage
-%%Page: 18 18
+%%Page: 19 19
 %%BeginPageSetup
 /pgsave save def
 %%EndPageSetup
@@ -1123,7 +1230,7 @@ showpage
 
 pgsave restore
 showpage
-%%Page: 19 19
+%%Page: 20 20
 %%BeginPageSetup
 /pgsave save def
 %%EndPageSetup
@@ -1145,7 +1252,7 @@ recoveryDisc begin
 end
 pgsave restore
 showpage
-%%Page: 20 20
+%%Page: 21 21
 %%BeginPageSetup
 /pgsave save def
 %%EndPageSetup
@@ -1182,7 +1289,7 @@ end
 
 pgsave restore
 showpage
-%%Page: 21 21
+%%Page: 22 22
 %%BeginPageSetup
 /pgsave save def
 %%EndPageSetup
