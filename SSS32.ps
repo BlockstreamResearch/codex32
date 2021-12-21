@@ -1,6 +1,6 @@
 %!PS-Adobe-3.0
 %%Orientation: Portrait
-%%Pages: 23
+%%Pages: 24
 %%EndComments
 %%BeginSetup
 [(Shamir's Secret) (Sharing Codex)]
@@ -61,6 +61,57 @@
 /allPageContent [
   [
     /section (Overview / Cheatsheet) /endsection
+    /notoc % turn off table of contents indexing
+    /dropcap (C) (ryptography is the art of hiding information. In particular, Shamir's)
+    (Secret Sharing Scheme (SSSS) is used to hide secrets in a distributed way.)
+    (A secret is split into multiple parts, called shares, that can be given)
+    (to different people or kept in separate places. The)
+    (shares can then be  used to reconstruct the original secret. For the)
+    (wizards in the Bitcoin community, SSSS can be combined with BIP32 Hierarchical)
+    (Key Derivation to hide a single secret seed that generates the users' bitcoin)
+    (private keys.)
+    /paragraph
+    (This codex describes a way for users, assisted by paper computers in the)
+    (form of slide charts \(volvelles\) and circular slide rules, to perform)
+    (checksums and SSSS on their Bitcoin secrets.)
+
+    /subsection (Assembly) /endsubsection
+    /bold (You will need:) /normal (an X-acto knife, cardstock or heavy paper, brass fasteners, disc printouts.)
+    /linebreak
+    /linebreak
+    (The printouts are available in Module 0. The bottom discs are the discs with)
+    (a small circle in the center of them. The top discs are the discs with a small)
+    (cross in the centre.) /linebreak
+    /linebreak
+    % FIXME deal with new folding slide rule
+    (Instructions:)
+    /startlist
+    /listitem1 (Cut out each disc.) /endlistitem
+    /listitem1 (Cut out the small centre circle in each the bottom discs.)
+      (Cut a slit along one one of the small lines of the cross in each of the top discs.) /endlistitem
+    /listitem1 (Cut out the pointer windows of the slide charts.)
+      (Cut out each of the 32 squares of the Addition Volvelle top disc.) /endlistitem
+    /listitem1 (Pass the brass fastener through a top disc and bottom disc.)
+    (Fold the legs of the fastener apart to secure the top and bottom discs together.)
+    (The two discs should now be able to rotate about their common centre.)/endlistitem
+
+    /subsection (Checksumming) /endsubsection
+    /bold (You will need:) /normal (Addition Volvelle, Dice Worksheet, Checksum Worksheet, pencil and eraser)
+    /linebreak
+    /linebreak
+    (For your initial k shares, you should)
+    /startlist
+    /listitem1 (Generate random data by rolling dice, following the instructions on the Dice Worksheet.) /endlistitem
+    /listitem1 (Follow the instructions on the Checksum Worksheet to affix a checksum.) /endlistitem
+
+    /subsection (Share Creation) /endsubsection
+    /bold (You will need:) /normal (Addition Volvelle, Multiplication/Translation Wheel, pencil) /linebreak
+
+    /subsection (Secret Recovery) /endsubsection
+    /bold (You will need:) /normal (Addition Volvelle, Multiplication/Translation Wheel, Recovery Wheel, pencil)
+    /toc % turn off table of contents indexing
+
+  ] [ % pagebreak
 
     /section (Part I: High-Level Introduction) /endsection
     /subsection (I.1. Bitcoin and Seed Values) /endsubsection
@@ -242,6 +293,32 @@
 %******************
 %* Helper Functions and Utilities
 %*
+/textFont <<
+  /face /Times-Roman
+  /size 12
+  /yDisplacementParagraph 26
+  /yDisplacementLine 13
+  /rgbColor [ 0 0 0 ]
+  /underline false
+>> def
+
+/sectionFont <<
+  /face /Times-Roman
+  /size 32
+  /yDisplacementParagraph 4
+  /yDisplacementLine 36
+  /rgbColor [ 0.820 0.204 0.220 ]
+  /underline true
+>> def
+
+/subSectionFont <<
+  /face /Times-Roman
+  /size 24
+  /yDisplacementParagraph 0
+  /yDisplacementLine 30
+  /rgbColor [ 0.820 0.204 0.220 ]
+  /underline true
+>> def
 
 /pgsize currentpagedevice /PageSize known
   { currentpagedevice /PageSize get
@@ -339,6 +416,368 @@ circtextdict begin
 
 /pi 3.1415923 def
 end
+
+%******************
+%* Content Rendering
+%*
+%* The bulk of the text is rendered using this streaming parser.
+%*
+
+% Draws a section heading. Takes coordinates to start drawing at, and the text
+% to draw and returns coordinates of the next line to be displayed
+/drawSectionHeading { % x y text -> x y
+  10 dict begin
+  { /heading /y /x } {exch def} forall
+  gsave
+    /Times-Roman findfont 32 scalefont setfont
+    x y moveto
+    0.820 0.204 0.220 setrgbcolor
+    heading show
+
+    x y 4 sub moveto
+    x heading stringwidth pop add 1.1 mul y 4 sub lineto 2 setlinewidth stroke
+  grestore
+
+  x y 35 sub
+  end
+} bind def
+
+% Draws a section heading. Takes coordinates to start drawing at, and the text
+% to draw and returns coordinates of the next line to be displayed
+/drawSubsectionHeading { % x y text -> x y
+  10 dict begin
+  { /heading /y /x } {exch def} forall
+  gsave
+    /Times-Roman findfont 24 scalefont setfont
+    x y moveto
+    heading show
+  grestore
+
+  x y 35 sub
+  end
+} bind def
+
+% Shows a dropcap (giant letter with a bounding box around it)
+%
+% Takes coordinates to start drawing at, and the character to draw
+% the bounding box in. Returns the height and width of the bounding
+% box
+/drawDropcap { % x y strdata -> h w
+  10 dict begin
+  gsave
+    /Times-Roman findfont 64 scalefont setfont
+    3 copy pop moveto
+
+    gsave
+      dup false charpath strokepath flattenpath pathbbox
+      { /y2 /x2 /y1 /x1 } {exch def} forall
+      % Flip box so it is going downward rather than upward
+      /y2 y1 2 mul y2 sub store
+    grestore
+
+    % Draw letter
+    0 y2 y1 sub rmoveto
+    gsave
+      dup true charpath
+      x1 y2 moveto x1 y1 lineto x2 y1 lineto x2 y2 lineto closepath
+      0.820 0.204 0.220 setrgbcolor
+      % TODO Replace with a pattern fill.
+      fill
+    grestore
+    dup false charpath
+    x1 y2 moveto x1 y1 lineto x2 y1 lineto x2 y2 lineto closepath
+    1 setlinewidth
+    stroke
+
+    % Return width and height
+    pop pop
+    x2 x1 sub
+    y1 y2 sub
+  grestore
+  end
+} bind def
+
+% Displays a single word on the current device with the current font
+% Returns the number of points before the end of the line, which will be
+% negative in case of an overrun
+/showWord { % word kernX maxX -> distance to maxX
+  10 dict begin
+  {/actuallyDraw /maxX /kernX /word} { exch def } forall
+
+  <<
+    /nametype {
+      currentpoint {/y /x} { exch def } forall
+
+      <<
+        /footnotemark {
+          /footnoteCount footnoteCount 1 add store
+          % We need to idiv the footnote count by two since we double-increment
+          % it accidentally (once when simulating and once when actually drawing)
+          footnoteCount 2 idiv 2 string cvs
+          gsave
+            /Times-Roman findfont 6 scalefont setfont
+            0 5 rmoveto
+            actuallyDraw {
+              show
+            } {
+              stringwidth pop 0 rmoveto
+            } ifelse
+          grestore
+          % Adjust kerning because /footnotemark is a word
+          kernX 0 rmoveto
+          % Add an actual space though so the footnote isn't too crammed
+          actuallyDraw { ( ) show } { ( ) stringwidth pop 0 rmoveto } ifelse
+        }
+        /bold {
+          % add kerning because /bold is accounted for as a "word"
+          % This causes distortion (extra spacing around bold text)
+          % but empirically it seems pretty-much invisible
+          kernX 0 rmoveto
+          /Times-Roman-Bold findfont 12 scalefont setfont
+        }
+        /normal {
+          kernX 0 rmoveto
+          /Times-Roman findfont 12 scalefont setfont
+        }
+      >> dup
+      word known { word get exec } { pop } ifelse
+      1 % arbitrary positive return value
+    }
+    /stringtype {
+      % Prepend kerning (we expect the caller to set 0 kerning on the first word)
+      kernX 0 rmoveto
+      % Draw the actual word
+      actuallyDraw {
+        word show
+        maxX currentpoint pop sub % compute return value prior to trailing space
+      } {
+        word stringwidth rmoveto
+        maxX currentpoint pop sub % compute return value prior to trailing space
+      } ifelse
+      ( ) show % print a space so that copy/paste has a hope of working
+    }
+  >> begin word type exec end
+
+  end
+} bind def
+
+% Takes as input a single page's contents and draws it
+/drawPageContent { % x y [page content] -> nothing
+  20 dict begin
+  {/pagecontent /yorigin /xorigin} { exch def } forall
+
+  xorigin yorigin moveto
+  /Times-Roman findfont 12 scalefont setfont
+
+  % state machine
+  /buffer 200 string def
+  <<
+    % state
+    /state /buffering
+    /currentFont textFont
+    /x xorigin
+    /y yorigin
+    /dropcapWidth 0
+    /dropcapHeight 0
+    /maxX 540 % FIXME
+    /wordBuffer 100 array
+    /wordN 0
+    /totalKern 0
+    /footnoteCount 0
+    /listItemCount 0
+
+    /offsetX {
+      x add /x exch store
+      x y moveto
+    }
+
+    /offsetY {
+      y add /y exch store
+      x y moveto
+    }
+
+    /setCurrentFont {
+      /currentFont exch store
+      currentFont /face get findfont
+      currentFont /size get scalefont
+      setfont
+      currentFont /rgbColor get aload pop setrgbcolor
+    }
+
+    % Output text, non-buffering mode
+    /notBuffering {
+      0 maxX true showWord pop
+    }
+
+    % Output text, buffering mode (needed for fill justification)
+    /buffering {
+      /word exch def
+
+      % Simulate writing the word, to see if it causes an overrun. If so...
+      word 0 maxX false showWord dup 0 lt {
+        % ...dump the previous line, with kerning
+        totalKern wordN 1 gt { wordN 1 sub div } if dumpLastLine
+
+        % Then drop y
+        y dropcapHeight lt not % if we currently aren't past the dropcap...
+        currentFont /yDisplacementLine get neg offsetY
+        y dropcapHeight lt and { % ...but after moving, we are...
+          dropcapWidth neg offsetX % ...then shift x back to its original value
+        } if
+
+        % Then retry the word
+        pop word buffering exec
+      } {
+        % ...otherwise, add word to buffer for next line's display
+        /totalKern exch store
+        wordBuffer wordN word put
+        /wordN wordN 1 add store
+      } ifelse
+    }
+
+    % Draw the contents of the current line buffer and flush it
+    /dumpLastLine {
+      x y moveto
+      wordN 0 gt {
+        wordBuffer 0 get 0 maxX true showWord pop
+        wordBuffer 1 wordN 1 sub getinterval {
+          1 index maxX true showWord pop
+        } forall
+      } if
+      pop
+      /wordN 0 store
+    }
+
+    % Output a dropcap
+    /dropcapOneshot {
+      % show dropcap, bumped up a bit
+      x exch y 8 add exch drawDropcap
+      % Store dropcap width and height of the bottom of the dropcap
+      /dropcapHeight exch y sub neg store
+      /dropcapWidth exch 4 add store
+      % Move x and switch back to normal text mode
+      dropcapWidth offsetX
+      /state /buffering store
+    }
+
+    % content parsing
+    /stringtype {
+      { % loop through words in the string
+        ( ) search {
+          exch pop
+          state load exec % Execute current state on word
+        } {
+          state load exec % Execute current state on last word
+          exit
+        } ifelse
+      } loop
+    }
+    /nametype {
+      <<
+        /notoc {} % just eat table-of-contents token
+        /toc {} % just eat table-of-contents token
+        /dropcap { /state /dropcapOneshot store }
+        /linebreak {
+          0 dumpLastLine
+          currentFont /yDisplacementLine get neg offsetY
+        }
+        /paragraph {
+          0 dumpLastLine
+          currentFont /yDisplacementParagraph get neg offsetY
+        }
+        /startlist {
+          0 dumpLastLine
+          /listItemCount 0 store
+          /y y 12 sub store
+          x y moveto
+        }
+        /listitem* {
+          /y y 4 sub store
+          /x x 36 add store
+          x y moveto
+          /bullet glyphwidth 8 add neg 0 rmoveto
+          /bullet glyphshow
+          x y moveto
+        }
+        /listitem1 {
+          /listItemCount listItemCount 1 add store
+          /y y 4 sub store
+          /x x 36 add store
+          x y moveto
+          -5 0 rmoveto
+          listItemCount 2 string cvs
+          dup stringwidth pop neg 0 rmoveto show
+          (.) show
+          x y moveto
+        }
+        /endlistitem {
+          0 dumpLastLine
+          /x x 36 sub store
+          /y y 12 sub store
+          x y moveto
+        }
+        /section {
+          0 dumpLastLine
+          sectionFont setCurrentFont
+
+          /state /notBuffering store
+        }
+        /endsection {
+          currentpoint
+          x y 4 sub moveto
+          pop y 4 sub lineto 2 setlinewidth stroke
+          /y y 40 sub store
+          x y moveto
+
+          textFont setCurrentFont
+          /state /buffering store
+        }
+        /subsection {
+          0 dumpLastLine
+
+          gsave
+          0.820 0.204 0.220 setrgbcolor
+          /Times-Roman findfont 24 scalefont setfont
+          /y y 35 sub store
+          x y moveto
+          /state /notBuffering store
+        }
+        /endsubsection {
+          currentpoint
+          x y 4 sub moveto
+          pop y 4 sub lineto 1.5 setlinewidth stroke
+          grestore
+          /y y 18 sub store
+          x y moveto
+          /state /buffering store
+        }
+        /footnotes {
+          0 dumpLastLine
+
+          /footnoteCount 0 store
+          /y y 12 sub store
+          x y moveto x 100 add y lineto 0.5 setlinewidth stroke
+          /y y 12 sub store
+          x y moveto
+          /Times-Roman findfont 10 scalefont setfont
+        }
+      >> exch 2 copy
+      known {
+        get exec
+      } {
+        % just pass unknown symbols to buffering so that they will wind up
+        % in the line buffer, and take effect both during the simulated
+        % (spacing-computing) layout and the real layout
+        buffering pop
+      } ifelse
+    }
+  >> begin
+    pagecontent { dup type exec } forall
+    0 dumpLastLine
+  end
+
+  end
+} bind def
 
 %******************
 %* Font Definitions
@@ -643,9 +1082,10 @@ moveto (Table of Contents) centreshow
   /xnum pgsize aload pop pop 108 sub def
   /y pgsize aload pop exch pop 108 sub def
   /displaying false
+  /tocOn true
 
   /stringtype {
-    displaying {
+    displaying tocOn and {
       % Section title
       x y moveto show
       % Horizontal line
@@ -671,8 +1111,12 @@ moveto (Table of Contents) centreshow
       % For all sections just adjust x accordingly
       /x 1 index 20 mul x add store
       /displaying exch 0 gt store
-
-    } { pop pop } ifelse
+    } {
+      dup
+      /notoc eq { /tocOn false store } if
+      /toc eq { /tocOn true store } if
+      pop
+    } ifelse
   }
 >> begin
 
@@ -688,7 +1132,19 @@ end
 pgsave restore
 showpage
 
+%****************************************************************
+%*
+%* Main Content
+%*
+%****************************************************************
 %%Page: 4 4
+%%BeginPageSetup
+/pgsave save def
+%%EndPageSetup
+72 pgsize aload pop 60 sub exch pop allPageContent 0 get drawPageContent
+pgsave restore showpage
+
+%%Page: 5 5
 %%BeginPageSetup
 /pgsave save def
 %%EndPageSetup
@@ -805,7 +1261,7 @@ end
 
 pgsave restore
 showpage
-%%Page: 5 5
+%%Page: 6 6
 %%BeginPageSetup
 /pgsave save def
 %%EndPageSetup
@@ -819,7 +1275,7 @@ showpage
 (Recover Share) /Codex code2 /Codex code [ 32 permS 1 31 getinterval aload pop ] drawBottomWheelPage
 pgsave restore
 showpage
-%%Page: 6 6
+%%Page: 7 7
 %%BeginPageSetup
 /pgsave save def
 %%EndPageSetup
@@ -836,19 +1292,11 @@ grestore
 
 pgsave restore
 showpage
-%%Page: 7 7
-%%BeginPageSetup
-/pgsave save def
-%%EndPageSetup
-{xor} (Addition) /Codex code 2 copy perm drawBottomWheelPage
-
-pgsave restore
-showpage
 %%Page: 8 8
 %%BeginPageSetup
 /pgsave save def
 %%EndPageSetup
-showTopWheelPage
+{xor} (Addition) /Codex code 2 copy perm drawBottomWheelPage
 
 pgsave restore
 showpage
@@ -869,6 +1317,14 @@ showTopWheelPage
 pgsave restore
 showpage
 %%Page: 11 11
+%%BeginPageSetup
+/pgsave save def
+%%EndPageSetup
+showTopWheelPage
+
+pgsave restore
+showpage
+%%Page: 12 12
 %%BeginPageSetup
 /pgsave save def
 %%EndPageSetup
@@ -966,7 +1422,7 @@ end
 
 pgsave restore
 showpage
-%%Page: 12 12
+%%Page: 13 13
 %%BeginPageSetup
 /pgsave save def
 %%EndPageSetup
@@ -974,7 +1430,7 @@ showpage
 
 pgsave restore
 showpage
-%%Page: 13 13
+%%Page: 14 14
 %%BeginPageSetup
 /pgsave save def
 %%EndPageSetup
@@ -982,7 +1438,7 @@ showpage
 
 pgsave restore
 showpage
-%%Page: 14 14
+%%Page: 15 15
 %%BeginPageSetup
 /pgsave save def
 %%EndPageSetup
@@ -990,7 +1446,7 @@ showpage
 
 pgsave restore
 showpage
-%%Page: 15 15
+%%Page: 16 16
 %%BeginPageSetup
 /pgsave save def
 %%EndPageSetup
@@ -998,7 +1454,7 @@ showpage
 
 pgsave restore
 showpage
-%%Page: 16 16
+%%Page: 17 17
 %%BeginPageSetup
 /pgsave save def
 %%EndPageSetup
@@ -1006,7 +1462,7 @@ showpage
 
 pgsave restore
 showpage
-%%Page: 17 17
+%%Page: 18 18
 %%BeginPageSetup
 /pgsave save def
 %%EndPageSetup
@@ -1014,7 +1470,7 @@ showpage
 
 pgsave restore
 showpage
-%%Page: 18 18
+%%Page: 19 19
 %%BeginPageSetup
 /pgsave save def
 %%EndPageSetup
@@ -1022,7 +1478,7 @@ showpage
 
 pgsave restore
 showpage
-%%Page: 19 19
+%%Page: 20 20
 %%BeginPageSetup
 /pgsave save def
 %%EndPageSetup
@@ -1030,7 +1486,7 @@ showpage
 
 pgsave restore
 showpage
-%%Page: 20 20
+%%Page: 21 21
 %%BeginPageSetup
 /pgsave save def
 %%EndPageSetup
@@ -1058,7 +1514,7 @@ showpage
 
 pgsave restore
 showpage
-%%Page: 21 21
+%%Page: 22 22
 %%BeginPageSetup
 /pgsave save def
 %%EndPageSetup
@@ -1117,7 +1573,7 @@ showpage
 
 pgsave restore
 showpage
-%%Page: 22 22
+%%Page: 23 23
 %%BeginPageSetup
 /pgsave save def
 %%EndPageSetup
@@ -1148,7 +1604,7 @@ pop
 
 pgsave restore
 showpage
-%%Page: 23 23
+%%Page: 24 24
 %%PageOrientation: Landscape
 %%BeginPageSetup
 /pgsave save def
