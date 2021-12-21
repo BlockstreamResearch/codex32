@@ -3,6 +3,20 @@
 %%Pages: 21
 %%EndComments
 %%BeginSetup
+
+%************************************************************************
+%************************************************************************
+%*
+%* Section One: Preamble
+%*
+%************************************************************************
+%************************************************************************
+
+%******************
+%* Page content
+%*
+%* Arrays of raw data to be rendered more-or-less verbatim
+%*
 (SSS32)
 (revision alpha-4.5)
 [
@@ -65,6 +79,27 @@
 /ver exch def
 /name exch def
 
+%******************
+%* Code Parameters
+%*
+%* Data related to the error-correcting code and representations of GF(32) elements
+%*
+
+/perm [29 24 13 25 9 8 23 18 22 31 27 19 1 0 3 16 11 28 12 14 6 4 2 15 10 17 21 20 26 30 7 5 ] def
+/permS [16 29 24 13 25 9 8 23 18 22 31 27 19 1 0 3 11 28 12 14 6 4 2 15 10 17 21 20 26 30 7 5 ] def
+/permV [22 11 10 29 31 28 17 24 27 12 21 13 19 14 20 25 1 6 26 9 0 4 30 8 3 2 7 23 16 15 5 18 ] def
+/permP [0 1 2 4 8 16 9 18 13 26 29 19 15 30 21 3 6 12 24 25 27 31 23 7 14 28 17 11 22 5 10 20] def
+
+/polymodulus [31 5 3 28 0 31 31 31 9 5 30 2 2] def % coefficents from c12 to c0
+/checksum [16 25 24 3 25 11 16 23 29 3 25 17 10] def
+/checksumstring { polymodulus length array checksum 0 1 polymodulus length 1 sub {3 copy exch 1 index get code exch 1 getinterval putinterval pop } for pop } bind def
+
+/code [/Q /P /Z /R /Y /nine /X /eight /G /F /two /T /V /D /W /zero /S /three /J /N /five /four /K /H /C /E /six /M /U /A /seven /L /space] def
+/code2 [/multiply /aleph /alpha /beta /Gamma /Delta /epsilon /eta /Theta /Lambda /mu /Xi /Pi /rho /Sigma /Phi /Psi /Omega /at /numbersign /percent /cent /yen /Euro /currency /circleplus /dagger /daggerdbl /section /paragraph /diamond /heart /space ] def
+
+%******************
+%* Helper Functions and Utilities
+%*
 /pgsize currentpagedevice /PageSize known
   { currentpagedevice /PageSize get
   } {
@@ -78,10 +113,16 @@ def
   grestore
 } bind def
 
-/magic 94 def % a magic angle for making nice looking spirals.
-/code [/Q /P /Z /R /Y /nine /X /eight /G /F /two /T /V /D /W /zero /S /three /J /N /five /four /K /H /C /E /six /M /U /A /seven /L /space] def
-/code2 [/multiply /aleph /alpha /beta /Gamma /Delta /epsilon /eta /Theta /Lambda /mu /Xi /Pi /rho /Sigma /Phi /Psi /Omega /at /numbersign /percent /cent /yen /Euro /currency /circleplus /dagger /daggerdbl /section /paragraph /diamond /heart /space ] def
+/concatstrings % (a) (b) -> (ab)
+   { exch dup length
+     2 index length add string
+     dup dup 4 2 roll copy length
+     4 -1 roll putinterval
+   } bind def
 
+%******************
+%* Font Definitions
+%*
 /Codex 15 dict dup begin
 /basefont /Courier findfont def
 /basechars basefont /CharStrings get def
@@ -138,12 +179,24 @@ end
 /UniqueID 2 def
 end definefont pop
 
-/perm [29 24 13 25 9 8 23 18 22 31 27 19 1 0 3 16 11 28 12 14 6 4 2 15 10 17 21 20 26 30 7 5 ] def
-/permS [16 29 24 13 25 9 8 23 18 22 31 27 19 1 0 3 11 28 12 14 6 4 2 15 10 17 21 20 26 30 7 5 ] def
-/permV [22 11 10 29 31 28 17 24 27 12 21 13 19 14 20 25 1 6 26 9 0 4 30 8 3 2 7 23 16 15 5 18 ] def
-/permP [0 1 2 4 8 16 9 18 13 26 29 19 15 30 21 3 6 12 24 25 27 31 23 7 14 28 17 11 22 5 10 20] def
-% Generator for GF(32) is alpha^5 = alpha^3 + 1
+/underlineshow {
+    dup dup /six eq exch /nine eq or { % if the string is (6) or (9)
+        gsave /underscore glyphshow grestore % draw an underline
+    } if
+    glyphshow
+} bind def
+/centreshow {dup stringwidth pop 2 div neg 0 rmoveto show} bind def
+/centreglyphshow {dup glyphwidth pop 2 div neg 0 rmoveto underlineshow} bind def
 
+%******************
+%* Field Arthmetic
+%*
+%* Calculations within GF(32), extended with the "null element", represented by
+%* numberic 32, which is displayed as a blank, and on which every operation
+%* returns null again. Used to represent incomplete/unknown data.
+%*
+%* Our generator for GF(32) has minimum polynomial x^5 + x^3 + 1.
+%*
 /gf32add % x y -> x [+] y where [+] is addition in GF32.
          % returns 32 if x or y is out of range.
          % Note that x [+] y = x [-] y in GF32.
@@ -215,12 +268,6 @@ end definefont pop
  end
 } bind def
 
-/makeShare % sS sA i -> si
-       { 3 2 roll 1 index permS 0 get permS 0 2 getinterval lagrange gf32mul
-         3 1 roll permS 1 get permS 0 2 getinterval lagrange gf32mul
-         xor
-       } bind def
-
 /gf32mularray % x b -> x * b
   { [ 3 1 roll { 1 index gf32mul exch } forall pop ]
   } bind def
@@ -228,10 +275,6 @@ end definefont pop
 /gf32addarray % a b -> a + b pointwise
   { [ 3 1 roll 0 1 2 index length 1 sub { 2 index 1 index get 2 index 2 index get gf32add exch pop 3 1 roll } for pop pop ]
   } bind def
-
-/polymodulus [31 5 3 28 0 31 31 31 9 5 30 2 2] def % coefficents from c12 to c0
-/checksum [16 25 24 3 25 11 16 23 29 3 25 17 10] def
-/checksumstring { polymodulus length array checksum 0 1 polymodulus length 1 sub {3 copy exch 1 index get code exch 1 getinterval putinterval pop } for pop } bind def
 
 /polymod0 % array -> [ c5 c4 c3 c2 c1 c0 ]
  { [ polymodulus length {0} repeat ]
@@ -248,21 +291,11 @@ end definefont pop
    [ exch 1 exch dup { 32 idiv exch } forall 0 exch { 31 and } forall ] polymod0
  } bind def
 
-/underlineshow {
-    dup dup /six eq exch /nine eq or { % if the string is (6) or (9)
-        gsave /underscore glyphshow grestore % draw an underline
-    } if
-    glyphshow
-} bind def
-/centreshow {dup stringwidth pop 2 div neg 0 rmoveto show} bind def
-/centreglyphshow {dup glyphwidth pop 2 div neg 0 rmoveto underlineshow} bind def
+%******************
+%* Volvelle and Slide Charts
+%*
+/magic 94 def % a magic angle for making nice looking spirals.
 /centresquare {dup neg 2 div dup rmoveto dup 0 rlineto dup 0 exch rlineto neg 0 rlineto closepath stroke} bind def
-/concatstrings % (a) (b) -> (ab)
-   { exch dup length
-     2 index length add string
-     dup dup 4 2 roll copy length
-     4 -1 roll putinterval
-   } bind def
 
 % From BLUEBOOK Program #10
 /outsidecircletext
@@ -413,6 +446,15 @@ end
    } for
  } bind def
 
+%******************
+%* Share Tables
+%*
+/makeShare % sS sA i -> si
+       { 3 2 roll 1 index permS 0 get permS 0 2 getinterval lagrange gf32mul
+         3 1 roll permS 1 get permS 0 2 getinterval lagrange gf32mul
+         xor
+       } bind def
+
 /showShareTable {
 /offsety exch def
 /offsetx exch def
@@ -445,6 +487,13 @@ page exch perm 3 index get exch  makeShare code exch get glyphshow
 325 720 showShareTable
 50 720 showShareTable
 } bind def
+
+%******************
+%* Checksum Worksheet
+%*
+%* Functionality for the checksum, addition, bit conversion, etc., worksheets,
+%* to assist user manipulation of long bech32 strings
+%*
 
 /arraySpace 13 def
 /gapSpace arraySpace 2 add def
@@ -492,6 +541,14 @@ page exch perm 3 index get exch  makeShare code exch get glyphshow
   end
 } bind def
 %%EndSetup
+
+%************************************************************************
+%************************************************************************
+%*
+%* Section Two: Main Body
+%*
+%************************************************************************
+%************************************************************************
 
 %%Page: 1 1
 %%BeginPageSetup
