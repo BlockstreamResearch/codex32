@@ -1,0 +1,150 @@
+
+To: bitcoin-dev
+From: Russell
+Subject: BIP Proposal: "codex32", a hand-computable SSSS scheme and compatible BCH code 
+
+This email is to request a BIP number for a scheme I have been working on
+with Andrew Poelstra and others. The goal is an implementation of Shamir's
+Secret Sharing Scheme (SSSS) which is (a) easy to implement, in the sense
+that it works on very small (5-bit) words and only requires generating
+randomness within power-of-2 sets; and (b) is possible to compute by hand
+by a motivated non-expert within the space of an hour or so.
+
+We have written a detailed BIP draft here [1] but are starting a discussion
+on the list before proposing anything to the BIPs repo.
+
+
+## Overview
+
+We propose an BCH code and SSSS scheme designed for storing 128-bit BIP32
+master seeds, or 264-bit BIP39-encoded seed words (although these need to
+be re-encoded for efficient use with the scheme).
+
+The code has been designed so that 128-bit secrets can be encoded, along
+with hrp, header and checksum, in 48 characters, to assist storage on
+Cryptosteel and other such devices.
+
+Our scheme is similar in spirit to SLIP39 [2], proposed by members of the
+Trezor team in 2017, in that it exploits the mathematical compatibility
+between SSSS and linear codes (including BCH codes with nonzero "m" values,
+which are not technically linear). That is, when doing a k-of-n secret
+split, if you start with k correctly-checksummed initial shares with
+correctly formed headers, you can derive additional shares which will be
+correctly checksummed and formatted "for free". Similarly, given k correct
+shares, the original secret can be recovered, again with a correct header
+and checksum.
+
+However, we have the following major changes:
+
+* Our scheme uses the 32-character bech32 alphabet, rather than the
+  1024-word alphabet used by SLIP39. This reflects that the underlying
+  computations are defined on GF(32) rather than GF(1024).
+
+* Correspondingly, the maximum number of shares that can be generated
+  with this scheme is 31 (plus the original secret). In SLIP39 the
+  equivalent limit is 1023, although they support at most 16 shares
+  since even 16 would be impractically large.
+
+* Our checksum is 13 characters (65 bits) long and is guaranteed to
+  detect up to 8 character errors. The SLIP39 checksum is 3 words (30
+  bits) long and can detect up to 3 errors. Both schemes have a very
+  high probability of detecting random errors in more characters,
+  although it is easy to adversarily construct such errors that would
+  not be detected.
+
+* Our header, which is designed to be human-interpretable, uses a
+  single bech32 digit to indicate the "k" threshold value, which is
+  therefore limited to be between 2 and 9 inclusive. Our "n" value
+  is always 31, although of course users are not obligated to compute
+  or distribute all the shares.
+
+* We do not support nested SSSS. (We have osme idea of how to do this,
+  and intend to later include it as part of a later update to the BIP,
+  or as a separate standard.)
+
+* We do not support passphrases or key-hardening. This is incompatible
+  with our hand-computation goals.
+
+
+## The Scheme
+
+Our scheme, in more detail, is:
+
+1. Users will choose a threshold value k, probably 2 or 3, that they
+   want to split a new secret into.
+
+2. They will generate k-many 128-bit "initial shares". For each share,
+
+2a. They will prefix this data with a human-readable prefix "ms1", then
+    a header consisting of: k (encoded as a single bech32 digit between
+    2 and 9), a four-character freeform "identifier", a single character
+    freeform "share index".
+
+    The actual secret is encoded the same way, with a share index of S.
+    Other shares are forbidden from using "S" as a share index, and may
+    use any of the other 31 bech32 characters.
+
+2b. They will append a 13-character checksum compatible with a BCH code
+    that we term "codex32". codex32 is a distance 9 code, meaning that
+    it can detect up to 8 errors and correct up to 4.
+
+3. They may then generate up to 31 - k additional shares, by interpreting
+   the share indices of the initial shares as GF(32) elements, and
+   interpreting the shares themselves as evaluations of some (k-1)-degree
+   polynomial at those elements. The shares then uniquely determine this
+   polynomial, so they can use Lagrange interpolation to compute the
+   evaluations at any other points.
+
+   More concretely: for each additional share, they choose a fresh share
+   index, then compute the actual share data as a linear combination of
+   the initial shares.
+
+   The mathematical properties of Langrange interpolation ensure that the
+   derived shares will have a proper header (including the share index in
+   the right place) and a valid checksum.
+
+Then later, to recover their actual secret,
+
+4. They take an arbitrary set of k shares, and use Lagrange interpolation
+   again to compute the "S" share, which is their actual secret.
+
+
+## Compatibility with BIP39
+
+We hope that wallets will eventually directly support this scheme, including
+allowing users to directly input shares rather than reconstructing their
+secrets themselves. However, in the interim we understand that most users
+have encoded their seeds as BIP39 seed words, which cannot be losslessly
+converted to BIP32 master seeds (and anyway, convert to unwieldy 512-bit
+master seeds).
+
+In an appendix to our BIP, therefore, we will suggest a method of re-encoding
+BIP39 seed words as codex32 strings, by taking the big-endian interpretation
+of the hex values used by seedxor[3] for essentially the same purpose.
+
+The conversion can also be done by hand in a reasonable amount of time by
+a non-expect.
+
+
+## Hand Computation
+
+We are working on a booklet at https://github.com/roconnor-blockstream/SSS32
+which includes detailed instructions for computing and verifying checksums,
+for generating initial shares using potentially-biased dice, deriving shares
+and reconstructing secrets. Also included is a form of paper computer called
+a "volvelle" [4] for doing GF(32) addition on bech32 characters, and three
+paper circular slide rules for computing and applying Lagrange basis
+polynomials. We have a mathematical companion document [5] justifying these
+constructions.
+
+The paper computers are all generated using hand-written and user-verifiable
+postscript code, to ensure their integrity.
+
+
+[1] https://github.com/roconnor-blockstream/SSS32/pull/26
+[2] https://github.com/satoshilabs/slips/blob/master/slip-0039.md
+[3] https://seedxor.com/files/wordlist.pdf
+[4] https://en.wikipedia.org/wiki/Volvelle
+[5] https://github.com/apoelstra/SSS32/blob/2021-12--math-intro/volvelles/main.tex
+
+
