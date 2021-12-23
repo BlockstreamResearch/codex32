@@ -58,10 +58,10 @@ This allows one to diversely distribute the generated shares, with the property 
 
 == Specification ==
 
-=== MS32 ===
+=== codex32 ===
 
 This specification reuses the Bech32 character set encoding from <a href="https://en.bitcoin.it/wiki/BIP_0173">BIP-0173</a> to encode the shares.
-Following the Bech32 format, a MS32 string consists of:
+Following the Bech32 format, a codex32 string consists of:
 
 * A human-readable part, which is the string "ms" or "MS".
 * A separator, which is always "1".
@@ -72,20 +72,20 @@ Following the Bech32 format, a MS32 string consists of:
 ** A secret share which is a sequence of up to 74 Bech32 characters. (However, see long strings for an exception to this limit.)
 ** A checksum which consists of 13 Bech32 characters as described below.
 
-As with Bech32 strings, a MS32 string must be entirely uppercase or entirely lowercase, with lowercase being the canonical choice.
+As with Bech32 strings, a codex32 string must be entirely uppercase or entirely lowercase, with lowercase being the canonical choice.
 
 === Checksum ===
 
 The last thirteen characters of the data part form a checksum and contain no information.
 Valid strings MUST pass the criteria for validity specified by the Python3 code snippet below.
-The function <tt>ms32_verify_checksum</tt> must return true when its argument is the data part as a list of integers representing the characters converted using the bech32 character table from <a href="https://en.bitcoin.it/wiki/BIP_0173">BIP-0173</a>.
+The function <tt>codex32_verify_checksum</tt> must return true when its argument is the data part as a list of integers representing the characters converted using the bech32 character table from <a href="https://en.bitcoin.it/wiki/BIP_0173">BIP-0173</a>.
 
-To construct a valid checksum given the data-part characters (excluding the checksum), the <tt>ms32_create_checksum</tt> function can be used.
+To construct a valid checksum given the data-part characters (excluding the checksum), the <tt>codex32_create_checksum</tt> function can be used.
 
 <source lang="python">
-MS32_CONST = 0x10ce0795c2fd1e62a
+codex32_CONST = 0x10ce0795c2fd1e62a
 
-def ms32_polymod(values):
+def codex32_polymod(values):
   GEN = [0x1f28f80fffe92f842, 0x1751a20bdef255484, 0x07a316039ceda0d08, 0x0e0e2c0739da09a10, 0x1c164a0e739d13129]
   residue = 0x23181b3
   for v in values:
@@ -95,32 +95,32 @@ def ms32_polymod(values):
       residue ^= GEN[i] if ((b >> i) & 1) else 0
   return residue
 
-def ms32_verify_checksum(data):
-  return ms32_polymod(data) == MS32_CONST
+def codex32_verify_checksum(data):
+  return codex32_polymod(data) == codex32_CONST
 
-def ms32_create_checksum(data):
+def codex32_create_checksum(data):
   values = data
-  polymod = ms32_polymod(values + [0] * 13) ^ MS32_CONST
+  polymod = codex32_polymod(values + [0] * 13) ^ codex32_CONST
   return [(polymod >> 5 * (12 - i)) & 31 for i in range(13)]
 </source>
 
 === Error Correction ===
 
-If an MS32 string without a valid checksum MUST not be used.
+If an codex32 string without a valid checksum MUST not be used.
 However the checksum is designed to be an error correcting code that can correct up to 4 character substitutions, and up to 8 unreadable characters (called erasures) or up to 13 erasures if they are consecutive.
-Implementations SHOULD provide the user with a corrected valid MS32 string if possible.
-However, implementations SHOULD NOT automatically proceed with a corrected MS32 string without user confirmation of the corrected string, either by prompting the user, or returning a corrected string in an error message and allowing the
+Implementations SHOULD provide the user with a corrected valid codex32 string if possible.
+However, implementations SHOULD NOT automatically proceed with a corrected codex32 string without user confirmation of the corrected string, either by prompting the user, or returning a corrected string in an error message and allowing the
 user to repeat their action.
 We do not specify how an implementation chooses to implement error correction.
 We recommend that implementations make suggestions to substitute non-bech32 characters with bech32 characters in some situations, such as replacing "B" with "8" or "O" with "0", or "I" with "l", etc.
 We recommend that implementations interpret "?" as an erasure, but may also interpret other non-bech32 characters, or characters with incorrect case, also as erasures.
-We recommend that if a string with 8 or fewer erasures that can have those erasures filled in to make a valid MS32 string, then the implementation suggests such a string as a correction.
+We recommend that if a string with 8 or fewer erasures that can have those erasures filled in to make a valid codex32 string, then the implementation suggests such a string as a correction.
 We recommend that if a string consisting of valid Bech32 characters in the proper case can be made valid by substituting 4 or fewer characters, then the implementation suggests such a string as a correction.
 
 === Unshared Secret ===
 
-When the share index of a valid MS32 string (converted to lowercase) is the letter "s", we call the string an MS32 secret.
-The subsequent data characters in an MS32 secret, excluding the final checksum of 13 characters, is a direct encoding of a BIP-32 HD master seed.
+When the share index of a valid codex32 string (converted to lowercase) is the letter "s", we call the string an codex32 secret.
+The subsequent data characters in an codex32 secret, excluding the final checksum of 13 characters, is a direct encoding of a BIP-32 HD master seed.
 
 The master seed is decoded by converting the data to bytes:
 
@@ -129,22 +129,22 @@ The master seed is decoded by converting the data to bytes:
 
 Note, unlike the decoding process in <a href="https://en.bitcoin.it/wiki/BIP_0173">BIP-0173</a>, we do NOT require that the discarded bits be all zeros.
 
-For an unshared secret, the threshold character (the first character) is ignored (beyond the fact it must be a digit for the MS32 string to be valid).
+For an unshared secret, the threshold character (the first character) is ignored (beyond the fact it must be a digit for the codex32 string to be valid).
 We recommend using the digit "0" for the threshold if SSSS is not going to be used.
 The 4 character identifier also has no effect beyond aiding users in distinguishing between multiple different master seeds in cases where they have more than one.
 
 === Recovering Master Seed ===
 
-When the share index of a valid MS32 string is not "s", then we call it an MS32 share.
+When the share index of a valid codex32 string is not "s", then we call it an codex32 share.
 The first character of the string indicates the threshold of the share, and it is required to be a non-"0" digit.
 
-In order to recover a master seed, one needs a set of valid MS32 shares with:
+In order to recover a master seed, one needs a set of valid codex32 shares with:
 
 * all with the same threshold value, the same identifier, and the same length.
-* the number of MS32 shares must be exactly equal to the threshold digit amount.
+* the number of codex32 shares must be exactly equal to the threshold digit amount.
 * all of the share index values must be distinct.
 
-If all the above conditions are satisfied, the <tt>ms32_recover</tt> function will return a MS32 secret when its argument is the list of MS32 shares with each share represented as a list of integers representing the characters converted using t
+If all the above conditions are satisfied, the <tt>codex32_recover</tt> function will return a codex32 secret when its argument is the list of codex32 shares with each share represented as a list of integers representing the characters converted using t
 he bech32 character table from <a href="https://en.bitcoin.it/wiki/BIP_0173">BIP-0173</a>.
 
 <source lang="python">
@@ -170,7 +170,7 @@ def bech32_lagrange(l, x):
     c.append(m)
   return [bech32_mul(n, bech32_inv[i]) for i in c]
 
-def ms32_interpolate(l, x):
+def codex32_interpolate(l, x):
   w = bech32_lagrange([s[5] for s in l], x)
   res = []
   for i in range(len(l[0])):
@@ -180,46 +180,46 @@ def ms32_interpolate(l, x):
     res.append(n)
   return res
 
-def ms32_recover(l):
-  return ms32_interpolate(l, 16)
+def codex32_recover(l):
+  return codex32_interpolate(l, 16)
 </source>
 
 === Generating Shares ===
 
-If we already have <i>t</i> many valid MS32 strings:
+If we already have <i>t</i> many valid codex32 strings:
 
 * all with the same threshold value <i>t</i>, the same identifier, and the same length.
 * all of the share index values are distinct.
 
-We can derive additional shares with the <tt>ms32_interpolate</tt> function by passing it a list of exactly <i>t</i> many of these MS32 strings, and a fresh share index that is distinct from all of the other share indexes.
+We can derive additional shares with the <tt>codex32_interpolate</tt> function by passing it a list of exactly <i>t</i> many of these codex32 strings, and a fresh share index that is distinct from all of the other share indexes.
 The derived share will have a share index equal to the provided argument.
 
-Once a user has generated <i>n</i> many MS32 shares they may discard the MS32 secret (if it exists) and the <i>n</i> shares form a <i>t</i> of <i>n</i> Shamir's Secret Sharing scheme of a MS32 secret.
+Once a user has generated <i>n</i> many codex32 shares they may discard the codex32 secret (if it exists) and the <i>n</i> shares form a <i>t</i> of <i>n</i> Shamir's Secret Sharing scheme of a codex32 secret.
 
-There are two ways to create an initial set of <i>t</i> valid MS32 strings, depending on whether you have an existing master seed you wish to split, or wish to generate a fresh master seed.
+There are two ways to create an initial set of <i>t</i> valid codex32 strings, depending on whether you have an existing master seed you wish to split, or wish to generate a fresh master seed.
 
 ==== For an existing master seed ====
 
-For an existing master seed need, it first needs to be converted to the format of a MS32 secret.
+For an existing master seed need, it first needs to be converted to the format of a codex32 secret.
 
-The data portion of the MS32 secret needs to have a threshold value of <i>t</i> and an identifier for the master seed chosen (to distinguish it from other master seeds the user may have or later generate).
+The data portion of the codex32 secret needs to have a threshold value of <i>t</i> and an identifier for the master seed chosen (to distinguish it from other master seeds the user may have or later generate).
 We do not define how to choose the identifier beyond noting that it SHOULD be distinct for every master seed the user may have to deal with simultaneously.
 The share index must be "s".
 The secret share is a Bech32 encoding of the bytes of the master seed, padded with arbitrary bits.
 Lastly a valid checksum needs to be generated in accordance with the Checksum section.
 
-Along with the MS32 secret, the user needs to generate <i>t</i>-1 other MS32 shares with the same threshold value and the same identifier, and each with a distinct share index.
+Along with the codex32 secret, the user needs to generate <i>t</i>-1 other codex32 shares with the same threshold value and the same identifier, and each with a distinct share index.
 The set of share indexes may be chosen arbitrarily.
-The secret share of each of these MS32 shares is chosen uniformly at random such that it has the same length as the secret share of the MS32 secret.
+The secret share of each of these codex32 shares is chosen uniformly at random such that it has the same length as the secret share of the codex32 secret.
 Lastly a valid checksum needs to be generated in accordance with the Checksum section for each share.
 
-The MS32 secret, and the <i>t</i>-1 MS32 shares form a set of <i>t</i> many valid MS32 strings from which additions shared can be derived as described above.
+The codex32 secret, and the <i>t</i>-1 codex32 shares form a set of <i>t</i> many valid codex32 strings from which additions shared can be derived as described above.
 
 ==== For a fresh master seed ====
 
-In the case that the user wishes to generate a fresh master secret, then the user generates <i>t</i> many random MS32 shares, all with threshold <i>t</i> and all with the same identifier, using the generation procedure from the previous section.
+In the case that the user wishes to generate a fresh master secret, then the user generates <i>t</i> many random codex32 shares, all with threshold <i>t</i> and all with the same identifier, using the generation procedure from the previous section.
 
-With this set of <i>t</i> many MS32 shares, new shares can be derived as discussed above.
+With this set of <i>t</i> many codex32 shares, new shares can be derived as discussed above.
 This process generates a fresh master seed, whose value can be retrieved by running the recovery process on any <i>t</i> many of these shares.
 
 === Long Strings ===
