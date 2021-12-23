@@ -60,7 +60,7 @@ However, we have the following major changes:
   is always 31, although of course users are not obligated to compute
   or distribute all the shares.
 
-* We do not support nested SSSS. (We have osme idea of how to do this,
+* We do not support nested SSSS. (We have some idea of how to do this,
   and intend to later include it as part of a later update to the BIP,
   or as a separate standard.)
 
@@ -90,7 +90,10 @@ Our scheme, in more detail, is:
     that we term "codex32". codex32 is a distance 9 code, meaning that
     it can detect up to 8 errors and correct up to 4.
 
-3. They may then generate up to 31 - k additional shares, by interpreting
+2c. If they don't want to use SSSS at all, they can put "0" as the first
+    character of their header and generate the "S" share and nothing else.
+
+3. They may then generate up to (31-k) additional shares, by interpreting
    the share indices of the initial shares as GF(32) elements, and
    interpreting the shares themselves as evaluations of some (k-1)-degree
    polynomial at those elements. The shares then uniquely determine this
