@@ -4,11 +4,13 @@ From: Russell
 Subject: BIP Proposal: "codex32", a hand-computable SSSS scheme and compatible BCH code 
 
 This email is to request a BIP number for a scheme I have been working on
-with Andrew Poelstra and others. The goal is an implementation of Shamir's
-Secret Sharing Scheme (SSSS) which is (a) easy to implement, in the sense
-that it works on very small (5-bit) words and only requires generating
-randomness within power-of-2 sets; and (b) is possible to compute by hand
-by a motivated non-expert within the space of an hour or so.
+with Andrew Poelstra, Pieter Wuille, and others.
+
+The goal is an implementation of Shamir's Secret Sharing Scheme (SSSS) which
+is (a) easy to implement, in the sense that it works on very small (5-bit)
+words and only requires generating randomness within power-of-2 sets; and
+(b) is possible to compute by hand by a motivated non-expert within the
+space of an hour or so.
 
 We have written a detailed BIP draft here [1] but are starting a discussion
 on the list before proposing anything to the BIPs repo.
