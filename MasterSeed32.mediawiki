@@ -8,7 +8,8 @@
   Status: Draft
   Type: Informational
   Created: 2021-12-23
-  License: Unknown, ask Russell, andrew suggests CC0
+  License: CC0-1.0
+  License-Code: MIT
 </pre>
 
 ==WARNING==
@@ -29,7 +30,7 @@ Each share contains a BCH error-correcting checksum as a suffix to aid in the re
 
 ===Copyright===
 
-This document is licensed under the <editme> license.
+This document is licensed under the Creative Commons CC0 1.0 Universal license.
 
 ===Motivation===
 
