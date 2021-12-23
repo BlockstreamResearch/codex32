@@ -1,6 +1,6 @@
 <pre>
   BIP: ???
-  Title: Codex32 Hand-Computable Error Correcting Code
+  Title: Codex32: Hand-Computable BCH Code and Shamir Secret Sharing Scheme
   Author: Russell O'Connor <roconnor@theorem.ca>
           Andrew Poelstra <andytoshi@wpsoftware.net>
   Comments-Summary: No comments yet.
@@ -23,10 +23,14 @@ guarantee of any kind that you will be able to successfully recover your data.
 
 ===Abstract===
 
-This document describes a standard format for encoding of BIP-32 HD master seed data by splitting it into upto 31 shares using Shamir's secret sharing.
+This document describes a standard format for encoding of BIP-32 HD master seed data by splitting it into up to 31 shares using <a href="https://en.wikipedia.org/wiki/Shamir%27s_Secret_Sharing">Shamir's Secret Sharing Scheme (SSSS)</a>.
 A minimum threshold of shares, which can be between 1 and 9, of the total number of shares is needed to recover the master seed data.
 Without sufficient shares, no information about the master seed is recoverable.
 Each share contains a BCH error-correcting checksum as a suffix to aid in the recovery of any partially corrupted share.
+
+A primary goal in our design is that it is possible to compute and verify the BCH code checksums, derive SSSS shares, and recover the secret, without the aid of electronic computers or professionals. However, we made no cryptographic compromises in furtherance of this goal.
+
+An exact procedure for hand-computation, which will materially differ from the included Python code, is out of scope of this document.
 
 ===Copyright===
 
@@ -42,14 +46,15 @@ A naive solution is to cut the master secret into 3 overlapping pieces that each
 This way the full master secret can be recovered by any two pieces.
 Unfortunately each piece leaks 2/3rd of the master secret, leaving only 88 bits of entropy remaining, a value that is on the cusp of what is considered secure.
 Furthermore it is difficult to generalize this scheme.
-While more sets of overlapping pieces can be constructed, there comes a point where, with enough shares, even though they do not reconstruct the whole master seed, leave too little remaining entropy to be secure.
+While more sets of overlapping pieces can be constructed, there comes a point where a sub-threshold numbers of shares, though insufficient to reconstruct the whole master seed, leaves too little remaining entropy to be secure.
 
-In this standard we choose to use Shamir's secret sharing.
+In this standard we choose to use Shamir's Secret Sharing Scheme (SSSS).
 This allows one to diversely distribute the generated shares, with the property that the compromise of any one share (or more depending on the choice of threshold) reveals no information about the master seed.
 
-<a href="https://github.com/satoshilabs/slips/blob/master/slip-0039.md">SLIP-0039</a> has essentially the same motivations as this standard.
-The main difference is that this standard aims to be amenable to hand computation for those people who have a general distrust in having digital electronic devices manipulating their secret master seed.
-SLIP-0039 also directly contains a two-level sharing scheme, while a companion scheme will be needed to split shares in this scheme into a second level.
+<a href="https://github.com/satoshilabs/slips/blob/master/slip-0039.md">SLIP-0039</a> has essentially the same motivations as this standard. The differences are:
+* <b>this standard aims to be amenable to hand computation</b> for those people who have a general distrust in having digital electronic devices manipulating their secret master seed.
+* SLIP-0039 directly contains a two-level sharing scheme; a companion scheme will be needed to split shares in this scheme into a second level.
+* SLIP-0039 supports passphrases and uses key-hardening. As key-hardening is (almost by definition) impossible to do by hand, we have no passphrase support.
 
 == Specification ==
 
@@ -64,7 +69,7 @@ Following the Bech32 format, a MS32 string consists of:
 ** A threshold parameter, which MUST be a single digit between "2" and "9", or the digit "0". If the threshold parameter is "0" then the share index, defined below, MUST have a value of "s" (or "S")
 ** An identifier consisting of 4 Bech32 characters.
 ** A share index, which is any Bech32 character.  Note that a share index value of "s" (or "S") is special and denotes the unshared secret (see section "Unshared Secret").
-** A secret share which is a sequence of upto 74 Bech32 characters. (However, see long strings for an exception to this limit.)
+** A secret share which is a sequence of up to 74 Bech32 characters. (However, see long strings for an exception to this limit.)
 ** A checksum which consists of 13 Bech32 characters as described below.
 
 As with Bech32 strings, a MS32 string must be entirely uppercase or entirely lowercase, with lowercase being the canonical choice.
@@ -102,7 +107,7 @@ def ms32_create_checksum(data):
 === Error Correction ===
 
 If an MS32 string without a valid checksum MUST not be used.
-However the checksum is designed to be an error correcting code that can correct upto 4 character substitutions, and upto 8 unreadable characters (called erasures) or upto 13 erassures if they are consecutive.
+However the checksum is designed to be an error correcting code that can correct up to 4 character substitutions, and up to 8 unreadable characters (called erasures) or up to 13 erasures if they are consecutive.
 Implementations SHOULD provide the user with a corrected valid MS32 string if possible.
 However, implementations SHOULD NOT automatically proceed with a corrected MS32 string without user confirmation of the corrected string, either by prompting the user, or returning a corrected string in an error message and allowing the
 user to repeat their action.
@@ -122,10 +127,10 @@ The master seed is decoded by converting the data to bytes:
 * Translate the characters to 5 bits values using the bech32 character table from <a href="https://en.bitcoin.it/wiki/BIP_0173">BIP-0173</a>, most significant bit first.
 * Re-arrange those bits into groups of 8 bits. Any incomplete group at the end MUST be 4 bits or less, and is discarded.
 
-Note, unlike the decoding process in <a href="https://en.bitcoin.it/wiki/BIP_0173">BIP-0173</a>, we do NOT require that the incomplete be all zeros.
+Note, unlike the decoding process in <a href="https://en.bitcoin.it/wiki/BIP_0173">BIP-0173</a>, we do NOT require that the discarded bits be all zeros.
 
-For an unshared secret, the thereshold character (the first character) is ignored (beyond the fact it must be a digit for the MS32 string to be valid).
-We recommend using the digit "0" for the threshold if Shamir's Secret Sharing is not going to be used.
+For an unshared secret, the threshold character (the first character) is ignored (beyond the fact it must be a digit for the MS32 string to be valid).
+We recommend using the digit "0" for the threshold if SSSS is not going to be used.
 The 4 character identifier also has no effect beyond aiding users in distinguishing between multiple different master seeds in cases where they have more than one.
 
 === Recovering Master Seed ===
