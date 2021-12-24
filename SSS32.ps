@@ -465,7 +465,8 @@ end
 /drawDropcap { % x y strdata -> h w
   10 dict begin
   gsave
-    /Times-Roman findfont 60 scalefont setfont
+    /QTCloisteredMonk /Font resourcestatus { pop pop /QTCloisteredMonk } { /Times-Roman } ifelse
+    findfont 60 scalefont setfont
     3 copy pop moveto
 
     /boarder 2 def
