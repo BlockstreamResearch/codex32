@@ -465,14 +465,17 @@ end
 /drawDropcap { % x y strdata -> h w
   10 dict begin
   gsave
-    /Times-Roman findfont 64 scalefont setfont
+    /Times-Roman findfont 60 scalefont setfont
     3 copy pop moveto
 
+    /boarder 2 def
+    boarder boarder neg rmoveto
     gsave
       dup false charpath strokepath flattenpath pathbbox
       { /y2 /x2 /y1 /x1 } {exch def} forall
       % Flip box so it is going downward rather than upward
       /y2 y1 2 mul y2 sub store
+      % left pad
     grestore
 
     % Draw letter
@@ -485,6 +488,12 @@ end
       fill
     grestore
     dup false charpath
+    x1 y2 moveto x1 y1 lineto x2 y1 lineto x2 y2 lineto closepath
+    % pad the box
+    /y1 y1 boarder add store
+    /y2 y2 boarder sub store
+    /x1 x1 boarder sub store
+    /x2 x2 boarder add store
     x1 y2 moveto x1 y1 lineto x2 y1 lineto x2 y2 lineto closepath
     1 setlinewidth
     stroke
