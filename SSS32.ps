@@ -207,6 +207,7 @@
 /perm [29 24 13 25 9 8 23 18 22 31 27 19 1 0 3 16 11 28 12 14 6 4 2 15 10 17 21 20 26 30 7 5 ] def
 /permS [16 29 24 13 25 9 8 23 18 22 31 27 19 1 0 3 11 28 12 14 6 4 2 15 10 17 21 20 26 30 7 5 ] def
 /permV [22 11 10 29 31 28 17 24 27 12 21 13 19 14 20 25 1 6 26 9 0 4 30 8 3 2 7 23 16 15 5 18 ] def
+/permId [ 0 1 31 {} for ] def
 
 /code [/Q /P /Z /R /Y /nine /X /eight /G /F /two /T /V /D /W /zero /S /three /J /N /five /four /K /H /C /E /six /M /U /A /seven /L /space] def
 /code2 [/multiply /aleph /alpha /beta /Gamma /Delta /epsilon /eta /Theta /Lambda /mu /Xi /Pi /rho /Sigma /Phi /Psi /Omega /at /numbersign /percent /cent /yen /Euro /currency /circleplus /dagger /daggerdbl /section /paragraph /diamond /heart /space ] def
@@ -806,120 +807,131 @@ README {gsave show grestore 0 -10 rmoveto} forall
 pgsave restore
 showpage
 
+%****************************************************************
+%*
+%* Arithmetic Tables
+%*
 %%Page: 3 3
 %%BeginPageSetup
 /pgsave save def
 %%EndPageSetup
-10 dict begin
-  250 450
-  /offsety exch def
-  /offsetx exch def
-  /Helvetica findfont 15 scalefont setfont
-  20 offsetx add offsety moveto (Multiplication Table) show
-  1 1 31 {
-    /Codex findfont 8 scalefont setfont
-    offsetx 34.5 7 mul add offsety 5 sub 2 index 8 mul sub moveto
-    dup code2 exch get glyphshow
-    /Codex findfont 8 scalefont setfont
-    dup 1 31 {
-    dup 2 add 7 mul offsetx add offsety 5 sub 3 index 8 mul sub moveto
-    1 index gf32mul code2 exch get glyphshow
-  } for pop } for
-end
 
-10 dict begin
-%cat <<EOF | tbl | groff -Tps
-%Dice Tables
-%
-%1d4;1d8
-%.TS
-%box;
-%cFCW || cFCW | cFCW | cFCW | cFCW | cFCW | cFCW | cFCW | cFCW.
-%        1       2       3       4       5       6       7       8
-%=
-%1       Q       P       Z       R       Y       9       X       8
-%_
-%2       G       F       2       T       V       D       W       0
-%_
-%3       S       3       J       N       5       4       K       H
-%_
-%4       C       E       6       M       U       A       7       L
-%.TE
-%
-%2d6
-%.TS
-%box;
-%cFCW || cFCW | cFCW | cFCW | cFCW | cFCW | cFCW.
-%        1       2       3       4       5       6
-%=
-%1               Q       P       Z       R
-%_
-%2       Y       9       X       8       G       F
-%_
-%3       2       T       V       D       W       0
-%_
-%4       S       3       J       N       5       4
-%_
-%5       K       H       C       E       6       M
-%_
-%6               U       A       7       L
-%.TE
-%EOF
-/SC 32 def
-/E{0 rmoveto show}bind def
-/G{0 rmoveto 0 exch ashow}bind def
-/H{0 rmoveto 0 exch 0 SC 5 2 roll awidthshow}bind def
-/Q{moveto show}bind def
-/S{moveto 0 exch ashow}bind def
-/T{moveto 0 exch 0 SC 5 2 roll awidthshow}bind def
-/Cg/setgray load def
-/SN{
-transform
-.25 sub exch .25 sub exch
-round .25 add exch round .25 add exch
-itransform
-}bind def
-/LW/setlinewidth load def
-/DL{
-SN
-moveto
-SN
-lineto stroke
-}bind def
-/SF{
-findfont exch
-[exch dup 0 exch 0 exch neg 0 0]makefont
-dup setfont
-[exch/setfont cvx]cvx bind def
-}bind def
-/BP{
-1 setlinecap
-1 setlinejoin
-0 792 translate
-1 -1 scale
-}bind def
-BP
+/Helvetica-Bold findfont 16 scalefont setfont
+pgsize aload pop 48 sub exch 2 div exch
+moveto (Principal Tables) centreshow
 
-/F0 10/Courier SF(Dice T)72 12 Q(ables)-.8 E(1d4;1d8)72 36 Q .4 LW
-256 40.5 72 40.5 DL/F1 10/Courier SF 15(12345678)98 50 S 256 54.5 72
-54.5 DL 256 56.5 72 56.5 DL 15(1QPZRY9X8)77 66 S 256 70.5 72 70.5 DL 15
-(2GF2TVDW0)77 80 S 256 84.5 72 84.5 DL 15(3S3JN54KH)77 94 S 256 98.5 72
-98.5 DL 15(4CE6MUA7L)77 108 S 256 112.5 72 112.5 DL 237.5 40.5 237.5
-112.5 DL 216.5 40.5 216.5 112.5 DL 195.5 40.5 195.5 112.5 DL 174.5 40.5
-174.5 112.5 DL 153.5 40.5 153.5 112.5 DL 132.5 40.5 132.5 112.5 DL 111.5
-40.5 111.5 112.5 DL 89.5 40.5 89.5 112.5 DL 91.5 40.5 91.5 112.5 DL 256
-40.5 256 112.5 DL 72 40.5 72 112.5 DL F0(2d6)72 132 Q 214 136.5 72 136.5
-DL F1 15(123456)98 146 S 214 150.5 72 150.5 DL 214 152.5 72 152.5 DL 36
-(1Q)77 162 S 15(PZR)-21 G 214 166.5 72 166.5 DL 15(2Y9X8GF)77 176 S 214
-180.5 72 180.5 DL 15(32TVDW0)77 190 S 214 194.5 72 194.5 DL 15(4S3JN54)
-77 204 S 214 208.5 72 208.5 DL 15(5KHCE6M)77 218 S 214 222.5 72 222.5 DL
-36(6U)77 232 S 15(A7L)-21 G 214 236.5 72 236.5 DL 195.5 136.5 195.5
-236.5 DL 174.5 136.5 174.5 236.5 DL 153.5 136.5 153.5 236.5 DL 132.5
-136.5 132.5 236.5 DL 111.5 136.5 111.5 236.5 DL 89.5 136.5 89.5 236.5 DL
-91.5 136.5 91.5 236.5 DL 214 136.5 214 236.5 DL 72 136.5 72 236.5 DL
+pgsize aload pop
+/tHeight exch 108 sub 2 div def
+/tWidth exch 72 sub 2 div def
 
-0 Cg
-end
+/drawTable {
+  10 dict begin
+  { /innerCode /topPerm /topCode /leftPerm /leftCode /title /binop /y /x } {exch def} forall
+
+  % Top 16 pts are title
+  x y moveto
+  /Helvetica findfont 12 scalefont setfont
+  tWidth 2 div -12 rmoveto title centreshow
+  /Codex findfont 10 scalefont setfont
+
+  % Remainder is split into the table (one extra row and column for heading)
+  /cellH tHeight 16 sub leftPerm length 1 add div def
+  /cellW tWidth topPerm length 1 add div def
+
+  % Draw vertical background lines: one black one for the heading then
+  % alternating 3-cell-height white/gray for the content background
+  x y 16 sub moveto
+  0 1 topPerm length {
+    dup 0 eq { 0 0 0 } {
+      3 add 6 mod 3 lt { 0.808 0.923 0.953 } { 1 1 1 } ifelse
+    } ifelse setrgbcolor
+
+    gsave
+      0 tHeight 16 sub neg rlineto
+      cellW 0 rlineto 0 tHeight 16 sub rlineto closepath fill
+    grestore
+    cellW 0 rmoveto
+  } for
+  % Draw horizontal background line for top heading
+  0 setgray
+  x y 16 sub moveto
+  x tWidth add y 16 sub lineto
+  0 cellH neg rlineto
+  x y 16 cellH add sub lineto
+  closepath fill
+  % Draw vertical lines
+  0.1 setlinewidth
+  % Draw horizontal lines
+  x y 16 sub moveto
+  0 1 leftPerm length {
+    0 cellH neg rmoveto
+    3 mod 2 eq {
+      gsave tWidth 0 rlineto stroke grestore
+    } if
+  } for
+
+  1 setgray
+  % Draw top title
+  x cellW 2 div add y 16 sub cellH sub 2 add moveto
+  0 1 topPerm length 1 sub {
+    cellW 0 rmoveto
+    topPerm exch get topCode exch get gsave centreglyphshow grestore
+  } for
+  % Draw left title
+  x cellW 2 div add y 16 sub cellH sub 2 add moveto
+  0 1 leftPerm length 1 sub {
+    0 cellH neg rmoveto
+    leftPerm exch get leftCode exch get gsave centreglyphshow grestore
+  } for
+
+  0 setgray
+  % Draw content
+  x cellW 2 div add y 16 sub cellH sub 2 add moveto
+  0 1 topPerm length 1 sub { % x
+    cellW 0 rmoveto
+    gsave
+    0 1 leftPerm length 1 sub { % y
+      0 cellH neg rmoveto
+      1 index
+      /xpos exch topPerm exch get def
+      /ypos exch leftPerm exch get def
+      innerCode xpos ypos binop get
+      gsave centreglyphshow grestore
+    } for
+    pop
+    grestore
+  } for
+
+  % Bounding box
+  0.5 setlinewidth
+  x y 16 sub moveto
+  0 tHeight 16 sub neg rlineto
+  tWidth 0 rlineto
+  0 tHeight 16 sub rlineto
+  closepath stroke
+
+  end
+} bind def
+
+% top-left
+28 tHeight tHeight 56 add add
+{gf32add} (Addition) code perm code perm code drawTable
+% top-right
+tWidth 44 add tHeight tHeight 56 add add
+{gf32mul} (Translation) code perm code2 permId 1 31 getinterval code drawTable
+% bot-left
+28 tHeight 48 add
+{ 10 dict begin
+  /in exch def
+  /out exch def
+  16 out [ in out ] lagrange
+  dup 1 eq {pop 0} if % X out trying to recover a share with itself.
+  end
+}
+(Recovery) code permS 1 31 getinterval code permS 1 31 getinterval code2 drawTable
+% bot-right
+tWidth 44 add tHeight 48 add
+{gf32mul} (Multiplication) code2 permId 1 31 getinterval code2 permId 1 31 getinterval code2 drawTable
 
 pgsave restore
 showpage
