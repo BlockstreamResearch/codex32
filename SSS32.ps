@@ -1464,6 +1464,69 @@ showpage
 /pgsave save def
 %%EndPageSetup
 % Dice Worksheet
+90 rotate 30 pgsize aload pop pop neg translate
+10 dict begin
+% tree
+  /radius 0.705 72 mul 5 div def
+  /spacing 50 def
+  /coord { % i j -- x y
+     1 index 2 exch exp exch 0.5 add mul 2 mul 1.1 radius mul mul
+     exch 0.5 add spacing mul
+  } bind def
+  /trimedline { % x1 y1 x2 y2 --
+  10 dict begin
+    { /y2 /x2 /y1 /x1 } {exch def} forall
+    /dx x2 x1 sub def
+    /dy y2 y1 sub def
+    /l dx dup mul dy dup mul add sqrt def
+    x1 y1 moveto radius l div dup dx mul exch dy mul rmoveto
+    1 2 radius l div mul sub dup dx mul exch dy mul rlineto
+  end
+  } bind def
+  0 1 5 {
+    /i exch def
+    0 1 2 5 i sub exp 1 sub {
+      /j exch def
+      /x 2 i exp j 0.5 add mul 2 mul 1.1 radius mul mul def
+      i j coord moveto radius neg 0 rmoveto
+      i j coord radius -180 180 arc
+    } for
+  } for
+  thick line stroke
+  0 1 4 {
+    /i exch def
+    0 1 2 5 i sub exp 1 sub {
+      /j exch def
+      /x 2 i exp j 0.5 add mul 2 mul 1.1 radius mul mul def
+      i j coord i 1 add j 2 idiv coord trimedline
+    } for
+  } for
+  verythick line stroke
+  /fontsz 10 def
+  /Codex findfont fontsz scalefont setfont
+  0 1 31 {
+    /j exch def
+    /x 1.1 radius mul 2 j mul 1 add mul def
+    x spacing 2 div fontsz 0.3 mul sub moveto
+    code j get centreglyphshow
+  } for
+% track
+  /sz 36 def
+  /Times-Roman findfont 24 scalefont setfont
+  thick line
+  0 1 4 {
+    /i exch def
+    /y 300 sz 1.6 mul i mul add def
+    1 1 20 {
+      /j exch def
+      /x j 1 sub sz mul def
+      x y sz sz rectstroke
+      x sz 2 div add y 9 add moveto j 2 string cvs centreshow
+    } for
+    % draw label location
+    0 y sz add 3 add moveto 100 0 rlineto stroke
+  } for
+end
 pgsave restore
 showpage
 %%EOF
