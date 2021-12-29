@@ -438,6 +438,7 @@ end
 /Metrics <<
   /.notdef makemetric
   /underscore makemetric
+  /arrowboth makemetric
   code {makemetric} forall
   code2 {makemetric} forall
 >> def
@@ -751,6 +752,12 @@ multiplicationDisc dup maxlength dict copy dup /translationDisc exch def begin
   /logbase 23 def
   /coding code def
   /handlePointerSz 0 def
+  /decorateTopDisc {
+    /Codex findfont outerglyphSz 2 mul scalefont setfont
+    [/Q /arrowboth /Q]
+    dup 0 exch {glyphwidth pop add} forall -2 div outerglyphSz 2 mul moveto
+    {glyphshow} forall
+  } bind def
 end
 
 % /recoveryDisc is a modified copy of multiplicaitonDisc.
