@@ -312,6 +312,10 @@ end } bind def
 /thick 0.8 def
 /verythick 1.2 def
 
+/resetstroke {
+ stroke
+} bind def
+
 /brass { 0.7098 0.651 0.2588 } def
 
 /substitute <<
@@ -619,8 +623,8 @@ end
      % Draw white interior circle
      newpath
      outlineBottomDisc
-     verythin line stroke
-     newpath 0 0 innerRadius 0 360 arc thick line stroke
+     verythin line resetstroke
+     newpath 0 0 innerRadius 0 360 arc thick line resetstroke
      % Draw letters
      gsave
        /Helvetica findfont outerTitleSz scalefont setfont
@@ -682,10 +686,9 @@ end
 
      gsave verythin line
        % Draw white interior circle
-       newpath 0 0 innerRadius 0 360 arc stroke
+       newpath 0 0 innerRadius 0 360 arc resetstroke
        % Draw centre cross
-       newpath 0 4.5 moveto 0 -4.5 lineto stroke
-       newpath 4.5 0 moveto -4.5 0 lineto stroke
+       newpath 0 4.5 moveto 0 -4.5 lineto 4.5 0 moveto -4.5 0 lineto resetstroke
      grestore
      % Draw title
      gsave
@@ -742,7 +745,7 @@ multiplicationDisc dup maxlength dict copy dup /recoveryDisc exch def begin
        angle mul dup sin bigR mul exch cos bigR mul
        newpath 2 copy littleR -180 180 arc
        exch neg exch littleR 0 360 arc
-       stroke
+       resetstroke
      } for
   } bind def
 end
@@ -763,7 +766,7 @@ end
       gsave newpath outlineBottomDisc 1 setgray fill grestore
       matrix currentmatrix determinant det mul 0 gt
       { drawBottomDisc }
-      { newpath outlineBottomDisc verythin line stroke }
+      { newpath outlineBottomDisc verythin line resetstroke }
       ifelse
       initclip
     end
@@ -777,7 +780,7 @@ end
       % draw fold line
       initclip
       0 0 radius 0 360 arc clip
-      newpath radius bottomfoldline moveto radius -2 mul 0 rlineto verythin line stroke
+      newpath radius bottomfoldline moveto radius -2 mul 0 rlineto verythin line resetstroke
       initclip
     end
   setmatrix
@@ -1438,7 +1441,7 @@ gsave
     translationDisc begin
       0 topfoldline translate
       180 rotate
-      newpath outlineTopDisc verythin line stroke
+      newpath outlineTopDisc verythin line resetstroke
     end
   dup setmatrix
     multiplicationDisc begin
@@ -1464,7 +1467,7 @@ gsave
     matrix currentmatrix
       0 topfoldline translate [1 0 2 tan 1 0 0] concat 0 topfoldline neg translate
       0.25 1 scale
-      newpath outlineTopDisc verythin line stroke
+      newpath outlineTopDisc verythin line resetstroke
     setmatrix
     matrix currentmatrix
       0.25 1 scale
