@@ -433,69 +433,6 @@ circtextdict begin
 end
 
 %******************
-%* Font Definitions
-%*
-%* Defines the /Codex font, which combines Bech32 characters and symbol characters into one font
-%*
-/Codex 15 dict dup begin
-/basefont /Courier findfont def
-/basechars basefont /CharStrings get def
-/backupfont /Symbol findfont def
-/substitute <<
-  /Omega /uni03A9
-  /circleplus /uni2295
->> def
-/makemetric {
-10 dict begin
-  /charname exch def
-  charname
-  gsave
-  % try substituting the glyph name
-  substitute charname known basechars charname known not and
-    { basechars substitute charname get known { /charname substitute charname get def } if } if
-  basechars charname known
-  { basefont setfont [ charname glyphwidth ] }
-  { backupfont setfont [ charname glyphwidth ] } ifelse
-  grestore
-end
-} bind def
-/FontType 3 def
-/FontMatrix [1 0 0 1 0 0] def
-/FontBBox [0 0 0 0] def
-/Encoding StandardEncoding def
-/Metrics <<
-  /.notdef makemetric
-  /underscore makemetric
-  /arrowboth makemetric
-  code {makemetric} forall
-  code2 {makemetric} forall
->> def
-/BuildGlyph {
-10 dict begin
-   /charname exch def
-   /fontdict exch def
-   /basechars dup fontdict exch get def
-   /substitute dup fontdict exch get def
-   fontdict /Metrics get charname known not {/charname /.notdef def} if
-   fontdict /Metrics get charname get aload pop
-   % :TODO: create bounding box to run BBox charname get aload pop setcachedevice
-   % That would replace setcharwidth
-   setcharwidth
-   % try substituting the glyph name
-   substitute charname known basechars charname known not and
-     { basechars substitute charname get known { /charname substitute charname get def } if } if
-   basechars charname known
-   { charname fontdict /basefont get setfont }
-   { charname fontdict /backupfont get setfont } ifelse
-   0 0 moveto glyphshow
-end
-} bind def
-/BuildChar { 1 index /Encoding get exch get 1 index /BuildGlyph get exec } bind def
-/UniqueID 2 def
-end definefont pop
-
-
-%******************
 %* Volvelle and Slide Charts
 %*
 /magic 94 def % a magic angle for making nice looking spirals.
