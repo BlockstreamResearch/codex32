@@ -314,10 +314,25 @@ end } bind def
 
 /brass { 0.7098 0.651 0.2588 } def
 
+/substitute <<
+  /Omega /uni03A9
+  /circleplus /uni2295
+>> def
+
 % codexshow : /glyph size --
 /codexshow {
-  /Codex findfont exch scalefont setfont
-  glyphshow
+10 dict begin
+  /sz exch def
+  /charname exch def
+  /basefont /Courier findfont def
+  /basechars basefont /CharStrings get def
+  /backupfont /Symbol findfont def
+  substitute charname known basechars charname known not and
+    { basechars substitute charname get known { /charname substitute charname get def } if } if
+  basechars charname known
+  { basefont sz scalefont setfont charname glyphshow }
+  { backupfont sz scalefont setfont charname glyphshow } ifelse
+end
 } bind def
 
 /glyphwidth {
