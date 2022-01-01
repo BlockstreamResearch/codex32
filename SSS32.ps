@@ -314,22 +314,35 @@ end } bind def
 
 /brass { 0.7098 0.651 0.2588 } def
 
+% codexshow : /glyph size --
+/codexshow {
+  /Codex findfont exch scalefont setfont
+  glyphshow
+} bind def
+
 /glyphwidth {
   gsave
   nulldevice newpath 0 0 moveto glyphshow currentpoint
   grestore
 } bind def
 
-/underlineshow {
+/codexwidth {
+  gsave
+  nulldevice newpath 0 0 moveto codexshow currentpoint
+  grestore
+} bind def
+
+/underlinecodexshow {
+    exch
     dup dup /six eq exch /nine eq or { % if the string is (6) or (9)
-        gsave /underscore glyphshow grestore % draw an underline
+        gsave /underscore 2 index codexshow grestore % draw an underline
     } if
-    glyphshow
+    exch codexshow
 } bind def
 
 /centreshow {dup stringwidth pop 2 div neg 0 rmoveto show} bind def
 
-/centreglyphshow {dup glyphwidth pop 2 div neg 0 rmoveto underlineshow} bind def
+/centrecodexshow {2 copy codexwidth pop 2 div neg 0 rmoveto underlinecodexshow} bind def
 
 /centresquare {dup neg 2 div dup rmoveto dup 0 rlineto dup 0 exch rlineto neg 0 rlineto closepath stroke} bind def
 
@@ -475,9 +488,7 @@ end definefont pop
  { 10 dict begin
    /outerperm exch def
    /outercode exch def
-   /outerfont exch def
    /innercode exch def
-   /innerfont exch def
    /title exch def
    /binop exch def
    /angle 360 outerperm length div neg def
@@ -498,10 +509,8 @@ end definefont pop
    360 16 div 360 64 div sub rotate
    0 360 8 div 360 {title 6 3 -1 roll 262 outsidecircletext} for
    grestore
-   outerfont findfont 18 scalefont setfont
-   outerperm {0 38 sqrt 40 mul moveto outercode exch get centreglyphshow angle rotate} forall
+   outerperm {0 38 sqrt 40 mul moveto outercode exch get 18 centrecodexshow angle rotate} forall
    % Draw inside contents
-   innerfont findfont 12 scalefont setfont
    180 rotate
    0 1 31 { % Draw 32 circles of increasing radius
        magic rotate
@@ -509,7 +518,7 @@ end definefont pop
            0 2 index 2 add sqrt 40 mul moveto % move to 0, 2.5 + 40*sqrt(outer index + 2)
            1 index 31 exch sub % 31 - inner index
            permV exch get binop % apply binary operation to the permuted letter and the inner index
-           innercode exch get centreglyphshow % display the result
+           innercode exch get 12 centrecodexshow % display the result
            angle rotate % rotate one entry
        } forall pop
    } for
@@ -540,7 +549,6 @@ end definefont pop
    % Draw indicator arrow
    newpath 0 6 40 mul moveto 10 -20 rlineto -20 0 rlineto closepath fill
    % Draw text
-   /Codex findfont 12 scalefont setfont
    180 rotate
    0 1 31 {
        magic rotate
@@ -553,7 +561,7 @@ end definefont pop
        -26 -3 rmoveto % Move to the left
        31 exch sub % 31 - loop index
        permV exch get code exch get % Permute index and extract 1-char substring of alphabet
-       /Codex findfont 12 scalefont setfont underlineshow % ...and draw it
+       12 underlinecodexshow % ...and draw it
        /Symbol findfont 12 scalefont setfont /arrowright glyphshow % Draw a right arrow
    } for
  } bind def
@@ -666,9 +674,8 @@ end
        /Helvetica findfont outerTitleSz scalefont setfont
        360 8 div dup 2 div exch 360 {title outerTitleSz 3 -1 roll radius outerTitleSz sub outsidecircletext} for
      grestore
-     /Codex findfont outerglyphSz scalefont setfont
      outerglyphs {
-       0 radius outerTitleSz outerglyphSz 0.8 mul add sub moveto centreglyphshow
+       0 radius outerTitleSz outerglyphSz 0.8 mul add sub moveto outerglyphSz centrecodexshow
        % Draw indicator pointer
        0 innerRadius moveto outerPointerSz drawPointer
        angle rotate
@@ -684,8 +691,7 @@ end
       handleCapPath
       0 0 innerRadius handlewidth 2 innerRadius mul arcsin dup 90 add exch 450 exch sub arc
       closepath
-      /Codex findfont innerglyphSz scalefont setfont
-      /charwidth /space glyphwidth pop 1.2 mul def
+      /charwidth /space innerglyphSz codexwidth pop 1.2 mul def
       charwidth 2 div innerRadius outerPointerSz sub moveto
       charwidth 2 div neg innerRadius outerPointerSz sub lineto
       charwidth 2 div neg radius outerTitleSz sub lineto
@@ -696,8 +702,7 @@ end
   /drawTopDisc {
      gsave decorateTopDisc grestore
 
-     /Codex findfont innerglyphSz scalefont setfont
-     /charwidth /space glyphwidth pop 1.2 mul def
+     /charwidth /space innerglyphSz codexwidth pop 1.2 mul def
 
      % Draw handle
      gsave
@@ -737,7 +742,7 @@ end
      grestore
      % Draw letters
      innerglyphs {
-        0 innerRadius innerglyphSz 0.8 mul sub innerPointerSz sub moveto centreglyphshow
+        0 innerRadius innerglyphSz 0.8 mul sub innerPointerSz sub moveto innerglyphSz centrecodexshow
         % Draw indicator pointer
         0 innerRadius moveto innerPointerSz drawPointer
         angle rotate
@@ -753,10 +758,9 @@ multiplicationDisc dup maxlength dict copy dup /translationDisc exch def begin
   /coding code def
   /handlePointerSz 0 def
   /decorateTopDisc {
-    /Codex findfont outerglyphSz 2 mul scalefont setfont
     [/Q /arrowboth /Q]
-    dup 0 exch {glyphwidth pop add} forall -2 div outerglyphSz 2 mul moveto
-    {glyphshow} forall
+    dup 0 exch {outerglyphSz 2 mul codexwidth pop add} forall -2 div outerglyphSz 2 mul moveto
+    {outerglyphSz 2 mul codexshow} forall
   } bind def
 end
 
@@ -877,7 +881,7 @@ page exch perm 3 index get exch  makeShare code exch get glyphshow
   10 dict begin
   { /n /spaces /word } {exch def} forall
   0 1 spaces length 1 sub
-    { code word n get get gsave glyphshow grestore
+    { code word n get get gsave 15 codexshow grestore
       spaces exch get 0 rmoveto
       /n n 1 add def
     } for
@@ -991,7 +995,6 @@ pgsize aload pop
   x y moveto
   /Helvetica findfont 12 scalefont setfont
   tWidth 2 div -12 rmoveto title centreshow
-  /Codex findfont 10 scalefont setfont
 
   % Remainder is split into the table (one extra row and column for heading)
   /cellH tHeight 16 sub leftPerm length 1 add div def
@@ -1034,13 +1037,13 @@ pgsize aload pop
   x cellW 2 div add y 16 sub cellH sub 2 add moveto
   0 1 topPerm length 1 sub {
     cellW 0 rmoveto
-    topPerm exch get topCode exch get gsave centreglyphshow grestore
+    topPerm exch get topCode exch get gsave 10 centrecodexshow grestore
   } for
   % Draw left title
   x cellW 2 div add y 16 sub cellH sub 2 add moveto
   0 1 leftPerm length 1 sub {
     0 cellH neg rmoveto
-    leftPerm exch get leftCode exch get gsave centreglyphshow grestore
+    leftPerm exch get leftCode exch get gsave 10 centrecodexshow grestore
   } for
 
   0 setgray
@@ -1055,7 +1058,7 @@ pgsize aload pop
       /xpos exch topPerm exch get def
       /ypos exch leftPerm exch get def
       innerCode xpos ypos binop get
-      gsave centreglyphshow grestore
+      gsave 10 centrecodexshow grestore
     } for
     pop
     grestore
@@ -1105,7 +1108,7 @@ showpage
   dup 1 eq {pop 0} if % X out trying to recover a share with itself.
   end
 }
-(Recover Share) /Codex code2 /Codex code [ 32 permS 1 31 getinterval aload pop ] drawBottomWheelPage
+(Recover Share) code2 code [ 32 permS 1 31 getinterval aload pop ] drawBottomWheelPage
 pgsave restore
 showpage
 %%Page: 5 5
@@ -1121,7 +1124,7 @@ pgsize aload pop 2 div exch 2 div exch translate
   360 16 div rotate
 } repeat
 grestore
-{gf32mul} (Translation) /Codex code /Codex code2 [32 1 1 31 {} for] drawBottomWheelPage
+{gf32mul} (Translation) code code2 [32 1 1 31 {} for] drawBottomWheelPage
 
 pgsave restore
 showpage
@@ -1129,7 +1132,7 @@ showpage
 %%BeginPageSetup
 /pgsave save def
 %%EndPageSetup
-{xor} (Addition) /Codex code 2 copy perm drawBottomWheelPage
+{xor} (Addition) code dup perm drawBottomWheelPage
 
 pgsave restore
 showpage
@@ -1232,14 +1235,13 @@ showpage
                 permS xinterp get code exch get glyphshow
                 (   ) show
 
-                /Codex findfont 12 scalefont setfont
                 k mink sub { 12 0 rmoveto } repeat
                 k 1 31 {
                     permS exch get  % x coord to evaluate at
                     permS xinterp get % x coord to interpolate at
                     permS 0 k getinterval % x coords to interpolate at
                     lagrange % symbol
-                    code2 exch get gsave glyphshow grestore % print symbol
+                    code2 exch get gsave 12 codexshow grestore % print symbol
                     12 0 rmoveto
                 } for % horizontal loop
             } ifelse
@@ -1624,7 +1626,7 @@ showpage
   grestore
   gsave
     arraySpace 6 sub 14 5 sub rmoveto
-    /Codex findfont 3 scalefont setfont
+    /Courier findfont 3 scalefont setfont
     n 10 le { ( ) show } if n 2 string cvs show
   grestore
   end
@@ -1641,7 +1643,6 @@ moveto (ms32 Checksum Worksheet) centreshow
 { /codeword /y /x } {exch def} forall
 /Courier findfont 15 scalefont setfont
 x y moveto hrp (1) concatstrings dup stringwidth pop neg 3 sub 0 rmoveto show
-/Codex findfont 15 scalefont setfont
 /odd polymodulus length codeword length add 2 mod def
 /edge codeword length polymodulus length sub hrp length add 2 add def
 /gaps [ 0 1 codeword length { 4 mod 1 eq {gapSpace} {arraySpace} ifelse } for ] def
