@@ -316,7 +316,10 @@ end } bind def
 % ps2pdf doesn't seem to handle strokes under a non-uniformly scaled matrix properly.
 /resetstroke {
 matrix currentmatrix
+  dup determinant abs
   initmatrix
+  matrix currentmatrix determinant abs div
+  sqrt dup scale
   stroke
 setmatrix
 } bind def
