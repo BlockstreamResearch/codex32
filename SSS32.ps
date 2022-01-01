@@ -312,8 +312,13 @@ end } bind def
 /thick 0.8 def
 /verythick 1.2 def
 
+% Runs stroke under a uniformly scaled matrix.
+% ps2pdf doesn't seem to handle strokes under a non-uniformly scaled matrix properly.
 /resetstroke {
- stroke
+matrix currentmatrix
+  initmatrix
+  stroke
+setmatrix
 } bind def
 
 /brass { 0.7098 0.651 0.2588 } def
