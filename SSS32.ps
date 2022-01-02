@@ -1297,28 +1297,22 @@ recoveryDisc begin
 gsave
   120 700 translate
   0.4 dup scale
-    % pin size is the width of the cross
-   0 pinoffset neg moveto 4.5 2 mul drawPin
-  gsave
+  matrix currentmatrix
+    0 -60 translate
     0 pinoffset neg moveto 0 0 lineto
     [4.5 4.5] 4.5 1.5 mul setdash stroke
-  grestore
-  matrix currentmatrix
+    1 yscale scale
+    drawBottomDisc
+  dup setmatrix
     1 yscale scale
     -90 rotate
+    gsave outlineTopDisc 1 setgray fill grestore
     drawTopDisc
-    newpath 0 0 innerRadius 360 0 arcn
   setmatrix
-  0 -60 translate
-  matrix currentmatrix
-    1 yscale scale
-    0 0 radius 2 mul 0 360 arc clip
-    drawBottomDisc
-  setmatrix
-  gsave
-    0 pinoffset neg moveto 0 0 lineto
-    [4.5 4.5] 4.5 1.5 mul setdash stroke
-  grestore
+  % pin size is the width of the cross
+  0 pinoffset neg moveto 4.5 2 mul drawPin
+  0 pinoffset neg moveto 0 0 lineto
+  [4.5 4.5] 4.5 1.5 mul setdash stroke
 grestore
 end
 % Move cursor to center of page
