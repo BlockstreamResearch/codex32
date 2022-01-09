@@ -617,7 +617,7 @@ end
   /coding code2 def
   /numglyphs 31 def
   /angle 360 numglyphs div def
-  /outerglyphs { [ [ 1 numglyphs 1 sub {dup logbase gf32inv gf32mul} repeat ] {coding exch get} forall ] } bind def
+  /outerglyphs { [ [ 1 numglyphs 1 sub {dup logbase gf32mul} repeat ] {coding exch get} forall ] } bind def
   /innerglyphs { outerglyphs } def
 
   /outlineBottomDisc {
@@ -642,7 +642,7 @@ end
        0 radius outerTitleSz outerglyphSz 0.8 mul add sub moveto outerglyphSz centrecodexshow
        % Draw indicator pointer
        0 innerRadius moveto outerPointerSz drawPointer
-       angle rotate
+       angle neg rotate
      } forall
   } bind def
 
@@ -708,7 +708,7 @@ end
         0 innerRadius innerglyphSz 0.8 mul sub innerPointerSz sub moveto innerglyphSz centrecodexshow
         % Draw indicator pointer
         0 innerRadius moveto innerPointerSz drawPointer
-        angle rotate
+        angle neg rotate
      } forall
   } bind def
   /decorateTopDisc {} def
@@ -732,12 +732,12 @@ multiplicationDisc dup maxlength dict copy dup /recoveryDisc exch def begin
   /title (Recovery) def
   /logbase 10 def
   /outerglyphs {
-     [ [ 1 numglyphs 1 sub {dup logbase gf32inv gf32mul} repeat ]
+     [ [ 1 numglyphs 1 sub {dup logbase gf32mul} repeat ]
        {16 xor code exch get} forall ]
   } bind def
   /outerPointerSz -6 def
   /innerglyphs {
-     [ [ 1 numglyphs 1 sub {dup logbase gf32inv gf32mul} repeat ]
+     [ [ 1 numglyphs 1 sub {dup logbase gf32mul} repeat ]
        { 16 xor [ exch 17 ] 16 17 3 -1 roll lagrange
          dup 1 eq {pop 32} if
          code2 exch get
