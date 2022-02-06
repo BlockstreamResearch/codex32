@@ -475,11 +475,16 @@ end
    grestore
    outerperm {0 38 sqrt 40 mul moveto outercode exch get 18 centrecodexshow angle rotate} forall
    % Draw inside contents
-   180 rotate
    0 1 31 { % Draw 32 circles of increasing radius
-       magic rotate
+       dup 1 add magic mul
+       /theta exch def
        outerperm {
-           0 2 index 2 add sqrt 40 mul moveto % move to 0, 2.5 + 40*sqrt(outer index + 2)
+           1 index 2 add sqrt 40 mul 2.5 add
+           /lam exch def
+           lam theta sin mul
+           lam theta cos mul neg
+           moveto
+           0 -3 rmoveto
            1 index 31 exch sub % 31 - inner index
            permV exch get binop % apply binary operation to the permuted letter and the inner index
            innercode exch get 12 centrecodexshow % display the result
@@ -513,12 +518,14 @@ end
    % Draw indicator arrow
    newpath 0 6 40 mul moveto 10 -20 rlineto -20 0 rlineto closepath fill
    % Draw text
-   180 rotate
    0 1 31 {
-       magic rotate
+       dup 1 add magic mul
+       /theta exch def
        dup 2 add sqrt 40 mul 2.5 add % lam = 2.5 + 40*sqrt(idx + 2)
+       /lam exch def
        newpath
-       0 exch % set midpoint: 0 lam
+       lam theta sin mul
+       lam theta cos mul neg
        2 copy moveto
        12 centresquare % draw square
        moveto % return to midpoint
