@@ -476,10 +476,10 @@ end
    outerperm {0 38 sqrt 40 mul moveto outercode exch get 18 centrecodexshow angle rotate} forall
    % Draw inside contents
    0 1 31 { % Draw 32 circles of increasing radius
-       dup 1 add magic mul
+       dup 1 add magic mul 24 add
        /theta exch def
        outerperm {
-           1 index 2 add sqrt 40 mul 2.5 add
+           1 index 2 add sqrt 40 mul 2 sub
            /lam exch def
            lam theta sin mul
            lam theta cos mul neg
@@ -519,9 +519,9 @@ end
    newpath 0 6 40 mul moveto 10 -20 rlineto -20 0 rlineto closepath fill
    % Draw text
    0 1 31 {
-       dup 1 add magic mul
+       dup 1 add magic mul 24 add
        /theta exch def
-       dup 2 add sqrt 40 mul 2.5 add % lam = 2.5 + 40*sqrt(idx + 2)
+       dup 2 add sqrt 40 mul 2 sub % lam = 40*sqrt(idx + 0.5) - 2
        /lam exch def
        newpath
        lam theta sin mul
