@@ -359,17 +359,9 @@ end
   grestore
 } bind def
 
-/underlinecodexshow {
-    exch
-    dup dup /six eq exch /nine eq or { % if the string is (6) or (9)
-        gsave /underscore 2 index codexshow grestore % draw an underline
-    } if
-    exch codexshow
-} bind def
-
 /centreshow {dup stringwidth pop 2 div neg 0 rmoveto show} bind def
 
-/centrecodexshow {2 copy codexwidth pop 2 div neg 0 rmoveto underlinecodexshow} bind def
+/centrecodexshow {2 copy codexwidth pop 2 div neg 0 rmoveto codexshow} bind def
 
 /centresquare {dup neg 2 div dup rmoveto dup 0 rlineto dup 0 exch rlineto neg 0 rlineto closepath stroke} bind def
 
@@ -532,7 +524,7 @@ end
        -26 -3 rmoveto % Move to the left
        31 exch sub % 31 - loop index
        permV exch get code exch get % Permute index and extract 1-char substring of alphabet
-       12 underlinecodexshow % ...and draw it
+       12 codexshow % ...and draw it
        /Symbol findfont 12 scalefont setfont /arrowright glyphshow % Draw a right arrow
    } for
  } bind def
