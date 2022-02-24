@@ -974,7 +974,7 @@ pgsize aload pop
   % alternating 3-cell-height white/gray for the content background
   x y 16 sub moveto
   0 1 topPerm length {
-    dup 0 eq { 0 0 0 } {
+    dup 0 eq { pop 0 0 0 } {
       3 add 6 mod 3 lt { 0.808 0.923 0.953 } { 1 1 1 } ifelse
     } ifelse setrgbcolor
 
