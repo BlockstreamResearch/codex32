@@ -47,7 +47,7 @@ multiplication in the obvious way, it satisfies the following axioms:
 \item The set is closed under addition; addition is associative, commutative,
 has an identity element 0, and all elements have additive inverses. In other
 words it is an \textbf{abelian group} under addition.
-\item Similarly it is an abelian group under multiplication, with identity 1.
+\item Similarly, the nonzero elements form an abelian group under multiplication, with identity 1.
 \item The \textbf{distributive law} holds, which means that $a(b + c)$ always
 equals $ab + ac$.
 \end{enumerate}
@@ -69,7 +69,8 @@ Formally, the set of polynomials is defined as
 \[ \left\{ \sum_{i=0}^n a_{i}x^i : n\in\mathbb{N}\cup\{0\}, a_i\in \ftwo  \right\} \]
 
 A ring, for our purposes, is defined the same way as a field except that we do
-not require multiplication to be invertible. It is easy to check that the
+not require multiplication to be invertible. In particular, we will only consider
+commutative rings. It is easy to check that the
 polynomial ring, endowed with addition and multiplication in the obvious ways,
 is in fact a ring.
 
@@ -81,8 +82,9 @@ We refer to polynomials of degree 0 as \textbf{constant polynomials}. It is
 also a fact that a polynomial has a multiplicative inverse, i.e.~it is a
 \textbf{unit}, if and only if it is nonzero constant.
 
-If whenever a polynomial $r$ is written as the product of two polynomials $r=pq$,
-either $p$ or $q$ is a unit (i.e.~degree 0), then we say $r$ is \textbf{irreducible}.
+A polynomial $r$ is \textbf{irreducible} if, whenever it is written as the product
+of two polynomials $r=pq$, either $p$ or $q$ is a unit (i.e.~degree 0). Otherwise,
+$r$ is \textbf{reducible}.
 
 \subsection{Quotient Fields}
 
@@ -96,7 +98,7 @@ We call the set of equivalence classes a \textbf{quotient ring}, and its additio
 and multiplication are defined in the obvious way.
 
 Just like in the integer case, if our polynomial $p$ can be factored into
-nonconstant polynomials as $p=p_1p_2$, their images in the quotient ring will
+nonconstant polynomials as $p=p_1p_2$, then the images of $p_1$ and $p_2$ in the quotient ring will
 be nonzero but satisfy $p_1p_2 = 0$. In other words they are \textbf{zero
 divisors} and imply that multiplication in the ring is not invertible.
 
@@ -125,8 +127,8 @@ but it will always be clear from context what this base field is, so that we
 can use these terms unambiguously.
 
 It is a fact that, for this specific polynomial, that $\alpha$ is a
-\textbf{generator} of the quotient field, meaning that the field in its entirety
-is equal to
+\textbf{generator} of the multiplicative group of the quotient field, meaning
+that the field in its entirety is equal to
 \[ \left\{ \alpha^i : i \in \{0,1,\ldots,30\} \right\} ~\cup~ \left\{ 0 \right\}. \]
 
 We observe that the order of the multiplicative group is 31, a prime, and therefore
@@ -171,8 +173,8 @@ and later by Joseph-Louis Lagrange in 1795\footnote{Lagrange, Joseph-Louis (1795
 \emph{Leçons Elémentaires sur les Mathématiques}}\footnote{Both citations taken
 from Wikipedia's ``Lagrange Interpolation'' page, March 2023.},
 it is actually possible to compute
-the value of a polynomial at a field element $x$ explicitly in terms of
-its values at $n$ given distinct points $x_i$.
+the value of a degree $n$ polynomial at a field element $x$ explicitly in terms of
+its values at $n + 1$ given distinct points $x_i$.
 
 Specifically, suppose that $p(x_i) = y_i$. Then
 \begin{equation}
@@ -246,8 +248,9 @@ affine relation holds among the $f_i$'s, e.g.
 for fixed $\beta,\alpha_i\in \mathbb{F}$. Then this fixed affine relation
 \emph{will continue to hold for all derived shares}!
 
-This is not immediately obvious but can be shown by direct computation and
-using the fact that Lagrange interpolation is an affine combination of $f_i$'s.
+This is not immediately obvious but can be shown by interpolating the polynomial
+		\[ q(x) = \sum_i \alpha_i p_i(x) - \beta \]
+which, by the assumption that the affine relation holds among all $f_i = p_i(x)$, must be zero everywhere.
 \end{itemize}
 
 This fact is so important that we term it the \textbf{Fundamental Theorem of
@@ -276,7 +279,8 @@ This section explains the underlying operations, the encodings, and the volvelle
 
 The previous section indicated that if $\beta\in\fttwo$, then we can write
 \[ \beta = b_4\alpha^4 + b_3\alpha^3 + b_2\alpha^2 + b_1\alpha + b_0 \]
-where each $b_i\in\{0, 1\}$. We can therefore encode $\beta$ as a 5-bit
+where each $b_i\in\{0, 1\}$ and the choices for $b_i$ are unique.
+We can therefore encode $\beta$ as a 5-bit
 number by directly encoding the bits $b_i$. Alternately, since there are
 only 32 such $\beta$s, we assign them all alphanumeric symbols, with four
 symbols to spare. This is the premise behind the \textbf{bech32 alphabet},
@@ -446,7 +450,6 @@ results, of which 32 are revealed at each index.
 
 \begin{center}\includegraphics[scale=0.25]{images/addition-wheel.jpg}\end{center}
 
-
 This volvelle computes addition in $\fttwo$. To compute $x+y$, rotate so that
 the pointer is pointing at either $x$ or $y$, then look up the other one on
 the front page. It is instructive to observe that the expected symmetries are
@@ -466,39 +469,39 @@ the maximum 1024.
 Why not? Well, observe that the way to reduce symbols is to have two windows at
 the same radius from the center of the volvelle. Then on the bottom sheet, a
 single circle of values would provide the revealed symbols for both windows.
-Let's say that one window is labeled $x\to$, and the other labeled $y\to$. Then
+Let's say that one window is labeled $y\to$, and the other labeled $z\to$. Then
 since the windows are at a fixed angle $\theta$ from each other (being printed
 on the same solid sheet of paper), we would require the bottom circle of values
-to satisify
-\[ \textnormal{for all } z\in\fttwo:\qquad x + z \textnormal{ and } y+z \textnormal{ are at angle $\theta$ to each other} \]
-Now, $x+z$ and $y+z$ differ by the fixed quantity $x+y$ (recall we are in
-characteristic 2), so this can be restated as
-\[ \textnormal{for all } z\in\fttwo:\qquad z \textnormal{ and } z+(x+y) \textnormal{ are at angle $\theta$ to each other} \]
-Then observing that $(x+y) + (x+y) = 0$, two applications of the above equation
-give us
-\[ \textnormal{for all } z\in\fttwo:\qquad z \textnormal{ is at angle $2\theta$ from itself} \]
-It is now clear that if we either need to repeat characters (defeating the goal
+to satisfy
+\[ \textnormal{for all } x\in\fttwo:\qquad x + y \textnormal{ and } x + z \textnormal{ are at angle $\theta$ to each other} \]
+Note that if $x$ ranges over all values in $\fttwo$ then so does $x + y$. Furthermore,
+we have $x + z = (x + y) + (y + z)$ (recall we are in characteristic 2).
+Thus substituting $x + y$ in place of $x$ gives us
+\[ \textnormal{for all } x\in\fttwo:\qquad x \textnormal{ and } x + (y + z) \textnormal{ are at angle $\theta$ to each other} \]
+Since $x + (y + z) + (y + z) = x$, two applications of the above condition gives us
+\[ \textnormal{for all } x\in\fttwo:\qquad x \textnormal{ is at angle $2\theta$ from itself} \]
+It is now clear that we either need to repeat characters (defeating the goal
 of reducing the amount of symbols on the bottom wheel) or have $\theta=180^\circ$.
 
 Okay, so perhaps we can get a 50\% reduction in density for the bottom wheel, by
 setting $\theta=180^\circ$ and having the windows on opposite sides of the top
 wheel be at the same radius and use the same set of bottom-wheel symbols.
 
-Let's play this out. Take, for example, the \vc{A} and \vc{T} windows on the
-addition volvelle. These differ by \vc{K}, so we require that on the bottom
-wheel, symbols at this radius differ from their opposite symbol by \vc{K}.
-If the top wheel is pointing at some symbol $a$, and we turn it $180^\circ$
-to $b$, we have simply exchanged the values in these windows, i.e.~added
-\vc{K} to both. But this implies that $a+b=\vc{K}$.
+Let's play this out. Suppose we place the \vc{A} and \vc{T} windows at the
+same radius on opposite sides of the top wheel. Note that \vc{A} and \vc{T}
+differ by \vc{K}. Now suppose that when the pointer is at some arbitrary symbol $x$,
+the two opposite windows at \vc{A} and \vc{T} show $x + A = y$ and $x + T = z$.
+Adding these two equations gives $y + z = A + T = K$.
 
-In other words, for this compression to work, we need every pair of opposing
+In other words, for this compression to work with the choice of \vc{A} and \vc{T}
+windows being at the same radius, we need every pair of opposing
 symbols to add to \vc{K}; i.e.~we need to take the sixteen 2-element cosets
 obtained by modding out by \vc{K} and then order the symbols so that each
 coset's members appear opposite each other.
 
 It can be seen, by modding out by every possible symbol, and trying various
 orderings of the resulting cosets, that no such choice will lead to a
-``natural'' ordering\footnote{There are 16 cosets, so $15\approxeq2^{40}$
+``natural'' ordering\footnote{There are 16 cosets, so $15!\approxeq2^{40}$
 different arrangements around a circle. Then you can exchange the members
 in each coset, for another $2^{15}$ possibilities. So an exhaustive search
 would require about $2^{55}$ work. I did not do an exhaustive search, so I
@@ -539,14 +542,14 @@ volvelle.
 
 Now, we have 31 nonzero elements, so a volvelle would naively have $31^2=961$
 entries. Can we do better? Using the same reasoning as with the addition volvelle,
-if we wanted two windows $x\to$ and $y\to$ to share a radius, we'd need that
-\[ \textnormal{for all } z\in\fttwo:\qquad xz \textnormal{ and } yz \textnormal{ are at angle $\theta$ to each other} \]
-We have a group under multiplication with 31 elements in it. It is then a fact
+if we wanted two windows $y\to$ and $z\to$ to share a radius, we'd need that
+\[ \textnormal{for all } x\in\fttwo:\qquad xy \textnormal{ and } xz \textnormal{ are at angle $\theta$ to each other} \]
+We have a group under multiplication with 31 elements in it. Since 31 is prime, it is then a fact
 that if we choose any element $\alpha\in\fttwo^*$ except 1, that $\alpha$
-\textbf{generates} the group. Meaning that every element $z$, including 1,
-can be written as $z=\alpha^{i_z}$ where $i_z$ is some integer modulo 31. So we
+\textbf{generates} the group. Meaning that every element $x$, including 1,
+can be written as $z=\alpha^{i_x}$ where $i_x$ is some integer modulo 31. So we
 may write
-\[ \textnormal{for all } \alpha^{i_z}\in\fttwo:\qquad \alpha^{i_x}\alpha^{i_z} = \alpha^{i_x+i_z} \textnormal{ and } \alpha^{i_y}\alpha^{i_z} = \alpha^{i_y+i_z} \textnormal{ are at angle $\theta$ to each other} \]
+\[ \textnormal{for all } \alpha^{i_x}\in\fttwo:\qquad \alpha^{i_x}\alpha^{i_y} = \alpha^{i_x+i_y} \textnormal{ and } \alpha^{i_x}\alpha^{i_z} = \alpha^{i_x+i_z} \textnormal{ are at angle $\theta$ to each other} \]
 
 By squinting at this for a moment, you can observe that if $\theta$ is one 31th
 of a full rotation, and we make sure that each $\alpha^i$ on the front wheel is
