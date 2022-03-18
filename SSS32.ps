@@ -102,6 +102,12 @@
    atan
 } bind def
 
+% arccos: x h -- arccos(x/h)
+/arccos {
+   dup mul 1 index dup mul sub sqrt
+   exch atan
+} bind def
+
 % Given a rod of length 2r, what angle does it fit inside a w by h sized box so that
 % the ends of the rod are equaldistant from the two sides making a corner with the box.
 /angleinbox {
@@ -243,6 +249,67 @@ end
 /code [/Q /P /Z /R /Y /nine /X /eight /G /F /two /T /V /D /W /zero /S /three /J /N /five /four /K /H /C /E /six /M /U /A /seven /L /space] def
 /code2 [/multiply /aleph /alpha /beta /Gamma /Delta /epsilon /eta /Theta /Lambda /mu /Xi /Pi /rho /Sigma /Phi /Psi /Omega /at /numbersign /percent /cent /yen /Euro /currency /circleplus /dagger /daggerdbl /section /paragraph /diamond /heart /space ] def
 
+/decode {
+ [ exch { <<
+113 0
+81 0
+112 1
+80 1
+122 2
+90 2
+114 3
+82 3
+121 4
+89 4
+57 5
+120 6
+88 6
+56 7
+103 8
+71 8
+102 9
+70 9
+50 10
+116 11
+84 11
+118 12
+86 12
+100 13
+68 13
+119 14
+87 14
+48 15
+115 16
+83 16
+51 17
+106 18
+74 18
+110 19
+78 19
+53 20
+52 21
+107 22
+75 22
+104 23
+72 23
+99 24
+67 24
+101 25
+69 25
+54 26
+109 27
+77 27
+117 28
+85 28
+97 29
+65 29
+55 30
+108 31
+76 31
+32 32
+ >> exch get } forall ]
+} bind def
+
 %******************
 %* BCH
 %*
@@ -264,7 +331,7 @@ end
 
 /polymodhrp % string -> [ c5 c4 c3 c2 c1 c0 ]
  {
-   [ exch 1 exch dup { 32 idiv exch } forall 0 exch { 31 and } forall ] polymod0
+   [ exch 1 exch dup { dup dup 65 ge exch 90 le exch and { 32 add } if 32 idiv exch } forall 0 exch { 31 and } forall ] polymod0
  } bind def
 
 %************************************************************************
@@ -312,6 +379,13 @@ end } bind def
 /thick 0.8 def
 /verythick 1.2 def
 
+/pen {
+  50 setlinewidth
+  1 setlinecap
+  1 setlinejoin
+  [] 0 setdash
+} bind def
+
 % Runs stroke under a uniformly scaled matrix.
 % ps2pdf doesn't seem to handle strokes under a non-uniformly scaled matrix properly.
 /resetstroke {
@@ -325,6 +399,7 @@ setmatrix
 } bind def
 
 /brass { 0.7098 0.651 0.2588 } def
+/pink { 1 0.9 0.9 } def
 
 /substitute <<
   /Omega /uni03A9
@@ -347,6 +422,309 @@ setmatrix
 end
 } bind def
 
+/withcrosses true def
+% draftingshow : /glyph size --
+/draftingshow {
+gsave
+10 dict begin
+  currentpoint translate
+  1000 div dup scale
+  [1 0 10 tan 1 -100 -100] concat
+  <<
+  /space { }
+  /A { newpath
+         100 100 moveto
+         400 700 lineto
+         700 100 lineto
+         200 300 moveto
+         600 300 lineto
+       pen stroke }
+  /C { newpath
+         400 400 300 2 3 arccos -2 3 arccos 180 add arc
+       pen stroke }
+  /D { newpath
+         100 100 moveto
+         300 400 300 270 90 arc
+         100 700 lineto
+         closepath
+       pen stroke }
+  /E { newpath
+         600 700 moveto
+         100 700 lineto
+         100 100 lineto
+         600 100 lineto
+         100 400 moveto
+         400 400 lineto
+       pen stroke }
+  /F { newpath
+         600 700 moveto
+         100 700 lineto
+         100 100 lineto
+         100 400 moveto
+         400 400 lineto
+       pen stroke }
+  /G { newpath
+         400 400 300 2 3 arccos -2 3 arccos 180 add arc
+         600 400 lineto
+         400 400 lineto
+       pen stroke }
+  /H { newpath
+         600 700 moveto
+         600 100 lineto
+         100 700 moveto
+         100 100 lineto
+         100 400 moveto
+         600 400 lineto
+       pen stroke }
+  /J { newpath
+         600 700 moveto
+         matrix currentmatrix
+         100 100 translate
+         1 4 5 div scale
+         250 250 250 0 180 arcn
+         setmatrix
+       pen stroke }
+  /L { newpath
+         100 700 moveto
+         100 100 lineto
+         600 100 lineto
+       pen stroke }
+  /K { newpath
+         600 700 moveto
+         100 300 lineto
+         100 700 moveto
+         100 100 lineto
+         300 460 moveto
+         600 100 lineto
+       pen stroke }
+  /M { newpath
+         100 100 moveto
+         100 700 lineto
+         400 100 lineto
+         700 700 lineto
+         700 100 lineto
+       pen stroke }
+  /N { newpath
+         600 700 moveto
+         600 100 lineto
+         100 700 lineto
+         100 100 lineto
+       pen stroke }
+  /P { newpath
+         100 400 moveto
+         450 550 150 270 90 arc
+         100 700 lineto
+         100 100 lineto
+       pen stroke }
+  /Q { newpath
+         400 400 300 0 360 arc
+         500 250 moveto
+         600 100 lineto
+       pen stroke }
+  /R { newpath
+         100 400 moveto
+         450 550 150 270 90 arc
+         100 700 lineto
+         100 100 lineto
+         400 400 moveto
+         600 100 lineto
+       pen stroke }
+  /S { newpath
+         matrix currentmatrix
+         100 100 translate
+         5 3 div 1 scale
+         150 150 150 -90 1 3 arccos sub 90 arc
+         setmatrix
+         matrix currentmatrix
+         150 400 translate
+         4 3 div 1 scale
+         150 150 150 270 90 1 3 arccos sub arcn
+         setmatrix
+         withcrosses {
+          350 50 moveto
+          350 750 lineto
+         } if
+       pen stroke }
+  /T { newpath
+         100 700 moveto
+         700 700 lineto
+         400 700 moveto
+         400 100 lineto
+       pen stroke }
+  /U { newpath
+         600 700 moveto
+         matrix currentmatrix
+         100 100 translate
+         1 4 5 div scale
+         250 250 250 0 180 arcn
+         setmatrix
+         100 700 lineto
+       pen stroke }
+  /V { newpath
+         100 700 moveto
+         400 100 lineto
+         700 700 lineto
+       pen stroke }
+  /W { newpath
+         100 700 moveto
+         300 100 lineto
+         500 700 lineto
+         700 100 lineto
+         900 700 lineto
+       pen stroke }
+  /X { newpath
+         100 100 moveto
+         650 700 lineto
+         150 700 moveto
+         700 100 lineto
+       pen stroke }
+  /Y { newpath
+         100 700 moveto
+         400 400 lineto
+         700 700 lineto
+         400 400 moveto
+         400 100 lineto
+       pen stroke }
+  /Z { newpath
+         100 700 moveto
+         600 700 lineto
+         100 100 lineto
+         600 100 lineto
+         withcrosses {
+          200 400 moveto
+          500 400 lineto
+         } if
+       pen stroke }
+  /zero { newpath
+         matrix currentmatrix
+         100 100 translate
+         5 6 div 1 scale
+         300 300 300 0 360 arc
+         setmatrix
+         withcrosses {
+          100 100 moveto
+          600 700 lineto
+         } if
+       pen stroke }
+  /two { newpath
+         matrix currentmatrix
+         150 400 translate
+         4 3 div 1 scale
+         150 150 150 90 1 3 arccos add -90 arcn
+         setmatrix
+         matrix currentmatrix
+         100 -200 translate
+         5 6 div 1 scale
+         300 300 300 90 180 arc
+         setmatrix
+         600 100 lineto
+       pen stroke }
+  /three { newpath
+         matrix currentmatrix
+         100 100 translate
+         5 3 div 1 scale
+         150 150 150 -90 1 3 arccos sub 90 arc
+         setmatrix
+         matrix currentmatrix
+         150 400 translate
+         4 3 div 1 scale
+         150 150 150 -90 90 1 3 arccos add arc
+         setmatrix
+       pen stroke }
+  /four { newpath
+         500 100 moveto
+         500 700 lineto
+         100 250 lineto
+         600 250 lineto
+       pen stroke }
+  /five { newpath
+         matrix currentmatrix
+         100 100 translate
+         5 4 div 1 scale
+         200 200 200 -90 1 2 arccos sub 180 4 5 arccos sub arc
+         setmatrix
+         150 700 lineto
+         550 700 lineto
+       pen stroke }
+  /six { newpath
+         matrix currentmatrix
+         100 100 translate
+         5 6 div 1 scale
+         300 300 300 90 2 3 arccos sub 270 arc
+         setmatrix
+         matrix currentmatrix
+         100 100 translate
+         5 4 div 1 scale
+         200 200 200 -90 90 arc
+         setmatrix
+       pen stroke
+         newpath
+         matrix currentmatrix
+         100 100 translate
+         5 6 div 1 scale
+         300 300 300 0 360 arc
+         setmatrix
+         clip
+         newpath
+         matrix currentmatrix
+         100 100 translate
+         5 4 div 1 scale
+         200 200 200 90 180 arc
+         setmatrix
+       stroke }
+  /seven { newpath
+         100 700 moveto
+         600 700 lineto
+         400 400 300 300 300 100 curveto
+         withcrosses {
+          300 400 moveto
+          500 400 lineto
+         } if
+       pen stroke }
+  /eight { newpath
+         matrix currentmatrix
+         100 100 translate
+         5 3 div 1 scale
+         150 150 150 90 450 arc
+         setmatrix
+         matrix currentmatrix
+         150 400 translate
+         4 3 div 1 scale
+         150 150 150 -90 270 arc
+         setmatrix
+       pen stroke }
+  /nine { newpath
+         matrix currentmatrix
+         100 100 translate
+         5 6 div 1 scale
+         300 300 300 -90 2 3 arccos sub 90 arc
+         setmatrix
+         matrix currentmatrix
+         100 300 translate
+         5 4 div 1 scale
+         200 200 200 90 -90 arc
+         setmatrix
+       pen stroke
+         newpath
+         matrix currentmatrix
+         100 100 translate
+         5 6 div 1 scale
+         300 300 300 0 360 arc
+         setmatrix
+         clip
+         newpath
+         matrix currentmatrix
+         100 300 translate
+         5 4 div 1 scale
+         200 200 200 -90 0 arc
+         setmatrix
+       stroke }
+  >>
+  exch get exec
+end
+grestore
+} bind def
+
 /glyphwidth {
   gsave
   nulldevice newpath 0 0 moveto glyphshow currentpoint
@@ -359,11 +737,55 @@ end
   grestore
 } bind def
 
+/draftingwidth {
+  exch
+32 dict begin
+  /M 800 def
+  /N 700 def
+  /W 1000 def
+  /A M def
+  /C N def
+  /D N def
+  /E N def
+  /F N def
+  /G N def
+  /H N def
+  /J N def
+  /K N def
+  /L N def
+  /P N def
+  /Q M def
+  /R N def
+  /S N def
+  /T M def
+  /U N def
+  /V M def
+  /X M def
+  /Y M def
+  /Z N def
+  /zero N def
+  /two N def
+  /three N def
+  /four N def
+  /five N def
+  /six N def
+  /seven N def
+  /eight N def
+  /nine N def
+  /space N def
+  load
+end
+  mul 1000 div
+  0
+} bind def
+
 /centreshow {dup stringwidth pop 2 div neg 0 rmoveto show} bind def
 
 /centrecodexshow {2 copy codexwidth pop 2 div neg 0 rmoveto codexshow} bind def
 
 /centresquare {dup neg 2 div dup rmoveto dup 0 rlineto dup 0 exch rlineto neg 0 rlineto closepath stroke} bind def
+
+/centredraftingshow {2 copy draftingwidth pop 2 div neg 0 rmoveto draftingshow} bind def
 
 % From BLUEBOOK Program #10
 /outsidecircletext
@@ -1094,33 +1516,149 @@ page exch perm 3 index get exch  makeShare code exch get glyphshow
 %* to assist user manipulation of long bech32 strings
 %*
 
-/arraySpace 13 def
-/gapSpace arraySpace 2 add def
-/showArray {
+30 dict dup /ladder exch def begin
+  /hrp (MS) def
+  /sharelen 48 def
+  /xsize 14 def
+  /xgap 2 def
+  /ysize -14 def
+  /ygap -1 def
+  /fsize 15 def
+  /fgap 2.5 def
+  /hrplen hrp length def
+  /checksumlen checksum length def
+  /numsteps sharelen hrplen sub checksumlen sub 2 idiv def
+  /firstrowlen sharelen hrplen sub 1 sub numsteps 2 mul sub def
+  /odd checksumlen firstrowlen sub def
+  /initresidue [hrp polymodhrp aload pop firstrowlen {0} repeat ] polymod0 def
+  /offset {
+    dup ysize mul exch 2 idiv ygap mul add exch
+    dup xsize mul exch 4 idiv xgap mul add exch
+  } bind def
+  /drawgrid {
   10 dict begin
-  { /n /spaces /word } {exch def} forall
-  0 1 spaces length 1 sub
-    { code word n get get gsave 15 codexshow grestore
-      spaces exch get 0 rmoveto
-      /n n 1 add def
+  gsave
+    pink setrgbcolor
+    0 2 checksumlen {
+      /j exch def
+      0 1 j checksumlen 2 mod add 1 sub {
+        /i exch def
+        i sharelen checksumlen sub add j numsteps 2 mul checksumlen 2 idiv 2 mul sub add offset xsize ysize rectfill
+      } for
     } for
-  end
-} bind def
+  grestore
+  gsave
+    /Courier findfont 3 scalefont setfont
+    thick line
+    0 1 firstrowlen hrplen add {
+      /i exch def
+      i 0 offset 2 copy xsize ysize rectstroke moveto
+      xsize 4.5 sub -3 rmoveto
+      /n i 1 add def
+      n 10 lt { ( ) show } if n 2 string cvs show
+    } for
 
-/showBox {
+    thin line
+    0 1 firstrowlen 1 sub {
+      hrplen 1 add add 1 offset xsize ysize rectstroke
+    } for
+
+    0 1 checksumlen 1 sub {
+      sharelen checksumlen sub add /i exch def
+      thin line
+      i numsteps 1 add 2 mul offset xsize ysize rectstroke
+    } for
+
+    1 1 numsteps {
+      2 mul /j exch def
+      0 1 checksumlen 1 sub {
+        hrplen add j add 1 sub odd sub /i exch def
+        thin line
+        i j offset xsize ysize rectstroke
+        i 2 add j 1 add offset xsize ysize rectstroke
+      } for
+      thick line
+      i 1 add j offset 2 copy xsize ysize rectstroke moveto
+      xsize 4.5 sub -3 rmoveto
+      /Courier findfont 3 scalefont setfont
+      /n i 2 add def
+      n 10 lt { ( ) show } if n 2 string cvs show
+      i 2 add j offset 2 copy xsize ysize rectstroke moveto
+      xsize 4.5 sub -3 rmoveto
+      /n i 3 add def
+      n 10 lt { ( ) show } if n 2 string cvs show
+    } for
+
+    /Helvetica-Bold findfont 10 scalefont setfont
+    1 1 numsteps 1 add {
+      2 mul /j exch def
+      j j offset moveto xsize 0.7 mul 5 rmoveto (+) centreshow
+      j j 1 add offset moveto xsize 0.7 mul 5 rmoveto (=) centreshow
+    } for
+
+    /Courier findfont fsize scalefont setfont
+    0 1 hrplen 1 sub {
+      dup 0 offset moveto xsize 2 div ysize fgap add rmoveto hrp exch 1 getinterval centreshow
+    } for
+    hrplen 0 offset moveto xsize 2 div ysize fgap add rmoveto (1) centreshow
+    0 1 checksumlen 1 sub {
+      /i exch def
+      i hrplen add 1 add odd sub 1 0 i eq {odd add} if offset moveto xsize 2 div ysize fgap add rmoveto initresidue i get code exch get fsize centrecodexshow
+    } for
+    0.85 setgray
+    0 1 checksumlen 1 sub {
+      /i exch def
+      i sharelen checksumlen sub add numsteps 1 add 2 mul offset moveto xsize 2 div ysize fgap add rmoveto checksum i get code exch get fsize centrecodexshow
+    } for
+  grestore
+  end
+  } bind def
+
+  /fillgrid {
   10 dict begin
-  { /n /spaces /word /decoration } {exch def} forall
-  spaces { gsave n decoration grestore
-      0 rmoveto
-      /n n 1 add def
-    } forall
+  gsave
+    /data exch decode def
+    /fsize fsize 2 sub def
+    0 1 firstrowlen 1 sub {
+     /i exch def
+     i hrplen add 1 add 0 offset moveto xsize 2 div ysize fgap add rmoveto
+     code data i get get fsize centredraftingshow
+    } for
+    /residue
+      data 0 firstrowlen getinterval polymod0
+      initresidue gf32addarray
+    def
+    0 2 numsteps 1 sub 2 mul {
+      /y exch def
+      /residue
+      [ residue polymod0 aload pop
+        data firstrowlen y add get
+        data firstrowlen y add 1 add get
+      ] def
+      0 1 checksumlen 1 add {
+        /i exch def
+        i hrplen add y add 1 add odd sub 2 y add offset moveto xsize 2 div ysize fgap add rmoveto
+        odd 1 eq 0 i eq and 0 y eq and not {code residue i get get fsize centredraftingshow} if
+      } for
+      /addrow residue 0 get residue 1 get polymodshift2 def
+      0 1 checksumlen 1 sub {
+        /i exch def
+        i hrplen add y add 3 add odd sub 3 y add offset moveto xsize 2 div ysize fgap add rmoveto
+        code addrow i get get fsize centredraftingshow
+      } for
+    } for
+    /residue residue polymod0 def
+    0 1 checksumlen 1 sub { 
+      /i exch def
+      i hrplen add numsteps 2 mul add 1 add 2 numsteps 2 mul add offset moveto xsize 2 div ysize fgap add rmoveto
+      code residue i get get fsize centredraftingshow
+    } for
+  grestore
   end
-} bind def
+  } bind def
+end
 
-/showArrayBox {
-  4 copy gsave showBox grestore
-  showArray pop
-} bind def
+/arraySpace 13 def
 
 /showParagraphs {
   10 dict begin
@@ -1886,77 +2424,23 @@ showpage
 %%BeginPageSetup
 /pgsave save def
 %%EndPageSetup
-90 rotate 0 -750 translate
-/hrp (ms) def
-/box {
-  10 dict begin
-  { /width /beginred /n } {exch def} forall
-  -1.2 -1.9 rmoveto
-  0 14 rlineto
-  arraySpace 0 rlineto
-  0 -14 rlineto
-  closepath
-  width setlinewidth
-  n beginred ge { gsave 1 0.9 0.9 setrgbcolor fill grestore } if
-  stroke
-  end
-} bind def
+90 rotate
 
-/labeledbox {
-  10 dict begin
-  { /beginred /n } {exch def} forall
-  /n n hrp length add 2 add def
-  gsave
-    n beginred thick box
-  grestore
-  gsave
-    arraySpace 6 sub 14 5 sub rmoveto
-    /Courier findfont 3 scalefont setfont
-    n 10 le { ( ) show } if n 2 string cvs show
-  grestore
-  end
-} bind def
+% 0 pgsize aload pop pop neg translate
+0 -750 translate
+
 /Helvetica-Bold findfont 10 scalefont setfont
 pgsize aload pop exch pop 2 div 700
 moveto (ms32 Checksum Worksheet) centreshow
 
-
-120 670
-% [10 29 19 13 4 16 20 8 16 7 4 13 6 8 27 31 28 14 17 21 31 25 19 15 1 3 13 29 22 5 8 31 9 17 15 30 19 15 21 16 19 26 16 22 31]
-[ 45 {32} repeat ]
-10 dict begin
-{ /codeword /y /x } {exch def} forall
-/Courier findfont 15 scalefont setfont
-x y moveto hrp (1) concatstrings dup stringwidth pop neg 3 sub 0 rmoveto show
-/odd polymodulus length codeword length add 2 mod def
-/edge codeword length polymodulus length sub hrp length add 2 add def
-/gaps [ 0 1 codeword length { 4 mod 1 eq {gapSpace} {arraySpace} ifelse } for ] def
-/k polymodulus length odd sub def
-  {edge labeledbox} x arraySpace odd mul add y moveto codeword gaps 1 k getinterval 0 showArrayBox
-/y y 14 sub def
-/reduction [hrp polymodhrp aload pop k {0} repeat ] polymod0 def
-  {reduction length thin box} x arraySpace odd mul add y moveto reduction gaps 1 k getinterval odd showArrayBox
-/y y 15 sub def
-/residue reduction [1 odd eq {0} if codeword 0 k getinterval aload pop ] gf32addarray def
-
-{
-  k codeword length ge {exit} if
-  { codeword length k sub thin box} x y moveto residue gaps k 1 add residue length sub residue length getinterval 0 showArrayBox
-  {edge labeledbox} codeword gaps k 1 add 2 getinterval k showArrayBox
-  /x x gaps k 1 add reduction length sub 2 getinterval aload pop add add def
-  /y y 14 sub def
-  /reduction residue 0 2 getinterval aload pop polymodshift2 def
-  {reduction length thin box} x y moveto reduction gaps k 1 add reduction length 2 sub sub reduction length getinterval 0 showArrayBox
-  /y y 15 sub def
-  /residue reduction [residue 2 polymodulus length 2 sub getinterval aload pop codeword k 2 getinterval aload pop] gf32addarray def
-  /k k 2 add def
-} loop
-
-gsave 0.85 setgray x y moveto checksum gaps k 1 add residue length sub residue length getinterval 0 showArray grestore
-{residue length thin box} x y moveto residue gaps k 1 add residue length sub residue length getinterval 0 showArrayBox
-
-
+gsave
+50 680 translate
+ladder begin
+ drawgrid
+% (2NAMES5GS8YDXGMLUW34LEN0PRDAK9GLF307N04SN6SKL) fillgrid
+% (2NAMES5GS8YDXGMLUW34LEN0PRDAK9GL             ) fillgrid
 end
+grestore
 
 100 420 moveto
 /Helvetica-Bold findfont 10 scalefont setfont
