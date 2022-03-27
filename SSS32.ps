@@ -353,19 +353,6 @@ end
   } ifelse
 def
 
-/marginpath {
-10 dict begin
-  pgsize aload pop
-  /h exch def /w exch def
-  /margin 18 def
-  newpath
-  margin margin moveto
-  w margin sub margin lineto
-  w margin sub h margin sub lineto
-  margin h margin sub lineto
-  closepath
-end } bind def
-
 % line : width --
 /line {
   setlinewidth
@@ -2081,7 +2068,6 @@ showpage
 %%BeginPageSetup
 /pgsave save def
 %%EndPageSetup
-% gsave verythin line marginpath stroke grestore
 recoveryDisc begin
 % Draw assembly diagram
 10 dict begin
@@ -2128,7 +2114,6 @@ showpage
 %%BeginPageSetup
 /pgsave save def
 %%EndPageSetup
-% gsave verythin line marginpath stroke grestore
 % Draw assembly diagram
 gsave
   60 700 translate
@@ -2190,7 +2175,6 @@ showpage
 %%BeginPageSetup
 /pgsave save def
 %%EndPageSetup
-% gsave verythin line marginpath stroke grestore
 % Draw assembly diagram
 gsave
   60 700 translate
