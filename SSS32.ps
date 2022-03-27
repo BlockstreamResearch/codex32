@@ -1041,14 +1041,9 @@ page exch perm 3 index get exch  makeShare code exch get glyphshow
   } for
 
   % Draw vertical background lines: one double-wide black one per column
+  0 setgray
   x y moveto
   0 1 7 {
-    1 setgray
-    gsave
-      0 tHeight neg rlineto
-      cellW 26 div neg 0 rlineto 0 tHeight rlineto closepath fill
-    grestore
-    0 setgray
     gsave
       0 tHeight neg rlineto
       cellW 2 mul 13 div 0 rlineto 0 tHeight rlineto closepath fill
@@ -1873,6 +1868,7 @@ pgsize aload pop 72 sub exch 108 sub 2 div
 24 drawChecksumTable
 
 pgsave restore
+showpage
 
 %%Page: 25 25
 %%PageOrientation: Landscape
