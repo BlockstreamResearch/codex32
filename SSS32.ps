@@ -353,6 +353,61 @@ end
   } ifelse
 def
 
+20 dict dup /portraitPage exch def begin
+  pgsize aload pop [ /pageH /pageW ] { exch def } forall
+  /centerX pageW 2 div def
+  /centerY pageH 2 div def
+  /marginX1 36 def
+  /marginX2 pageW 36 sub def
+  /marginY1 pageH 48 sub def
+  /marginY2 48 def
+  /marginW marginX2 marginX1 sub def
+  /marginH marginY2 marginY1 sub def
+
+  % Draw a line indicating where the margins of the page are; can be used
+  % for debugging graphical output
+  /drawMargin {
+    gsave
+      0 setgray thin line
+      marginX1 marginY1 marginW marginH rectstroke
+    grestore
+  } bind def
+
+  % Draw the page number and any (TODO) content in the page content array
+  % Takes the pagenum as a numeric value
+  /drawPageContent {
+    10 dict begin
+    /pagenum exch def
+    gsave
+      /Times-Roman findfont 12 scalefont setfont
+      centerX marginY2 moveto
+      pagenum pagenum 10 lt { 1 } { 2 } ifelse string cvs show
+    grestore
+    end
+  } bind def
+end
+
+% landscapePage is a modified copy of portraitPage
+portraitPage dup 20 dict copy dup /landscapePage exch def begin
+  pgsize aload pop exch [ /pageH /pageW ] { exch def } forall
+  /centerX pageW 2 div def
+  /centerY pageH 2 div def
+  /marginX1 36 def
+  /marginX2 pageW 36 sub def
+  /marginY1 pageH 48 sub def
+  /marginY2 48 def
+  /marginW marginX2 marginX1 sub def
+  /marginH marginY2 marginY1 sub def
+  /pageW portraitPage /pageH get def
+  /pageH portraitPage /pageW get def
+
+  /drawPageContent {
+    90 rotate
+    0 pageH neg translate
+    portraitPage /drawPageContent get exec
+  } bind def
+end
+
 % line : width --
 /line {
   setlinewidth
@@ -1683,6 +1738,7 @@ end
 %%BeginPageSetup
 /pgsave save def
 %%EndPageSetup
+portraitPage begin
 
 /Times-Roman findfont 48 scalefont setfont
 pgsize aload pop exch 2 div exch 300 sub moveto
@@ -1691,6 +1747,7 @@ title {gsave centreshow grestore 0 -70 rmoveto} forall
 /Times-Roman findfont 16 scalefont setfont
 pgsize aload pop exch 2 div exch 700 sub moveto ver centreshow
 
+end
 pgsave restore
 showpage
 
@@ -1703,14 +1760,18 @@ showpage
 %%BeginPageSetup
 /pgsave save def
 %%EndPageSetup
+portraitPage begin 1 drawPageContent
+
 /Helvetica findfont 6 scalefont setfont
-40 750 moveto
+marginX1 marginY1 16 sub moveto
 MIT {gsave ((c)) search {show pop /copyright glyphshow} if show grestore 0 -8 rmoveto} forall
 /Helvetica findfont 6 scalefont setfont
 warning {gsave show grestore 0 -7 rmoveto} forall
 0 -16 rmoveto
 /Helvetica findfont 8 scalefont setfont
 README {gsave show grestore 0 -10 rmoveto} forall
+
+end
 pgsave restore
 showpage
 
@@ -1722,9 +1783,10 @@ showpage
 %%BeginPageSetup
 /pgsave save def
 %%EndPageSetup
+portraitPage begin 2 drawPageContent
 
 % Set 0 0 to top-center of page
-pgsize aload pop exch 2 div exch 72 sub translate
+centerX marginY1 16 sub translate
 
 % Header/data format
 /Helvetica-Bold findfont 16 scalefont setfont
@@ -1756,6 +1818,7 @@ true drawBech32BinaryTable
 0 -24 translate
 drawSymbolTable
 
+end
 pgsave restore
 showpage
 
