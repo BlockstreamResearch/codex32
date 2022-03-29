@@ -1,6 +1,6 @@
 %!PS-Adobe-3.0
 %%Orientation: Portrait
-%%Pages: 25
+%%Pages: 27
 %%EndComments
 %%BeginSetup
 [(Shamir's Secret) (Sharing Codex)]
@@ -1535,6 +1535,55 @@ page exch perm 3 index get exch  makeShare code exch get glyphshow
     dup ysize mul exch 2 idiv ygap mul add exch
     dup xsize mul exch 4 idiv xgap mul add exch
   } bind def
+
+  /drawrow {
+  10 dict begin
+    /nrows exch def
+
+    /drawSingleRow {
+      gsave
+      10 dict begin
+      [ /drawTranslationSymbol /drawShareIndex /endI /startI ] {exch def} forall
+
+      /Courier findfont 3 scalefont setfont
+      thick line
+      % Draw share index & translation symbol
+      drawShareIndex { 0 0 offset xsize ysize rectstroke } if
+      drawTranslationSymbol { 1 0 offset exch xgap 3 mul add exch xsize ysize rectstroke } if
+
+      % Draw main row contents
+      thin line
+      startI 1 endI {
+        /i exch def
+        i startI sub 3 add 0 offset 2 copy xsize ysize rectstroke moveto
+        % upper-right indices
+        xsize 4.5 sub -3 rmoveto
+        /n i 1 add def
+        n 10 lt { ( ) show } if n 2 string cvs show
+        % TODO add lower-left indices
+      } for
+
+      end
+      grestore
+    } bind def
+
+    gsave
+      hrplen 1 add sharelen true true drawSingleRow
+      0 ysize translate
+      hrplen 1 add sharelen true true drawSingleRow
+      3 1 nrows {
+        0 ysize ygap 3 mul add translate
+        hrplen 1 add sharelen false false drawSingleRow
+        0 ysize translate
+        hrplen 1 add sharelen true true drawSingleRow
+      } for
+      0 ysize ygap 3 mul add translate
+      hrplen 1 add sharelen true false drawSingleRow
+    grestore
+
+    end
+  } bind def
+
   /drawgrid {
   10 dict begin
   gsave
@@ -2509,6 +2558,56 @@ dup 2 add 7 mul offsetx add offsety 20 sub 3 index 8 mul sub moveto
 perm exch get
 perm 2 index get gf32add code exch get glyphshow
 } for pop } for
+
+pgsave restore
+showpage
+
+%%Page: 26 26
+%%PageOrientation: Landscape
+%%BeginPageSetup
+/pgsave save def
+%%EndPageSetup
+90 rotate
+0 -750 translate
+
+/Times-Roman findfont 32 scalefont setfont
+48 680 moveto (Translation Worksheet \(k = 2\)) show
+
+gsave
+48 670 translate
+
+7 {
+ladder begin
+  2 drawrow
+  0 ysize 4.8 mul translate
+end
+} repeat
+grestore
+
+pgsave restore
+showpage
+
+%%Page: 27 27
+%%PageOrientation: Landscape
+%%BeginPageSetup
+/pgsave save def
+%%EndPageSetup
+90 rotate
+0 -750 translate
+
+/Times-Roman findfont 32 scalefont setfont
+48 680 moveto (Translation Worksheet \(k = 3\)) show
+
+gsave
+48 670 translate
+
+5 {
+ladder begin
+  3 drawrow
+  0 ysize 6.8 mul translate
+end
+} repeat
+grestore
 
 pgsave restore
 showpage
