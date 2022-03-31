@@ -200,3 +200,87 @@ With this set of _t_ many MS32 shares, new shares can be derived as discussed ab
 This process generates a fresh master seed, whose value can be retrieved by running the recovery process on any _t_ many of these shares.
 
 ## Long Strings
+
+## Test Vectors
+
+### Test vector 1
+
+This example shows the MS32 format, when used without splitting the secret into any shares. The data part contains 26 Bech32 characters, which corresponds to 130 bits. We truncate the last two bits in order to obtain a 128-bit master secret.
+
+MS32 secret (Bech32): `ms10testsxxxxxxxxxxxxxxxxxxxxxxxxxx4nzvca9cmczlw`
+
+Master secret (hex): `318c6318c6318c6318c6318c6318c631`
+
+* human-readable part: `ms`
+* separator: `1`
+* k value: `0` (no secret splitting)
+* identifier: `test`
+* share index: `s` (the secret)
+* data: `xxxxxxxxxxxxxxxxxxxxxxxxxx`
+* checksum: `4nzvca9cmczlw`
+
+### Test vector 2
+
+This example shows generating a new master secret using "random" MS32 shares, as well as deriving an additional MS32 share, using `k = 2` and an identifier of `NAME`. Although MS32 strings are canonically all lowercase, it's also valid to use all uppercase.
+
+Share with index `A`: `MS12NAMEA320ZYXWVUTSRQPNMLKJHGFEDCAXRPP870HKKQRM`
+
+Share with index `C`: `MS12NAMECACDEFGHJKLMNPQRSTUVWXYZ023FTR2GDZMPY6PN`
+
+* Derived share with index `D`: `MS12NAMEDLL4F8JLH4E5VDVULDLFXU2JHDNLSM97XVENRXEG`
+* Secret share with index `S`: `MS12NAMES6XQGUZTTXKEQNJSJZV4JV3NZ5K3KWGSPHUH6EVW`
+* Master secret (hex): `d1808e096b35b209ca12132b264662a5`
+
+Note that per BIP-173, the lowercase form is used when determining a character's value for checksum purposes. In particular, given an all uppercase MS32 string, we still use lowercase `ms` as the human-readable part during checksum construction.
+
+### Test vector 3
+
+This example shows splitting an existing 128-bit master secret into "random" MS32 shares, using `k = 3` and an identifier of `cash`. We appended two zero bits in order to obtain 26 Bech32 characters (130 bits of data) from the 128-bit master secret.
+
+Master secret (hex): `ffeeddccbbaa99887766554433221100`
+
+Secret share with index `s`: `ms13cashsllhdmn9m42vcsamx24zrxgs3qqjzqud4m0d6nln`
+
+Share with index `a`: `ms13casha320zyxwvutsrqpnmlkjhgfedca2a8d0zehn8a0t`
+
+Share with index `c`: `ms13cashcacdefghjklmnpqrstuvwxyz023949xq35my48dr`
+
+* Derived share with index `d`: `ms13cashd0wsedstcdcts64cd7wvy4m90lm28w4ffupqs7rm`
+* Derived share with index `e`: `ms13casheekgpemxzshcrmqhaydlp6yhms3ws7320xyxsar9`
+* Derived share with index `f`: `ms13cashf8jh6sdrkpyrsp5ut94pj8ktehhw2hfvyrj48704`
+
+Any three of the five shares among `acdef` can be used to recover the secret.
+
+Note that the choice to append two zero bits was arbitrary, and any of the following four secret shares would have been valid choices. However, each choice would have resulted in a different set of derived shares.
+
+* `ms13cashsllhdmn9m42vcsamx24zrxgs3qqjzqud4m0d6nln`
+* `ms13cashsllhdmn9m42vcsamx24zrxgs3qpte35dvzkjpt0r`
+* `ms13cashsllhdmn9m42vcsamx24zrxgs3qzfatvdwq5692k6`
+* `ms13cashsllhdmn9m42vcsamx24zrxgs3qrsx6ydhed97jx2`
+
+### Test vector 4
+
+This example shows converting a 256-bit secret into an MS32 secret, without splitting the secret into any shares. We appended four zero bits in order to obtain 52 Bech32 characters (260 bits of data) from the 256-bit secret.
+
+256-bit secret (hex): `ffeeddccbbaa99887766554433221100ffeeddccbbaa99887766554433221100`
+
+* MS32 secret: `ms10leetsllhdmn9m42vcsamx24zrxgs3qrl7ahwvhw4fnzrhve25gvezzyqqtum9pgv99ycma`
+
+Note that the choice to append four zero bits was arbitrary, and any of the following sixteen MS32 secrets would have been valid:
+
+* `ms10leetsllhdmn9m42vcsamx24zrxgs3qrl7ahwvhw4fnzrhve25gvezzyqqtum9pgv99ycma`
+* `ms10leetsllhdmn9m42vcsamx24zrxgs3qrl7ahwvhw4fnzrhve25gvezzyqpj82dp34u6lqtd`
+* `ms10leetsllhdmn9m42vcsamx24zrxgs3qrl7ahwvhw4fnzrhve25gvezzyqzsrs4pnh7jmpj5`
+* `ms10leetsllhdmn9m42vcsamx24zrxgs3qrl7ahwvhw4fnzrhve25gvezzyqrfcpap2w8dqezy`
+* `ms10leetsllhdmn9m42vcsamx24zrxgs3qrl7ahwvhw4fnzrhve25gvezzyqy5tdvphn6znrf0`
+* `ms10leetsllhdmn9m42vcsamx24zrxgs3qrl7ahwvhw4fnzrhve25gvezzyq9dsuypw2ragmel`
+* `ms10leetsllhdmn9m42vcsamx24zrxgs3qrl7ahwvhw4fnzrhve25gvezzyqx05xupvgp4v6qx`
+* `ms10leetsllhdmn9m42vcsamx24zrxgs3qrl7ahwvhw4fnzrhve25gvezzyq8k0h5p43c2hzsk`
+* `ms10leetsllhdmn9m42vcsamx24zrxgs3qrl7ahwvhw4fnzrhve25gvezzyqgum7hplmjtr8ks`
+* `ms10leetsllhdmn9m42vcsamx24zrxgs3qrl7ahwvhw4fnzrhve25gvezzyqf9q0lpxzt5clxq`
+* `ms10leetsllhdmn9m42vcsamx24zrxgs3qrl7ahwvhw4fnzrhve25gvezzyq28y48pyqfuu7le`
+* `ms10leetsllhdmn9m42vcsamx24zrxgs3qrl7ahwvhw4fnzrhve25gvezzyqt7ly0paesr8x0f`
+* `ms10leetsllhdmn9m42vcsamx24zrxgs3qrl7ahwvhw4fnzrhve25gvezzyqvrvg7pqydv5uyz`
+* `ms10leetsllhdmn9m42vcsamx24zrxgs3qrl7ahwvhw4fnzrhve25gvezzyqd6hekpea5n0y5j`
+* `ms10leetsllhdmn9m42vcsamx24zrxgs3qrl7ahwvhw4fnzrhve25gvezzyqwcnrwpmlkmt9dt`
+* `ms10leetsllhdmn9m42vcsamx24zrxgs3qrl7ahwvhw4fnzrhve25gvezzyq0pgjxpzx0ysaam`
