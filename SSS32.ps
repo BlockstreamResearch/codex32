@@ -1,6 +1,6 @@
 %!PS-Adobe-3.0
 %%Orientation: Portrait
-%%Pages: 25
+%%Pages: 21
 %%EndComments
 %%BeginSetup
 [(Shamir's Secret) (Sharing Codex)]
@@ -1899,38 +1899,8 @@ tWidth 44 add tHeight 48 add
 
 pgsave restore
 showpage
-%%Page: 5 5
-%%BeginPageSetup
-/pgsave save def
-%%EndPageSetup
-{ 10 dict begin
-  /in exch def
-  /out exch def
-  16 out [ in out ] lagrange
-  dup 1 eq {pop 0} if % X out trying to recover a share with itself.
-  end
-}
-(Recover Share) code2 code [ 32 permS 1 31 getinterval aload pop ] drawBottomWheelPage
-pgsave restore
-showpage
-%%Page: 6 6
-%%BeginPageSetup
-/pgsave save def
-%%EndPageSetup
-% note 0 and 1 are never used, so they are removed from the wheel.
-gsave
-pgsize aload pop 2 div exch 2 div exch translate
-360 64 div rotate
-16 {
-  newpath 0 6 40 mul moveto 0 28 rlineto stroke
-  360 16 div rotate
-} repeat
-grestore
-{gf32mul} (Translation) code code2 [32 1 1 31 {} for] drawBottomWheelPage
 
-pgsave restore
-showpage
-%%Page: 7 7
+%%Page: 5 5
 %%BeginPageSetup
 /pgsave save def
 %%EndPageSetup
@@ -1938,7 +1908,7 @@ showpage
 
 pgsave restore
 showpage
-%%Page: 8 8
+%%Page: 6 6
 %%BeginPageSetup
 /pgsave save def
 %%EndPageSetup
@@ -1946,23 +1916,7 @@ showTopWheelPage
 
 pgsave restore
 showpage
-%%Page: 9 9
-%%BeginPageSetup
-/pgsave save def
-%%EndPageSetup
-showTopWheelPage
-
-pgsave restore
-showpage
-%%Page: 10 10
-%%BeginPageSetup
-/pgsave save def
-%%EndPageSetup
-showTopWheelPage
-
-pgsave restore
-showpage
-%%Page: 11 11
+%%Page: 7 7
 %%BeginPageSetup
 /pgsave save def
 %%EndPageSetup
@@ -2059,7 +2013,7 @@ end
 
 pgsave restore
 showpage
-%%Page: 12 12
+%%Page: 8 8
 %%BeginPageSetup
 /pgsave save def
 %%EndPageSetup
@@ -2067,7 +2021,7 @@ showpage
 
 pgsave restore
 showpage
-%%Page: 13 13
+%%Page: 9 9
 %%BeginPageSetup
 /pgsave save def
 %%EndPageSetup
@@ -2075,7 +2029,7 @@ showpage
 
 pgsave restore
 showpage
-%%Page: 14 14
+%%Page: 10 10
 %%BeginPageSetup
 /pgsave save def
 %%EndPageSetup
@@ -2083,7 +2037,7 @@ showpage
 
 pgsave restore
 showpage
-%%Page: 15 15
+%%Page: 11 11
 %%BeginPageSetup
 /pgsave save def
 %%EndPageSetup
@@ -2091,7 +2045,7 @@ showpage
 
 pgsave restore
 showpage
-%%Page: 16 16
+%%Page: 12 12
 %%BeginPageSetup
 /pgsave save def
 %%EndPageSetup
@@ -2099,7 +2053,7 @@ showpage
 
 pgsave restore
 showpage
-%%Page: 17 17
+%%Page: 13 13
 %%BeginPageSetup
 /pgsave save def
 %%EndPageSetup
@@ -2107,7 +2061,7 @@ showpage
 
 pgsave restore
 showpage
-%%Page: 18 18
+%%Page: 14 14
 %%BeginPageSetup
 /pgsave save def
 %%EndPageSetup
@@ -2115,7 +2069,7 @@ showpage
 
 pgsave restore
 showpage
-%%Page: 19 19
+%%Page: 15 15
 %%BeginPageSetup
 /pgsave save def
 %%EndPageSetup
@@ -2123,7 +2077,7 @@ showpage
 
 pgsave restore
 showpage
-%%Page: 20 20
+%%Page: 16 16
 %%BeginPageSetup
 /pgsave save def
 %%EndPageSetup
@@ -2170,7 +2124,7 @@ pgsize aload pop 2 div exch 2 div exch translate
 end
 pgsave restore
 showpage
-%%Page: 21 21
+%%Page: 17 17
 %%BeginPageSetup
 /pgsave save def
 %%EndPageSetup
@@ -2232,7 +2186,7 @@ end
 
 pgsave restore
 showpage
-%%Page: 22 22
+%%Page: 18 18
 %%BeginPageSetup
 /pgsave save def
 %%EndPageSetup
@@ -2361,7 +2315,7 @@ end
 
 pgsave restore
 showpage
-%%Page: 23 23
+%%Page: 19 19
 %%PageOrientation: Landscape
 %%BeginPageSetup
 /pgsave save def
@@ -2390,7 +2344,7 @@ end
 pgsave restore
 showpage
 
-%%Page: 24 24
+%%Page: 20 20
 %%PageOrientation: Landscape
 %%BeginPageSetup
 /pgsave save def
@@ -2419,7 +2373,7 @@ end
 pgsave restore
 showpage
 
-%%Page: 25 25
+%%Page: 21 21
 %%PageOrientation: Landscape
 %%BeginPageSetup
 /pgsave save def
