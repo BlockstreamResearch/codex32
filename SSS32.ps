@@ -1777,56 +1777,9 @@ showpage
 
 %****************************************************************
 %*
-%* Reference Sheet
-%*
-%%Page: 3 3
-%%BeginPageSetup
-/pgsave save def
-%%EndPageSetup
-portraitPage begin 2 drawPageContent
-
-% Set 0 0 to top-center of page
-centerX marginY1 16 sub translate
-
-% Header/data format
-/Helvetica-Bold findfont 16 scalefont setfont
-0 0 moveto (Data Format) centreshow
-
-0 -24 translate
-drawDataFormat
-
-% bech32->binary chart
-0 -100 translate
-/Helvetica-Bold findfont 16 scalefont setfont
-0 0 moveto  (Bech32 to Binary Conversion) centreshow
-
-0 -24 translate
-false drawBech32BinaryTable
-
-0 -150 translate
-/Helvetica-Bold findfont 16 scalefont setfont
-0 0 moveto (Binary to Bech32 Conversion) centreshow
-
-0 -24 translate
-true drawBech32BinaryTable
-
-% Symbol pronunciation
-0 -150 translate
-/Helvetica-Bold findfont 16 scalefont setfont
-0 0 moveto (Symbols) centreshow
-
-0 -24 translate
-drawSymbolTable
-
-end
-pgsave restore
-showpage
-
-%****************************************************************
-%*
 %* Arithmetic Tables
 %*
-%%Page: 4 4
+%%Page: 3 3
 %%BeginPageSetup
 /pgsave save def
 %%EndPageSetup
@@ -1947,6 +1900,53 @@ tWidth 44 add tHeight tHeight 56 add add
 tWidth 44 add tHeight 48 add
 {gf32mul} (Multiplication) code2 permId 1 31 getinterval code2 permId 1 31 getinterval code2 drawTable
 
+pgsave restore
+showpage
+
+%****************************************************************
+%*
+%* Reference Sheet
+%*
+%%Page: 4 4
+%%BeginPageSetup
+/pgsave save def
+%%EndPageSetup
+portraitPage begin 2 drawPageContent
+
+% Set 0 0 to top-center of page
+centerX marginY1 16 sub translate
+
+% Header/data format
+/Helvetica-Bold findfont 16 scalefont setfont
+0 0 moveto (Data Format) centreshow
+
+0 -24 translate
+drawDataFormat
+
+% bech32->binary chart
+0 -100 translate
+/Helvetica-Bold findfont 16 scalefont setfont
+0 0 moveto  (Bech32 to Binary Conversion) centreshow
+
+0 -24 translate
+false drawBech32BinaryTable
+
+0 -150 translate
+/Helvetica-Bold findfont 16 scalefont setfont
+0 0 moveto (Binary to Bech32 Conversion) centreshow
+
+0 -24 translate
+true drawBech32BinaryTable
+
+% Symbol pronunciation
+0 -150 translate
+/Helvetica-Bold findfont 16 scalefont setfont
+0 0 moveto (Symbols) centreshow
+
+0 -24 translate
+drawSymbolTable
+
+end
 pgsave restore
 showpage
 
