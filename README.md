@@ -1,27 +1,42 @@
-# SSS32 #
+# codex32
+
+**codex32** is a scheme for checksumming and Shamir Secret Sharing based on paper computers (volvelles).
+It is currently under construction and far from production-ready, but is usable by motivated experimentors.
+This scheme is tedious and not for the faint-of-heart, but does not require any mathematical understanding; only perseverance, focus, and an ability to follow precise instructions.
+
+We welcome feedback from everybody, either through issues on this Github repo or email to `pearlwort@wpsoftware.net`.
+
 ![Image of two Volvelles used for secret recovery](./images/volvelles.jpg)
 
-My concept for creating secret shares using paper computers (slide charts).
-It is a design for splitting a secret encoded in the Bech32 alphabet into 2-of-n shares (where n <= 31) using pencil, paper and lookup tables.
-There are numerous issues and more that need to be addressed before one could even think about using it for actual valuable data.
-Right now I'm mostly interested to find out if paper sharing is really feasible.
+## What is this repo?
 
-A secret of 26 random Bech32 characters provides 130 bits of entropy, and a secret of 51 random Bech32 characters provides 255 bits of entropy.
-However, to enable robust recovery, the secret data ought to contain an error correcting code.
-Because each character of the secret is independently split into shares, any single character error in one of the shares translates into a single character error in the recovered secret which can be corrected by the error correcting code.
-See the exercise at the end of "[Verifying Bech32 Checksums with Pen and Paper](http://r6.ca/blog/20180106T164028Z.html)" on how to attach the Bech32 error correcting code to a raw secret string by hand.
-However, protecting the secret data is so important that one would want to design a checksum BCH code longer than 6 characters to get strong error correcting capabilities.
+Aside from documentation, this repository contains a single file, `SSS32.ps`, which contains the entire source code of the project.
+It is hand-written Postscript, which means that it can be opened by a document viewer but also in a text editor, which will reveal the code used to generate the wheels and worksheets.
+(If you are unable to open the file with a popular document viewer, please let us know!)
 
-I still don't know if this proposed method all a good idea or not.
-I've only experimented with encoding and recovering a 10 character "secret" data.
-Generating 2-of-n shares is quite easy as all the shares are a function of the secret share and the first random share.
-It only takes lookup up a pair of coordinates in a table to generate one character for each of the n shares together.
-Recovering the secret data is more work; however, if your plan is to recover a hardware wallet anyways, it is reasonable for the hardware wallet to do the recovery from the shares itself for you.
-Generating the error correcting code by hand is a bit more worrying, because it doesn't do you much good if your generate an incorrect checksum.
-However, by doing 1 or 2 manual passes to verify the checksum is maybe adequate.
-Also passing the secret data into the hardware wallet you wish to use, along with its checksum, would let the hardware wallet tell you if there was an error in the checksum.
-I think creating more general 3-of-n schemes can be implemented too, but require work similar to recovery to generate rather than the simple lookup table process.
-Generating 4-of-n and higher schemes may also be possible, but would require even more hand computation (i.e. computing lagrange polynomials.)
+If you are a software developer or mathematician who would like to contribute, feel free to open a pull request, join us on IRC (Libera) `#volvelle-wizards`, or contact Pearlwort by email.
 
-Maybe this scheme is workable for the subset of people that this would appeal to.
-In anycase, my document is open source and available for those who want to tinker with it.
+## What is this project?
+
+This project is a scheme to  generate, encode, checksum, split and recover Bitcoin secret keys, using pencil, paper and lookup tables (alternately, volvelles).
+It works with 128- or 256-bit secrets, encoded in the [bech32](https://github.com/bitcoin/bips/blob/master/bip-0173.mediawiki) alphabet.
+**No wallets currently support such secrets. Do not use this scheme with real money.**
+
+The project began in early 2020, as an extension of a "[2018 blog point on computing Bech32 checksums with pen and paper](http://r6.ca/blog/20180106T164028Z.html)".
+It uses a stronger error-correcting code than bech32 and introduces volvelles as a faster and less error-prone alternate to lookup tables.
+Initially it was a hobby project by the first author, Leon Olsson Curr, who was later joined by Pearlwort Snead.
+Pearlwort is the primary advocate for mainstream usage and any real-life problems or complaints should be directed to him.
+
+codex32, in addition to generating and verifying checksums, also includes an implementation of Shamir's Secret Sharing Scheme (SSSS).
+This scheme gives users the ability to split their checksummed secrets into many pieces, such that the original secret can be recovered by threshold-many pieces.
+The threshold is set by the user and is typically 2 or 3.
+
+## Where are the artistic wheels?
+
+This repository is actively being developed and does not cointain the latest experimental work. In particular,
+
+* The color illustrations are available in [Pearlwort's "complete" branch](https://github.com/apoelstra/SSS32/tree/complete)
+* The mathematical companion can be found in [a separate repo](https://github.com/apoelstra/volvelle-math-companion)
+* The official website is at [not yet hosted]
+
+
