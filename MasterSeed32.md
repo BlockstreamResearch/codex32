@@ -8,29 +8,46 @@ guarantee of any kind that you will be able to successfully recover your data.
 
 ## Abstract
 
-This document describes a standard format for encoding of BIP-32 HD master seed data by splitting it into upto 31 shares using Shamir's secret sharing.
-A minimum threshold of shares, which can be between 1 and 9, of the total number of shares is needed to recover the master seed data.
-Without sufficient shares, no information about the master seed is recoverable.
-Each share contains a BCH error-correcting checksum as a suffix to aid in the recovery of any partially corrupted share.
+This document describes a standard for backing up and restoring secret data,
+such as the master seed of a [BIP-0032](https://github.com/bitcoin/bips/blob/master/bip-0032.mediawiki) hierarchical deterministic wallet,
+using Shamir's secret sharing.
+It includes an encoding format, a BCH error-correcting checksum, and algorithms for share generation and secret recovery.
+Secret data can be split into up to 31 shares.
+A minimum threshold of shares, which can be between 1 and 9, is needed to recover the secret,
+whereas without sufficient shares, no information about the secret is recoverable.
 
 ## Motivation
 
-The secure and safe storage of BIP-39 master seed data is paramount for backup and recovery of the source entropy used to derive all private keys in HD wallets and other private secret data.
-There is a tension between security, which demands limiting the replicas of the backup, and safety, which demands widely replicated backups.
-While encrypted backups are, of course, an option, that ultimately leads back to essentially the same problem of how to backup the secret key used for encryption.
+BIP-0032 master seed data is the source entropy used to derive all private keys in an HD wallet.
+The secure and safe storage of this secret data is paramount for backup and recovery of the entire wallet.
+However, there is a tension between security, which demands limiting the number of backups, and safety, which demands widely replicated backups.
+Using encrypted backups is an option, but doing so leads back to essentially the same problem of how to back up the secret key(s) used for encryption.
 
-A naive solution is to cut the master secret into 3 overlapping pieces that each contain 2/3rds of the master secret that is encoded in a BIP-39 word list of 24 words.
-This way the full master secret can be recovered by any two pieces.
-Unfortunately each piece leaks 2/3rd of the master secret, leaving only 88 bits of entropy remaining, a value that is on the cusp of what is considered secure.
-Furthermore it is difficult to generalize this scheme.
-While more sets of overlapping pieces can be constructed, there comes a point where, with enough shares, even though they do not reconstruct the whole master seed, leave too little remaining entropy to be secure.
+A naive solution is to cut the secret into 3 overlapping pieces,
+such that any threshold of two pieces can be used to reconstruct the entire secret.
+For example, if the secret is encoded as a [BIP-0039](https://github.com/bitcoin/bips/blob/master/bip-0039.mediawiki) word list of 24 words,
+then each piece might contain 16 words.
 
-In this standard we choose to use Shamir's secret sharing.
-This allows one to diversely distribute the generated shares, with the property that the compromise of any one share (or more depending on the choice of threshold) reveals no information about the master seed.
+Unfortunately, this naive solution has significant flaws.
+Each piece leaks 2/3rds of the master secret;
+leaking 2/3rds of a 256-bit secret leaves only 85 bits of entropy, which is on the cusp of being considered insecure, and
+leaking 2/3rds of a 128-bit secret would be considered a catastrophic failure.
+Furthermore, it is difficult to generalize this approach to different numbers of pieces or different thresholds.
+
+In this standard, we instead use Shamir's secret sharing,
+which guarantees that any number of shares less than the threshold leaks no information about the secret.
+This approach allows increasing safety by widely distributing the generated shares,
+while also providing security against the compromise of one or more shares
+(as long as fewer than the threshold have been compromised).
 
 [SLIP-0039](https://github.com/satoshilabs/slips/blob/master/slip-0039.md) has essentially the same motivations as this standard.
-The main difference is that this standard aims to be amenable to hand computation for those people who have a general distrust in having digital electronic devices manipulating their secret master seed.
-SLIP-0039 also directly contains a two-level sharing scheme, while a companion scheme will be needed to split shares in this scheme into a second level.
+However, unlike SLIP-0039, this standard also aims to be simple enough for hand computation.
+Users who demand a higher level of security for particular secrets,
+or have a general distrust in digital electronic devices,
+have the option of using hand computation to backup and restore secret data in an interoperable manner.
+Note that hand computation is optional,
+the particular details of hand computation are outside the scope of this standard,
+and implementers do not need to be concerned with this possibility.
 
 ## Specification
 
