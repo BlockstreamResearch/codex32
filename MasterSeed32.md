@@ -8,8 +8,7 @@ guarantee of any kind that you will be able to successfully recover your data.
 
 ## Abstract
 
-This document describes a standard for backing up and restoring secret data,
-such as the master seed of a [BIP-0032](https://github.com/bitcoin/bips/blob/master/bip-0032.mediawiki) hierarchical deterministic wallet,
+This document describes a standard for backing up and restoring the master seed of a [BIP-0032](https://github.com/bitcoin/bips/blob/master/bip-0032.mediawiki) hierarchical deterministic wallet,
 using Shamir's secret sharing.
 It includes an encoding format, a BCH error-correcting checksum, and algorithms for share generation and secret recovery.
 Secret data can be split into up to 31 shares.
