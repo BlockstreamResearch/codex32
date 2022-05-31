@@ -14,6 +14,12 @@ Aside from documentation, this repository contains a single file, `SSS32.ps`, wh
 It is hand-written Postscript, which means that it can be opened by a document viewer but also in a text editor, which will reveal the code used to generate the wheels and worksheets.
 (If you are unable to open the file with a popular document viewer, please let us know!)
 
+To produce a PDF file, on a Linux machine the most straightforward way is to run the command
+```
+ps2pdf -dPDFSETTINGS=/prepress SSS32.ps
+
+```
+
 If you are a software developer or mathematician who would like to contribute, feel free to open a pull request, join us on IRC (Libera) `#volvelle-wizards`, or contact Pearlwort by email.
 
 ## What is this project?
