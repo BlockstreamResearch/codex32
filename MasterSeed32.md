@@ -357,3 +357,14 @@ Note that the choice to append four zero bits was arbitrary, and any of the foll
 * `ms10leetsllhdmn9m42vcsamx24zrxgs3qrl7ahwvhw4fnzrhve25gvezzyqd6hekpea5n0y5j`
 * `ms10leetsllhdmn9m42vcsamx24zrxgs3qrl7ahwvhw4fnzrhve25gvezzyqwcnrwpmlkmt9dt`
 * `ms10leetsllhdmn9m42vcsamx24zrxgs3qrl7ahwvhw4fnzrhve25gvezzyq0pgjxpzx0ysaam`
+
+### Test vector 5
+
+This example shows generating a new 512-bit master secret using "random" MS32 characters and appending a checksum.
+The payload contains 103 Bech32 characters, which corresponds to 515 bits.
+The last three bits are discarded when converting to a 512-bit master secret.
+
+This is an example of a [Long MS32 String](#long-ms32-strings).
+
+* Secret share with index `S`: `MS100C8VSM32ZXFGUHPCHTLUPZRY9X8GF2TVDW0S3JN54KHCE6MUA7LQPZYGSFJD6AN074RXVCEMLH8WU3TK925ACDEFGHJKLMNPQRSTUVWXY06FHPV80UNDVARHRAK`
+* Master secret (hex): `dc5423251cb87175ff8110c8531d0952d8d73e1194e95b5f19d6f9df7c01111104c9baecdfea8cccc677fb9ddc8aec5553b86e528bcadfdcc201c17c638c47e9`
