@@ -38,22 +38,11 @@ This document is licensed under the 3-clause BSD license.
 ## Motivation
 
 BIP-0032 master seed data is the source entropy used to derive all private keys in an HD wallet.
-The secure and safe storage of this secret data is paramount for backup and recovery of the entire wallet.
-However, there is a tension between security, which demands limiting the number of backups, and safety, which demands widely replicated backups.
-Using encrypted backups is an option, but doing so leads back to essentially the same problem of how to back up the secret key(s) used for encryption.
+Safely storing this secret data is the hardest and most important part of self-custody.
+However, there is a tension between security, which demands limiting the number of backups, and resilience, which demands widely replicated backups.
+Encrypting the seed does not change this fundamental tradeoff, since it leaves essentially the same problem of how to back up the encryption key(s).
 
-A naive solution is to cut the secret into 3 overlapping pieces,
-such that any threshold of two pieces can be used to reconstruct the entire secret.
-For example, if the secret is encoded as a [BIP-0039](https://github.com/bitcoin/bips/blob/master/bip-0039.mediawiki) word list of 24 words,
-then each piece might contain 16 words.
-
-Unfortunately, this naive solution has significant flaws.
-Each piece leaks 2/3rds of the master secret;
-leaking 2/3rds of a 256-bit secret leaves only 85 bits of entropy, which is on the cusp of being considered insecure, and
-leaking 2/3rds of a 128-bit secret would be considered a catastrophic failure.
-Furthermore, it is difficult to generalize this approach to different numbers of pieces or different thresholds.
-
-In this standard, we instead use Shamir's secret sharing,
+To allow users freedom to make this tradeoff, we use Shamir's secret sharing,
 which guarantees that any number of shares less than the threshold leaks no information about the secret.
 This approach allows increasing safety by widely distributing the generated shares,
 while also providing security against the compromise of one or more shares
@@ -67,6 +56,10 @@ have the option of using hand computation to backup and restore secret data in a
 Note that hand computation is optional,
 the particular details of hand computation are outside the scope of this standard,
 and implementers do not need to be concerned with this possibility.
+
+[BIP-0039](https://github.com/bitcoin/bips/blob/master/bip-0039.mediawiki) serves the same purpose as this standard: encoding master seeds for for storage by users.
+However, BIP-0039 has no error-correcting ability, cannot sensibly be extended to support secret sharing, has no support for versioning or other metadata, and has
+many technical design decisions that make implementation and interoperability difficult (for example, the use of SHA-512 to derive seeds, or the use of 11-bit words).
 
 # Specification
 
