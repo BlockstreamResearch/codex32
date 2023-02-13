@@ -62,7 +62,7 @@ It reuses the base32 character set from BIP-0173, and consists of:
 		* If the threshold parameter is "0" then the share index, defined below, MUST have a value of "s" (or "S").
 	* An identifier consisting of 4 Bech32 characters.
 	* A share index, which is any Bech32 character. Note that a share index value of "s" (or "S") is special and denotes the unshared secret (see section "Unshared Secret").
-	* A payload which is a sequence of up to 74 Bech32 characters. (However, see long strings for an exception to this limit.)
+	* A payload which is a sequence of up to 74 Bech32 characters. (However, see [Long MS32 Strings](#long-ms32-strings) for an exception to this limit.)
 	* A checksum which consists of 13 Bech32 characters as described below.
 
 As with Bech32 strings, an MS32 string MUST be entirely uppercase or entirely lowercase. The lowercase form is used when determining a character's value for checksum purposes. For presentation, lowercase is usually preferable, but uppercase SHOULD be used for handwritten MS32 strings.
@@ -89,9 +89,15 @@ def ms32_polymod(values):
   return residue
 
 def ms32_verify_checksum(data):
-  return ms32_polymod(data) == MS32_CONST
+  if len(data) >= 96:                       # See Long MS32 Strings
+    return ms32_verify_long_checksum(data)
+  if len(data) <= 93:
+    return ms32_polymod(data) == MS32_CONST
+  return False
 
 def ms32_create_checksum(data):
+  if len(data) > 80:                       # See Long MS32 Strings
+    return ms32_create_long_checksum(data)
   values = data
   polymod = ms32_polymod(values + [0] * 13) ^ MS32_CONST
   return [(polymod >> 5 * (12 - i)) & 31 for i in range(13)]
@@ -227,7 +233,46 @@ As before, each share must have the same threshold value _t_, the same identifie
 With this set of _t_ MS32 shares, new shares can be derived as discussed above.
 This process generates a fresh master seed, whose value can be retrieved by running the recovery process on any _t_ of these shares.
 
-## Long Strings
+## Long MS32 Strings
+
+The 13 character checksum design only supports up to 80 data characters.
+Excluding the threshold, identifier and index characters this limits the payload to 74 characters or 46 bytes.
+While this is enough to support the 32-byte advised size of BIP-32 master seeds, BIP-32 allows seeds to be up to 64 bytes in size.
+We define a long MS32 string format to support these longer seeds by defining an alternative checksum.
+
+```python
+MS32_LONG_CONST = 0x43381e570bf4798ab26
+
+def ms32_long_polymod(values):
+  GEN = [0x3d59d273535ea62d897, 0x7a9becb6361c6c51507, 0x543f9b7e6c38d8a2a0e, 0x0c577eaeccf1990d13c, 0x1887f74f8dc71b10651]
+  residue = 0x23181b3
+  for v in values:
+    b = (residue >> 70)
+    residue = (residue & 0x3fffffffffffffffff) << 5 ^ v
+    for i in range(5):
+      residue ^= GEN[i] if ((b >> i) & 1) else 0
+  return residue
+
+def ms32_verify_long_checksum(data):
+  return ms32_long_polymod(data) == MS32_LONG_CONST
+
+def ms32_create_long_checksum(data):
+  values = data
+  polymod = ms32_long_polymod(values + [0] * 15) ^ MS32_LONG_CONST
+  return [(polymod >> 5 * (14 - i)) & 31 for i in range(15)]
+```
+
+A long MS32 string follows the same specification as a regular MS32 string with the following changes.
+
+* The payload is a sequence of between 75 and 103 Bech32 characters.
+* The checksum consists of 15 Bech32 characters as defined above.
+
+A MS32 string with a data part of 94 or 95 charaters is never legal as a regular MS32 string is limited to 93 data characters and a long MS32 string is at least 96 characters.
+
+Generation of long shares and recovery of the master seed from long shares proceeds in exactly the same was as for regular shares with the `ms32_interpolate` function.
+
+The long checksum is designed to be an error correcting code that can correct up to 4 character substitutions, up to 8 unreadable characters (called erasures), or up to 15 consecutive erasures.
+As with regular checksums we do not specify how an implementation should implement error correction, and all our recommendations for error correction of regular MS32 strings also apply to long MS32 strings.
 
 ## Test Vectors
 
