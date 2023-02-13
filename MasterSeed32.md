@@ -1,10 +1,25 @@
-# Master Seed 32
+# codex32
 
 WARNING: Seriously, this is a work in progress, and it is only a concept right now.
 If you try to use this for your valuable data, I promise you will lose your data.
 You will lose this document and come back here only to find that I have made incompatible changes,
 and your data is lost forever. Even if you don't lose this document, there is no warranty or
 guarantee of any kind that you will be able to successfully recover your data.
+
+```
+  BIP: ????
+  Layer: Applications
+  Title: codex32
+  Author: <list of authors' real names and email addrs>
+  Comments-URI: https://github.com/bitcoin/bips/wiki/Comments:BIP-????
+  Status: Draft
+  Type: <Standards Track | Informational | Process>
+  Created: 2023-02-13
+  License: BSD-3-Clause
+* Post-History: <dates of postings to bitcoin mailing list, or link to thread in mailing list archive>
+```
+
+# Introduction
 
 ## Abstract
 
@@ -14,6 +29,11 @@ It includes an encoding format, a BCH error-correcting checksum, and algorithms 
 Secret data can be split into up to 31 shares.
 A minimum threshold of shares, which can be between 1 and 9, is needed to recover the secret,
 whereas without sufficient shares, no information about the secret is recoverable.
+
+## Copyright
+
+This document is licensed under the 3-clause BSD license.
+
 
 ## Motivation
 
@@ -48,7 +68,7 @@ Note that hand computation is optional,
 the particular details of hand computation are outside the scope of this standard,
 and implementers do not need to be concerned with this possibility.
 
-## Specification
+# Specification
 
 ### MS32
 
@@ -289,9 +309,38 @@ Generation of long shares and recovery of the master seed from long shares proce
 The long checksum is designed to be an error correcting code that can correct up to 4 character substitutions, up to 8 unreadable characters (called erasures), or up to 15 consecutive erasures.
 As with regular checksums we do not specify how an implementation should implement error correction, and all our recommendations for error correction of regular MS32 strings also apply to long MS32 strings.
 
-## Test Vectors
+# Rationale
 
-### Test vector 1
+Storing master seeds is the most important component of self-custody.
+Users who do not wish to use multisignature setups or sweep their coins must do so by encoding the master secret and physically encoding it.
+The current best practices for this are either to:
+
+* Use BIP39, which suffers from a weak checksum, uses English words which are have inconsistent lengths and near collisions (or other word lists, the choice of which affects the derived secret but is not explicitly encoded anywhere), and has no natural way to add Shamir Secret Sharing; or
+* Use SLIP-39, which also uses English words, includes features such as passphrase-based hardening and two-level sharing that may not be worth the additional implementation complexity, and does not have a BIP number.
+
+codex32 is a simpler version of SLIP-39 which has a slightly stronger checksum, a more compact and language-independent encoding, and is simple enough that all parts of the scheme (including error detection but not error correction), can be implemented without the use of electronic computers.
+
+# Backwards Compatibility
+
+codex32 is an alternative to BIP39 and SLIP-39.
+It is technically  possible to derive the BIP32 master seed from seed words encoded in one of these schemes, and then to encode this seed in codex32.
+For BIP39 this process is irreversible, since it involves hashing the original words.
+Furthermore, the resulting seed will be 512 bits long, which may be too large to be safely and conveniently handled.
+
+SLIP-39 seed words can be reversibly converted to master seeds, so it is possible to interconvert between SLIP-39 and codex32.
+However, SLIP-39 **shares** cannot be converted to codex32 shares because the two schemes use a different underlying field.
+
+The authors of this BIP do not recommend interconversion. Instead, users who wish to switch to codex32 should generate a fresh seed and sweep their coins.
+
+# Reference Implementation
+
+* [Reference PostScript Implementation](https://github.com/roconnor-blockstream/SSS32/)
+* FIXME add Python implementation
+* FIXME add Rust implementation
+
+# Test Vectors
+
+## Test vector 1
 
 This example shows the MS32 format, when used without splitting the secret into any shares. The data part contains 26 Bech32 characters, which corresponds to 130 bits. We truncate the last two bits in order to obtain a 128-bit master secret.
 
@@ -307,7 +356,7 @@ Master secret (hex): `318c6318c6318c6318c6318c6318c631`
 * data: `xxxxxxxxxxxxxxxxxxxxxxxxxx`
 * checksum: `4nzvca9cmczlw`
 
-### Test vector 2
+## Test vector 2
 
 This example shows generating a new master secret using "random" MS32 shares, as well as deriving an additional MS32 share, using `k = 2` and an identifier of `NAME`. Although MS32 strings are canonically all lowercase, it's also valid to use all uppercase.
 
@@ -321,7 +370,7 @@ Share with index `C`: `MS12NAMECACDEFGHJKLMNPQRSTUVWXYZ023FTR2GDZMPY6PN`
 
 Note that per BIP-173, the lowercase form is used when determining a character's value for checksum purposes. In particular, given an all uppercase MS32 string, we still use lowercase `ms` as the human-readable part during checksum construction.
 
-### Test vector 3
+## Test vector 3
 
 This example shows splitting an existing 128-bit master secret into "random" MS32 shares, using `k = 3` and an identifier of `cash`. We appended two zero bits in order to obtain 26 Bech32 characters (130 bits of data) from the 128-bit master secret.
 
@@ -346,7 +395,7 @@ Note that the choice to append two zero bits was arbitrary, and any of the follo
 * `ms13cashsllhdmn9m42vcsamx24zrxgs3qzfatvdwq5692k6`
 * `ms13cashsllhdmn9m42vcsamx24zrxgs3qrsx6ydhed97jx2`
 
-### Test vector 4
+## Test vector 4
 
 This example shows converting a 256-bit secret into an MS32 secret, without splitting the secret into any shares. We appended four zero bits in order to obtain 52 Bech32 characters (260 bits of data) from the 256-bit secret.
 
