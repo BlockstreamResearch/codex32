@@ -79,28 +79,34 @@ To construct a valid checksum given the data-part characters (excluding the chec
 MS32_CONST = 0x10ce0795c2fd1e62a
 
 def ms32_polymod(values):
-  GEN = [0x19dc500ce73fde210, 0x1bfae00def77fe529, 0x1fbd920fffe7bee52, 0x1739640bdeee3fdad, 0x07729a039cfc75f5a]
-  residue = 0x23181b3
-  for v in values:
-    b = (residue >> 60)
-    residue = (residue & 0x0fffffffffffffff) << 5 ^ v
-    for i in range(5):
-      residue ^= GEN[i] if ((b >> i) & 1) else 0
-  return residue
+    GEN = [
+        0x19dc500ce73fde210,
+        0x1bfae00def77fe529,
+        0x1fbd920fffe7bee52,
+        0x1739640bdeee3fdad,
+        0x07729a039cfc75f5a,
+    ]
+    residue = 0x23181b3
+    for v in values:
+        b = (residue >> 60)
+        residue = (residue & 0x0fffffffffffffff) << 5 ^ v
+        for i in range(5):
+            residue ^= GEN[i] if ((b >> i) & 1) else 0
+    return residue
 
 def ms32_verify_checksum(data):
-  if len(data) >= 96:                       # See Long MS32 Strings
-    return ms32_verify_long_checksum(data)
-  if len(data) <= 93:
-    return ms32_polymod(data) == MS32_CONST
-  return False
+    if len(data) >= 96:                       # See Long MS32 Strings
+        return ms32_verify_long_checksum(data)
+    if len(data) <= 93:
+        return ms32_polymod(data) == MS32_CONST
+    return False
 
 def ms32_create_checksum(data):
-  if len(data) > 80:                       # See Long MS32 Strings
-    return ms32_create_long_checksum(data)
-  values = data
-  polymod = ms32_polymod(values + [0] * 13) ^ MS32_CONST
-  return [(polymod >> 5 * (12 - i)) & 31 for i in range(13)]
+    if len(data) > 80:                       # See Long MS32 Strings
+        return ms32_create_long_checksum(data)
+    values = data
+    polymod = ms32_polymod(values + [0] * 13) ^ MS32_CONST
+    return [(polymod >> 5 * (12 - i)) & 31 for i in range(13)]
 ```
 
 ### Error Correction
@@ -150,40 +156,43 @@ In order to recover a master seed, one needs a set of valid MS32 shares such tha
 If all the above conditions are satisfied, the `ms32_recover` function will return a MS32 secret when its argument is the list of MS32 shares with each share represented as a list of integers representing the characters converted using the bech32 character table from BIP-0173.
 
 ```python
-bech32_inv = [0, 1, 20, 24, 10, 8, 12, 29, 5, 11, 4, 9, 6, 28, 26, 31, 22, 18, 17, 23, 2, 25, 16, 19, 3, 21, 14, 30, 13, 7, 27, 15]
+bech32_inv = [
+    0, 1, 20, 24, 10, 8, 12, 29, 5, 11, 4, 9, 6, 28, 26, 31,
+    22, 18, 17, 23, 2, 25, 16, 19, 3, 21, 14, 30, 13, 7, 27, 15,
+]
 
 def bech32_mul(a, b):
-  res = 0
-  for i in range(5):
-    res ^= a if ((b >> i) & 1) else 0
-    a *= 2
-    if (32 <= a):
-      a ^= 41
-  return res
+    res = 0
+    for i in range(5):
+        res ^= a if ((b >> i) & 1) else 0
+        a *= 2
+        if (32 <= a):
+            a ^= 41
+    return res
 
 def bech32_lagrange(l, x):
-  n = 1
-  c = []
-  for i in l:
-    n = bech32_mul(n, i ^ x)
-    m = 1
-    for j in l:
-      m = bech32_mul(m, (x if i == j else i) ^ j)
-    c.append(m)
-  return [bech32_mul(n, bech32_inv[i]) for i in c]
+    n = 1
+    c = []
+    for i in l:
+        n = bech32_mul(n, i ^ x)
+        m = 1
+        for j in l:
+            m = bech32_mul(m, (x if i == j else i) ^ j)
+        c.append(m)
+    return [bech32_mul(n, bech32_inv[i]) for i in c]
 
 def ms32_interpolate(l, x):
-  w = bech32_lagrange([s[5] for s in l], x)
-  res = []
-  for i in range(len(l[0])):
-    n = 0
-    for j in range(len(l)):
-      n ^= bech32_mul(w[j], l[j][i])
-    res.append(n)
-  return res
+    w = bech32_lagrange([s[5] for s in l], x)
+    res = []
+    for i in range(len(l[0])):
+        n = 0
+        for j in range(len(l)):
+            n ^= bech32_mul(w[j], l[j][i])
+        res.append(n)
+    return res
 
 def ms32_recover(l):
-  return ms32_interpolate(l, 16)
+    return ms32_interpolate(l, 16)
 ```
 
 ## Generating Shares
@@ -244,22 +253,28 @@ We define a long MS32 string format to support these longer seeds by defining an
 MS32_LONG_CONST = 0x43381e570bf4798ab26
 
 def ms32_long_polymod(values):
-  GEN = [0x3d59d273535ea62d897, 0x7a9becb6361c6c51507, 0x543f9b7e6c38d8a2a0e, 0x0c577eaeccf1990d13c, 0x1887f74f8dc71b10651]
-  residue = 0x23181b3
-  for v in values:
-    b = (residue >> 70)
-    residue = (residue & 0x3fffffffffffffffff) << 5 ^ v
-    for i in range(5):
-      residue ^= GEN[i] if ((b >> i) & 1) else 0
-  return residue
+    GEN = [
+        0x3d59d273535ea62d897,
+        0x7a9becb6361c6c51507,
+        0x543f9b7e6c38d8a2a0e,
+        0x0c577eaeccf1990d13c,
+        0x1887f74f8dc71b10651,
+    ]
+    residue = 0x23181b3
+    for v in values:
+        b = (residue >> 70)
+        residue = (residue & 0x3fffffffffffffffff) << 5 ^ v
+        for i in range(5):
+            residue ^= GEN[i] if ((b >> i) & 1) else 0
+    return residue
 
 def ms32_verify_long_checksum(data):
-  return ms32_long_polymod(data) == MS32_LONG_CONST
+    return ms32_long_polymod(data) == MS32_LONG_CONST
 
 def ms32_create_long_checksum(data):
-  values = data
-  polymod = ms32_long_polymod(values + [0] * 15) ^ MS32_LONG_CONST
-  return [(polymod >> 5 * (14 - i)) & 31 for i in range(15)]
+    values = data
+    polymod = ms32_long_polymod(values + [0] * 15) ^ MS32_LONG_CONST
+    return [(polymod >> 5 * (14 - i)) & 31 for i in range(15)]
 ```
 
 A long MS32 string follows the same specification as a regular MS32 string with the following changes.
