@@ -304,14 +304,29 @@ As with regular checksums we do not specify how an implementation should impleme
 
 # Rationale
 
-Storing master seeds is the most important component of self-custody.
-Users who do not wish to use multisignature setups or sweep their coins must do so by encoding the master secret and physically encoding it.
-The current best practices for this are either to:
+This scheme is based on the observation that the Lagrange interpolation of valid codewords in a BCH code will always be a valid codeword.
+This means that derived shares will always have valid checksum, and a sufficent threshold of shares with valid checksums will derive a secret with a valid checksum.
 
-* Use BIP39, which suffers from a weak checksum, uses English words which are have inconsistent lengths and near collisions (or other word lists, the choice of which affects the derived secret but is not explicitly encoded anywhere), and has no natural way to add Shamir Secret Sharing; or
-* Use SLIP-39, which also uses English words, includes features such as passphrase-based hardening and two-level sharing that may not be worth the additional implementation complexity, and does not have a BIP number.
+The header system is also compatible with Langrange interpolation, meaning all derivied shared will have the same identifier and will have the appropriate share index.
+This fact allows the header data to be covered by the checksum.
 
-codex32 is a simpler version of SLIP-39 which has a slightly stronger checksum, a more compact and language-independent encoding, and is simple enough that all parts of the scheme (including error detection but not error correction), can be implemented without the use of electronic computers.
+The checksum size and identifier size have been chosen so that the encoding of 128-bit seeds and shares fit within 48 characters.
+This is a standard size for many common seed storage formats, which has been popularized by the 12 four-letter word format of the BIP39 mnemonic.
+
+The 13 character checksum is adequate to correct 4 errors in up to 93 characters (80 characters of data and 13 characters of the checksum).
+This is somewhat better quality than the checksum used in SLIP-39.
+
+For 256-bit seeds and shares our strings are 74 characters, which fits into the 96 character format of the 24 four-letter word format of the BIP39 mnemonic, with pleanty of room to spare.
+
+A longer checksum is needed to support up to 512-bit seeds, the longest seed length specified in BIP32, as the 13 character checksum isn't adequate for more than 80 data characters.
+While we could use the 15 character checksum for both cases, we prefer to keep the strings as short as possible for the more common cases of 128-bit and 256-bit master seeds.
+We only guarentee to correct 4 characters no matter how long the string is.
+Longer strings mean more chances for transcription errors, so shorter strings are better.
+
+The longest data part using the regular 13 character checksum is 93 characters and corrsponds to a 400-bit secret.
+At this length, the prefix `MS1` is not covered by the checksum.
+This is acceptable because if checksum scheme itself requires you to know that the `MS1` prefix is being used in the first place.
+If the prefixed is damaged and a user is guessing that the data might be using this scheme, then the user can enter the available data explicitly using the suspected `MS1` prefix.
 
 # Backwards Compatibility
 
