@@ -179,8 +179,7 @@ def bech32_mul(a, b):
     for i in range(5):
         res ^= a if ((b >> i) & 1) else 0
         a *= 2
-        if (32 <= a):
-            a ^= 41
+        a ^= 41 if (32 <= a) else 0
     return res
 
 def bech32_lagrange(l, x):
