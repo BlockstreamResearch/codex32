@@ -462,6 +462,6 @@ For our long checksum, we select `γ := E + X ζ`, which has order 1023,
 and construct the product `(x - γ^i)` for `i` in `{32, 64, 96, 895, 927, 959, 991, 1019, 1020, 1021, 1022, 1023, 1024, 1025, 1026}`.
 The resulting polynomial is our generating polynomial for our 15 character checksum for long strings:
 
-    x^15 + 0 x^14 + 2 x^13 + E x^12 + 6 x^11 + F x^10 + E x^9 + 4 x^8 + X x^7 + H x^6 + 4 x^5 + X x^4 + 9 x^3 + K x^2 + Y x^1 + H
+    x^15 + 0 x^14 + 2 x^13 + E x^12 + 6 x^11 + F x^10 + E x^9 + 4 x^8 + X x^7 + H x^6 + 4 x^5 + X x^4 + 9 x^3 + K x^2 + Y x + H
 
 (Reminder: the character `0` does *not* denote the zero of the field.)
