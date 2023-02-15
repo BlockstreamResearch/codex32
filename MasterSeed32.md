@@ -439,3 +439,29 @@ This is an example of a [Long MS32 String](#long-ms32-strings).
 
 * Secret share with index `S`: `MS100C8VSM32ZXFGUHPCHTLUPZRY9X8GF2TVDW0S3JN54KHCE6MUA7LQPZYGSFJD6AN074RXVCEMLH8WU3TK925ACDEFGHJKLMNPQRSTUVWXY06FHPV80UNDVARHRAK`
 * Master secret (hex): `dc5423251cb87175ff8110c8531d0952d8d73e1194e95b5f19d6f9df7c01111104c9baecdfea8cccc677fb9ddc8aec5553b86e528bcadfdcc201c17c638c47e9`
+
+# Appendix
+
+## Mathematical Companion
+
+Below we use the Bech32 character set to denote values in GF[32].
+In Bech32, the letter `Q` denotes zero and the letter `P` denotes one.
+The digits `0` and `2` through `9` do *not* denote their numeric values.
+They are simply elements of GF[32].
+
+The generating polynomial for our BCH code is as follows.
+
+We extend GF[32] to GF[1024] by adjoining a primitive cube root of unity, `ζ`, satifying `ζ^2 = ζ + P`.
+
+We select `β := G ζ` which has order 93, and construct the product `(x - β^i)` for `i` in `{17, 20, 46, 49, 52, 77, 78, 79, 80, 81, 82, 83, 84}`.
+The resulting polynomial is our generating polynomial for our 13 character checksum:
+
+    x^13 + E x^12 + M x^11 + 3 x^10 + G x^9 + Q x^8 + E x^7 + E x^6 + E x^5 + L x^4 + M x^3 + C x^2 + S x + S
+
+For our long checksum, we select `γ := E + X ζ`, which has order 1023,
+and construct the product `(x - γ^i)` for `i` in `{32, 64, 96, 895, 927, 959, 991, 1019, 1020, 1021, 1022, 1023, 1024, 1025, 1026}`.
+The resulting polynomial is our generating polynomial for our 15 character checksum for long strings:
+
+    x^15 + 0 x^14 + 2 x^13 + E x^12 + 6 x^11 + F x^10 + E x^9 + 4 x^8 + X x^7 + H x^6 + 4 x^5 + X x^4 + 9 x^3 + K x^2 + Y x^1 + H
+
+(Reminder: the character `0` does *not* denote the zero of the field.)
