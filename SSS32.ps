@@ -1,6 +1,6 @@
 %!PS-Adobe-3.0
 %%Orientation: Portrait
-%%Pages: 24
+%%Pages: 25
 %%EndComments
 %%BeginSetup
 [(Shamir's Secret) (Sharing Codex)]
@@ -2709,7 +2709,41 @@ showpage
 /pgsave save def
 %%EndPageSetup
 
-0 displayResidueTable
+    72 720 moveto
+    /Helvetica findfont 20 scalefont setfont
+    gsave (Error Correction) show grestore
+    0 -20 rmoveto
+    /Times-Roman findfont 12 scalefont setfont
+    468 12
+    [ [
+    (If your shares are corrupted, or you made a mistake in the checksum worksheet, your final)
+    (residue will not be "SECRETSHARE32". Fortunately, if there are 4 or fewer errors, then this)
+    (final residue value contains all the information needed to correct the mistake.)
+    ] [
+    (Extracting this information to correct multiple errors is beyond the scope of this codex,)
+    (and currently appears to require the assistance of electronic computers. But correcting)
+    (one error is easy, since there are only so many different ways that a single error may)
+    (occur.)
+    ] [
+    (In the following three pages, we have enumerated all the residue values that will result)
+    (from a single error. If you have made one mistake, you can simply look up your residue in)
+    (the table to get an exact description of the error, and how to fix it.)
+    ] ] showParagraphs
+
+    [
+    (In particular, to correct a single error:)
+    (    1. Look up your residue in the blue columns of the following table.)
+    (    1a. If your residue does not appear, you have made more than 1 error and cannot continue.)
+    (    2. Beside the residue is a number. This is the erroneous column in the checksum worksheet.)
+    (    3. Redo this entire column in the checksum worksheet to check for addition or lookup errors.)
+    (    4. Re-look up the following checksum table entry, to make sure you copied the correct row.)
+    ()
+    (ONLY if the above steps succeeded, take the value in the black column of the correction table,)
+    (and add it to your share value. You can then redo the checksum worksheet from that point onward,)
+    (and it should succeed.)
+    ]
+    { gsave show grestore 0 -12 rmoveto } forall
+
 pgsave restore
 showpage
 
@@ -2718,11 +2752,20 @@ showpage
 /pgsave save def
 %%EndPageSetup
 
-465 displayResidueTable
+0 displayResidueTable
 pgsave restore
 showpage
 
 %%Page: 24 24
+%%BeginPageSetup
+/pgsave save def
+%%EndPageSetup
+
+465 displayResidueTable
+pgsave restore
+showpage
+
+%%Page: 25 25
 %%BeginPageSetup
 /pgsave save def
 %%EndPageSetup
