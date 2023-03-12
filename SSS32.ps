@@ -1,6 +1,6 @@
 %!PS-Adobe-3.0
 %%Orientation: Portrait
-%%Pages: 21
+%%Pages: 24
 %%EndComments
 %%BeginSetup
 [(Shamir's Secret) (Sharing Codex)]
@@ -242,6 +242,7 @@ end
 %*
 
 /perm [29 24 13 25 9 8 23 18 22 31 27 19 1 0 3 16 11 28 12 14 6 4 2 15 10 17 21 20 26 30 7 5 ] def
+/permInv [ 13 12 22 14 21 31 20 30 5 4 24 16 18 2 19 23 15 25 7 11 27 26 8 6 1 3 28 10 17 0 29 9 ] def
 /permS [16 29 24 13 25 9 8 23 18 22 31 27 19 1 0 3 11 28 12 14 6 4 2 15 10 17 21 20 26 30 7 5 ] def
 /permV [22 11 10 29 31 28 17 24 27 12 21 13 19 14 20 25 1 6 26 9 0 4 30 8 3 2 7 23 16 15 5 18 ] def
 /permId [ 0 1 31 {} for ] def
@@ -1719,6 +1720,195 @@ end
   } forall
   end
 } bind def
+
+%******************
+%* Correction Table
+%*
+%* For single errors, we produce a giant table of the resulting residues,
+%* so the user can simply look up their result. If their residue appears
+%* in the list, and they do not have a maliciously-tampered share, then
+%* with overwhelming probability they can apply the single-character delta
+%* from the table and recover their secret
+%*
+
+% Utility that converts a codex32 string to a number so we can easily
+% compare/sort it
+%
+% It looks like PostScript will interpret these as floats and order those, so
+% this is likely to be incorrect if two strings differ only in the rightmost
+% characters. We should implement a proper lexicographic sort once I am on
+% the ground and have access to my postscript manual and the Internet. Maybe.
+% TBH this works pretty well.
+/intoNum {
+  0 exch
+  {
+    exch 32 mul exch
+    permInv exch get add
+  } forall
+} def
+
+% Comparison function for residues. Expects a list of lists such that the
+% first entry is a residue, and compares that.
+/codeCmp {
+  { /b /a } { exch 0 get def } forall
+  a intoNum b intoNum le
+} def
+
+% i j list swap
+%
+% Swaps the ith and jth indices of list. Has stupid code ordering to
+% keep the top of the stack in the form "list idx" before each get/put.
+/swap {
+  3 dict begin
+  { /list /j /i } { exch def } forall
+  list j
+  list i get
+  list i
+  list j get
+  put
+  put
+  end
+} def
+
+% Takes a list and partially sorts it, by using the first element as a
+% pivot, rearranging the list as L pivot R, where everything in L is
+% less than or equal to pivot, and everything in R is greater than pivot.
+% Returns the index of pivot in the new list.
+%
+% Helper function for quickSort below.
+/partition {
+  { /list } { exch def } forall
+
+  /pivot list 0 get def
+
+  /i 0 def % Next index at which to store an element <= pivot
+  % Go through the list. If something is <= pivot, swap it into the
+  % ith place and increment i. Importantly, this will always leave
+  %   * pivot where it is, at the front of the list
+  %   * i > 0 (since pivot <= pivot)
+  %   * the (i - 1)th element of the list is <= pivot
+  % So after running this, we can swap the 0th and (i - 1)th element
+  % and return (i - 1) as the index of pivot.
+  0 1 list length 1 sub {
+    /j exch def % Index through the whole list
+    list j get pivot codeCmp {
+      i j list swap
+      /i i 1 add store
+    } if
+  } for
+  % Put the pivot in place, and return its index
+  0 i 1 sub list swap
+  i 1 sub
+} def
+
+% Takes any number of lists. For each, partition it, then call itself
+% on the two sublists before and after the pivot
+%
+% Helper function for quickSort below.
+/quickSortSub {
+  {
+    /list exch def
+    list length 1 gt {
+      list partition /pivotIdx exch def
+      [
+        list 0 pivotIdx getinterval % list[..pivotIdx]
+        list pivotIdx 1 add list length pivotIdx sub 1 sub % list[pivotIdx + 1..]
+        getinterval
+      ] quickSortSub
+    } if
+  } forall
+} def
+
+% Implementation of quicksort which always uses the first element as the pivot.
+%
+% Suitable for use with pseudorandom-looking data. Will degenerate to n^2 on
+% highly structured input, and makes no attempt to detect or compensate for
+% this!!
+/quickSort {
+  dup % copy list into return slot
+  [ exch ] quickSortSub % call quickSortSub with whole input list
+} def
+
+% Define a giant sorted list of [ residue diff idx ] tuples
+/allResidues [
+  % FIXME use ladder rather than hardcoding start and end? Maybe not, this is
+  % a really expensive computation, needs to be amortized across multiple pages
+  % (which makes it hard to parameterize in any way), and probably isn't
+  % practical for any of the ladders except the "small" 48-char ms one.
+  4 1 48 { % 1 1 48
+    /idx exch 1 sub def
+
+    1 1 31 { % 1 1 31 skip Q which is not an interesting error
+      /diff exch def
+      /residue [ diff 48 idx sub { 0 } repeat ] polymod0 checksum gf32addarray def
+      [ residue diff idx ]
+    } for
+  } for
+] quickSort def
+
+% There are 1395 = 31 * 45 entries in the table. This splits nicely
+% across 3 pages of 465 entries each.
+/displayResidueTable {
+  10 dict begin
+  /start exch def
+
+  /topOfPage pgsize 1 get 36 sub def
+  /leftMargin 48 def
+  /colWidth 105 def
+  /rowHeight 7.7 def
+  /fontSz 9 def
+
+  % Draw background columns
+  0 1 4 {
+    /colIdx exch def
+    % Blue column
+    0.808 0.923 0.953 setrgbcolor
+    newpath
+    leftMargin colIdx colWidth mul add 36 moveto
+    colWidth 34 sub 0 rlineto
+    0 topOfPage 36 sub rlineto
+    colWidth 34 sub neg 0 rlineto
+    closepath fill
+
+    % black column
+    0 setgray
+    newpath
+    leftMargin colIdx 1 add colWidth mul add 21 sub 36 moveto
+    8 0 rlineto
+    0 topOfPage 36 sub rlineto
+    -8 0 rlineto
+    closepath fill
+  } for 
+%    dup 0 eq { 0.808 0.923 0.953 } {
+%      8 mod 4 lt { 0.808 0.923 0.953 } { 1 1 1 } ifelse
+%    } ifelse setrgbcolor
+
+  % Draw actual data
+  /x leftMargin def
+  /y topOfPage def
+  allResidues start 465 getinterval {
+    aload pop { /idx /diff /residue } { exch def } forall
+
+    % FIXME should be more intelligent about font/page size etc
+    /y y 36 rowHeight add lt {
+      /x x colWidth add store
+      topOfPage rowHeight sub
+    } {
+      y rowHeight sub
+    } ifelse store
+    x y moveto
+    0 setgray
+    residue {
+      code exch get fontSz codexshow
+    } forall
+    2 0 rmoveto idx 2 string cvs show
+    idx 10 lt { ( ) show } if
+    1 setgray
+    2 0 rmoveto code diff get fontSz codexshow
+  } forall
+  end
+} def
+
 %%EndSetup
 
 %************************************************************************
@@ -2513,4 +2703,32 @@ perm 2 index get gf32add code exch get glyphshow
 
 pgsave restore
 showpage
+
+%%Page: 22 22
+%%BeginPageSetup
+/pgsave save def
+%%EndPageSetup
+
+0 displayResidueTable
+pgsave restore
+showpage
+
+%%Page: 23 23
+%%BeginPageSetup
+/pgsave save def
+%%EndPageSetup
+
+465 displayResidueTable
+pgsave restore
+showpage
+
+%%Page: 24 24
+%%BeginPageSetup
+/pgsave save def
+%%EndPageSetup
+
+930 displayResidueTable
+pgsave restore
+showpage
+
 %%EOF
