@@ -1,2 +1,8 @@
 reference/rust-codex32/Cargo.lock
 reference/rust-codex32/target/
+
+mathematical-companion/*.aux
+mathematical-companion/*.log
+mathematical-companion/*.out
+mathematical-companion/*.pdf
+mathematical-companion/*.toc
