@@ -81,9 +81,8 @@ We refer to polynomials of degree 0 is \textbf{constant polynomials}. It is
 also a fact that a polynomial has a multiplicative inverse, i.e.~it is a
 \textbf{unit}, if and only if it is nonzero constant.
 
-If a polynomial $r$ can be written as the product of two polynomials as $r=pq$,
-where neither $p$ nor $q$ are units (degree 0) we say that $r$ is
-\textbf{irreducible}.
+If whenever a polynomial $r$ is written as the product of two polynomials $r=pq$,
+either $p$ or $q$ is a unit (i.e.~degree 0), then we say $r$ is \textbf{irreducible}.
 
 \subsection{Quotient Fields}
 
@@ -91,8 +90,7 @@ Just like we can consider the integers modulo some integer $n$, thus obtaining
 $n$ equivalence classes which inherit (roughly) the original ring structure of
 the integers, we can consider a polynomial ring modulo some polynomial $p$. In
 this case, we will get $m^n$ equivalence classes, where $m$ is the number of
-elements in the underlying field and $n$ is the degree of the polynomial. For
-our purposes $m$ is always 2, so we get $2^n$ elements.
+elements in the underlying field and $n$ is the degree of the polynomial.
 
 We call the set of equivalence classes a \textbf{quotient ring}, and its addition
 and multiplication are defined in the obvious way.
@@ -106,11 +104,25 @@ We do not like zero divisors, so from here on out we will be sure to mod out
 our polynomial ring only by irreducible polynomials. It is a fact that the
 resulting quotient ring will then be a field, and we term it a \textbf{quotient
 field}. It is a fact that $x^5 + x^3 + 1$ is irreducible in $\ftwo$, so that
-$\ftwo/(x^5 + x^3 + 1)$ is a quotient field with 32 elements.
+$\ftwo/(x^5 + x^3 + 1)$ is a quotient field with 32 elements. The original
+field, $\ftwo$, we refer to as the \textbf{base field}.
 
 In this field the object $x$ is a field element with a distinct identity and
 algebraic properties, so we rename it $\alpha$ to preserve the symbol $x$ to
 be an indeterminate used for writing polynomials.
+
+For any element $\delta$ in the quotient field, we can talk about its
+\textbf{minimal polynomial} over the base field. This is a monic polynomial
+(one whose highest-degree coefficient is 1) over the base field, of minimal
+degree, such that $\delta$ is a root when the polynomial is considered over
+the extension field. It is a fact of field theory that for any element
+$\delta$, a unique such minimal polynomial exists. We sometimes refer to the
+\textbf{degree} of $\delta$ as being the degree of its minimal polynomial.
+
+Whenever we walk about minimal polynomials or degrees of field elementns, it
+is understood that we are considering the elements relative to some base field,
+but it will always be clear from context what this base field is, so that we
+can use these terms unambiguously.
 
 It is a fact that, for this specific polynomial, that $\alpha$ is a
 \textbf{generator} of the quotient field, meaning that the field in its entirety
@@ -150,8 +162,15 @@ Let $\mathbb{F}$ be a field and $p$ a polynomial of degree $n$ in $\mathbb{F}[x]
 standard theorem of algebra that $p$'s value on all points of $\mathbb{F}$ is
 implied by its values on any $n+1$ distinct points.
 
-As discovered by Edward Waring in 1779, and later by Joseph-Louis Lagrange
-in 1795\footnote{citation: Wikipedia}, it is actually possible to compute
+As discovered by Edward Waring in
+1779\footnote{Waring, Edward (1779). ``Problems concerning interpolations''.
+\emph{Philosophical Transactions of the Royal Society}. 69: 59–67.
+doi:10.1098/rstl.1779.0008.},
+and later by Joseph-Louis Lagrange in 1795\footnote{Lagrange, Joseph-Louis (1795).
+``Leçon Cinquième. Sur l'usage des courbes dans la solution des problèmes''.
+\emph{Leçons Elémentaires sur les Mathématiques}}\footnote{Both citations taken
+from Wikipedia's ``Lagrange Interpolation'' page, March 2023.},
+it is actually possible to compute
 the value of a polynomial at a field element $x$ explicitly in terms of
 its values at $n$ given distinct points $x_i$.
 
@@ -242,8 +261,8 @@ For more information about volvelles, see the next two sections.
 \section{Volvelles and Tables}
 
 The basic tools of hand computation are lookup tables for operations in $\fttwo$.
-Because there are only 32 elements, even completely unstructured operations can
-be implemented by a reasonably-sized 1024-element table.
+With only 32 elements, we can represent binary operations using reasonably-sized
+1024-element tables.
 
 The four basic operations are provided in the booklet as ``Principal Tables''
 and also implemented as \textbf{volvelles}, which are simple computers constructed
@@ -273,7 +292,7 @@ representations are useful in different contexts:
 \item Representing elements as a power of $\alpha$ makes multiplication
 very easy, since multiplication is just addition mod 31 in the exponent.
 
-This is how our multiplication wheel can be implemented as a slide rule.
+This is how our multiplication wheel can be implemented as a circular slide rule.
 \item Representing alphabetically makes it easy for humans to scan and sort.
 \item Representing in binary is how the elements are typically stored in
 computers, can be used to convert data from other encodings. Addition is
@@ -795,8 +814,9 @@ by addition of an arbitrary number of 0s to get another valid codeword. (This
 highlights the fact that BCH codes are designed to handle only \emph{substitution}
 or \emph{erasure} errors, not insertions or deletions.) Other small values of
 $m$ have similar issues; bech32 was originally defined to have $m=1$ but later
-needed to be modified to bech32m for this reason. bech32m uses a large random
-$m$ instead.
+needed to be modified to bech32m for this reason. bech32m uses a large $m$
+instead\footnote{For more details, see
+\url{https://gist.github.com/sipa/14c248c288c3880a3b191f978a34508e}}.
 
 On the other hand, $m=0$ makes a BCH code a \textbf{linear code}, and brings
 with it a ton of algebraic properties which are needed for analysis, so this
@@ -893,7 +913,7 @@ as a time: multiply by $x^2$, add two new characters, reduce, repeat. In detail:
 which works out to \vc{RRQDN} (the process is to take the high 3 bits of each
 8-bit ASCII character, followed by 0, followed by the low 5 bits of each character).
 Prefix a 1, or \vc{P} in bech32. The resulting initial polynomial is \vc{PRRQDN}, or
-\[ x^5 + \binrep{3}x^4 + \binrep{3}x^3 + 0x^2 + \binrep{13}x + \binrep{19} \]
+\[ x^5 + \vc{R}x^4 + \vc{R}x^3 + \vc{D}x + \vc{N} \]
 Multiply this by $x^{13}$ and reduce it mod $G(x)$. The result will be
 \vc{33XW87RRYLJG}. This string is initially filled in in the checksum
 worksheet.
@@ -1096,7 +1116,7 @@ $x^5 + x^3 + 1$ over $\ftwo$, we can adjoin a root of the irreducible
 We will call this new root $\zeta$. By construction, $\zeta$ satisfies
 the equation $\zeta^2 = \zeta + 1$.
 
-We can write any element of $\ftttwo$ as $a\zeta + b$, where $a$ and $b$ are
+We can write any element of $\ftttwo$ as $a + b\zeta$, where $a$ and $b$ are
 in $\fttwo$. Multiplication and addition happen in the obvious way, with
 every $\zeta^2$ factor simply replaced by $\zeta + 1$.
 
@@ -1109,7 +1129,15 @@ You may recognize the numbers 93 and 1023 as the length of our primary and
 alternate code (and 1023 as the length of bech32). This is not a coincidence.
 
 Consider the element $\beta = \vc{G}\zeta$, which has order $93$. In fact, our
-generator $G$ has roots which are all powers of $\beta$! We can write it as
+generator $G$ has roots which are all powers of $\beta$!\footnote{This is no
+accident --- to construct $G$, we started with 8 consecutive powers of $\beta$,
+took the minimal polynomials of these, and took the least common multiple of
+these. The exact choice of $\beta$ and its powers came down to an exhaustive
+search of which values led us to a code with our desired properties: distance
+9, checksum length 13, maximal length, and three repeated coefficients in the
+generator polynomial, which cause the entries in the checksum table to have
+repeated digits, which we believe make transcribing easier for human eyes.}
+We can write it as
 \begin{align*}
     G(x) = \prod_{i\in\{17, 20, 46, 49, 52, 77, 78, 79, 80, 81, 82, 83, 84\}} (x - \beta^i).
 \end{align*}
@@ -1185,6 +1213,13 @@ the same, so that the process is as consistent as possible. The point of this
 scheme is to encourage the user to frequently engage with their secret data, so
 that they gain and maintain familiarity with the checksum verification process.
 
+Even more important that consistency, by making each quickcheck use a quadratic
+generator polynomial, we get two checksum digits, providing 10 bits of protection
+against random errors. This means that if even a single quickcheck passes, the
+user has 99.9\% assurance (1023/1024) that their data is intact. If we'd used a
+linear generator polynomial, we would get only 5 bits, so a passing check would
+give the user only 97\% (31/32) assurance.
+
 Each quickcheck is merely a modular reduction of the user's data; it differs
 from the Checksum Worksheet only in that we are reducing modulo a quadratic
 rather than modulo the full degree-13 generator. This allows us to rearrange
@@ -1195,7 +1230,7 @@ underlying mechanism is exactly the same.
 
 (All of the considerations in this section apply also to our alternate length-1023
 code, which is used for 400+-bit seeds. It uses the order-1023 element
-$\gamma=\vc{X}\zeta+\vc{E}$ to generate its roots, in place of $\beta$. But since
+$\gamma=\vc{E} + \vc{X}\zeta$ to generate its roots, in place of $\beta$. But since
 we do not expect anybody to manipulate such large seeds by hand, we will not
 bother do the equivalent calculations. The motivated user will be able to construct
 everything merely from knowledge of the generator polynomial and of $\gamma$.)
@@ -1257,13 +1292,17 @@ consider modifying their data.
 
 \section{Conclusion and Acknowledgements}
 
-We thank the authors of SLIP39 for noticing the remarkable compatibility between
-SSSS and BCH codes (or any linear code), which enable user-computed SSSS. Even if
-SSSS were otherwise tractable to do by hand, without hand-verifiable checksums it
+We thank the Russell O'Connor for noticing the remarkable compatibility between
+SSSS and BCH codes (or any linear code), which enable user-computed SSSS\footnote{
+See \url{https://lists.linuxfoundation.org/pipermail/bitcoin-dev/2020-August/018070.html}}.
+Even if SSSS were otherwise tractable to do by hand, without hand-verifiable checksums it
 would be hopeless for users to notice or recover from arithmetic and transcription
 mistakes, and this whole project would be unworkable.
 
-We thank Dr. Curr for then noticing that by using a code over $\fttwo$
+We thank the authors of SLIP39, whose scheme exploits this compatibility, and
+which inspired us to attempt a hand-computable version of it.
+
+We thank Dr.~Curr for then noticing that by using a code over $\fttwo$
 rather than $\mathbb{F}_{1024}$, it is possible to do these computations by hand,
 and for putting together the initial prototype of this project which included
 the PostScript fundamentals to do computations with BCH codes, to draw 32-by-32
@@ -1272,10 +1311,11 @@ volvelles, and to do 2-of-$n$ secret sharing.
 We thank Micaela Paez for the amazing artwork that adorns the illustrated version
 of the volvelles.
 
-We thank Peter Todd for his borderline-trolling mailing list post, in which he
-suggested replacing the checksum with a single-character one obtained by summing
-all the share data. Without this we would not have discovered the ``quickcheck''
-method of verifying the checksum.
+We thank Peter Todd for his mailing list post in which he suggested replacing the
+checksum with a single-character one obtained by summing all the share data\footnote{
+\url{https://lists.linuxfoundation.org/pipermail/bitcoin-dev/2023-February/021498.html}}.
+Without this we would not have discovered the ``quickcheck'' method of verifying
+the checksum.
 
 From that point onward it was a real trip to bring everything together, optimizing
 the layout of the volvelles and worksheets for user experience, reducing the
