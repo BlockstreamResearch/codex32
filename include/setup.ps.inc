@@ -370,13 +370,17 @@ def
 
   % Draw the page number and any (TODO) content in the page content array
   % Takes the pagenum as a numeric value
-  /drawPageContent {
+  /drawFooter {
     10 dict begin
     /pagenum exch def
     gsave
       /Times-Roman findfont 12 scalefont setfont
       centerX marginY2 moveto
       pagenum pagenum 10 lt { 1 } { 2 } ifelse string cvs show
+
+      /Courier findfont 10 scalefont setfont
+      marginX1 marginY2 4 sub moveto
+      ver show
     grestore
     end
   } bind def
@@ -396,10 +400,10 @@ portraitPage dup 20 dict copy dup /landscapePage exch def begin
   /pageW portraitPage /pageH get def
   /pageH portraitPage /pageW get def
 
-  /drawPageContent {
+  /drawFooter {
     90 rotate
     0 pageH neg translate
-    portraitPage /drawPageContent get exec
+    portraitPage /drawFooter get exec
   } bind def
 end
 

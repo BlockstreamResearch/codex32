@@ -41,18 +41,19 @@ let
       sourceHeader = "Title Page";
       content = builtins.readFile "${src}/include/title.ps.inc";
       dependencies = [ ];
+      skipPageNumber = true;
     };
     license = {
       sourceHeader = "License Information";
-      drawPageContent = true;
       content = builtins.readFile "${src}/include/license.ps.inc";
       dependencies = [ ];
+      skipPageNumber = true;
     };
     reference = {
       sourceHeader = "Reference Sheet";
-      drawPageContent = true;
       content = builtins.readFile "${src}/include/reference.ps.inc";
       dependencies = [ ];
+      drawFooter = true;
     };
     principalTables = {
       sourceHeader = "Arithmetic Tables";
@@ -90,21 +91,25 @@ let
       content = builtins.readFile "${src}/include/checksum-table-1.ps.inc";
       isLandscape = true;
       dependencies = [ ];
+      drawFooter = true;
     };
     checksumTable2 = {
       content = builtins.readFile "${src}/include/checksum-table-2.ps.inc";
-      isLandscape = true;
       dependencies = [ ];
+      isLandscape = true;
+      drawFooter = true;
     };
     checksumWorksheet = {
       content = builtins.readFile "${src}/include/checksum-worksheet.ps.inc";
-      isLandscape = true;
       dependencies = [ ];
+      isLandscape = true;
+      drawFooter = true;
     };
 
     shareTable = a: b: c: d: {
       content = "${toString a} ${toString b} ${toString c} ${toString d} showShareTablePage\n";
       dependencies = [ ];
+      drawFooter = true;
     };
   };
 
@@ -154,25 +159,18 @@ let
           %****************************************************************
         '' + ''
           %%Page: ${toString content.nextPgIdx} ${toString content.nextPgIdx}
-          ${lib.optionalString (pageData ? isLandscape) "%%PageOrientation: Landscape\n"}%%BeginPageSetup
+          ${lib.optionalString (pageData ? isLandscape) "%%PageOrientation: Landscape\n"}
+          %%BeginPageSetup
           /pgsave save def
           %%EndPageSetup
-        '' + (
-          if pageData ? drawPageContent
-          then
-            if pageData ? isLandscape
-            then "landscapePage begin ${toString content.nextFooterIdx} drawPageContent\n"
-            else "portraitPage begin ${toString content.nextFooterIdx} drawPageContent\n"
-          else
-            if pageData ? isLandscape
-            then "90 rotate\n"
-            else ""
-        ) + ''
+          ${if pageData ? isLandscape then "landscapePage" else "portraitPage"} begin
+          ${lib.optionalString (pageData ? drawFooter) "${toString content.nextFooterIdx} drawFooter"}
           ${pageData.content}
-          ${lib.optionalString (pageData ? drawPageContent) "end\n"}pgsave restore
+          end
+          pgsave restore
           showpage
         '';
-        nextFooterIdx = content.nextFooterIdx + (if pageData ? drawPageContent then 1 else 0);
+        nextFooterIdx = content.nextFooterIdx + (if pageData ? drawFooter then 1 else 0);
         nextPgIdx = content.nextPgIdx + 1;
       };
       initialContent = {

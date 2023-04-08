@@ -375,13 +375,17 @@ def
 
   % Draw the page number and any (TODO) content in the page content array
   % Takes the pagenum as a numeric value
-  /drawPageContent {
+  /drawFooter {
     10 dict begin
     /pagenum exch def
     gsave
       /Times-Roman findfont 12 scalefont setfont
       centerX marginY2 moveto
       pagenum pagenum 10 lt { 1 } { 2 } ifelse string cvs show
+
+      /Courier findfont 10 scalefont setfont
+      marginX1 marginY2 4 sub moveto
+      ver show
     grestore
     end
   } bind def
@@ -401,10 +405,10 @@ portraitPage dup 20 dict copy dup /landscapePage exch def begin
   /pageW portraitPage /pageH get def
   /pageH portraitPage /pageW get def
 
-  /drawPageContent {
+  /drawFooter {
     90 rotate
     0 pageH neg translate
-    portraitPage /drawPageContent get exec
+    portraitPage /drawFooter get exec
   } bind def
 end
 
@@ -1735,9 +1739,12 @@ end
 %*
 %****************************************************************
 %%Page: 1 1
+
 %%BeginPageSetup
 /pgsave save def
 %%EndPageSetup
+portraitPage begin
+
 portraitPage begin
 
 /Times-Roman findfont 48 scalefont setfont
@@ -1749,6 +1756,7 @@ pgsize aload pop exch 2 div exch 700 sub moveto ver centreshow
 
 end
 
+end
 pgsave restore
 showpage
 %****************************************************************
@@ -1757,10 +1765,12 @@ showpage
 %*
 %****************************************************************
 %%Page: 2 2
+
 %%BeginPageSetup
 /pgsave save def
 %%EndPageSetup
-portraitPage begin 1 drawPageContent
+portraitPage begin
+
 /Helvetica findfont 6 scalefont setfont
 marginX1 marginY1 16 sub moveto
 MIT {gsave ((c)) search {show pop /copyright glyphshow} if show grestore 0 -8 rmoveto} forall
@@ -1779,10 +1789,12 @@ showpage
 %*
 %****************************************************************
 %%Page: 3 3
+
 %%BeginPageSetup
 /pgsave save def
 %%EndPageSetup
-portraitPage begin 2 drawPageContent
+portraitPage begin
+1 drawFooter
 % Set 0 0 to top-center of page
 centerX marginY1 16 sub translate
 
@@ -1825,9 +1837,12 @@ showpage
 %*
 %****************************************************************
 %%Page: 4 4
+
 %%BeginPageSetup
 /pgsave save def
 %%EndPageSetup
+portraitPage begin
+
 /Helvetica-Bold findfont 16 scalefont setfont
 pgsize aload pop 48 sub exch 2 div exch
 moveto (Principal Tables) centreshow
@@ -1944,28 +1959,40 @@ tWidth 44 add tHeight tHeight 56 add add
 tWidth 44 add tHeight 48 add
 {gf32mul} (Multiplication) code2 permId 1 31 getinterval code2 permId 1 31 getinterval code2 drawTable
 
+end
 pgsave restore
 showpage
 %%Page: 5 5
+
 %%BeginPageSetup
 /pgsave save def
 %%EndPageSetup
+portraitPage begin
+
 {xor} (Addition) code dup perm drawBottomWheelPage
 
+end
 pgsave restore
 showpage
 %%Page: 6 6
+
 %%BeginPageSetup
 /pgsave save def
 %%EndPageSetup
+portraitPage begin
+
 showTopWheelPage
 
+end
 pgsave restore
 showpage
 %%Page: 7 7
+
 %%BeginPageSetup
 /pgsave save def
 %%EndPageSetup
+portraitPage begin
+
 10 dict begin
     72 720 moveto
     /Helvetica findfont 20 scalefont setfont
@@ -2057,76 +2084,112 @@ showpage
 
 end
 
+end
 pgsave restore
 showpage
 %%Page: 8 8
+
 %%BeginPageSetup
 /pgsave save def
 %%EndPageSetup
+portraitPage begin
+6 drawFooter
 29 24 13 25 showShareTablePage
 
+end
 pgsave restore
 showpage
 %%Page: 9 9
+
 %%BeginPageSetup
 /pgsave save def
 %%EndPageSetup
+portraitPage begin
+7 drawFooter
 9 8 23 18 showShareTablePage
 
+end
 pgsave restore
 showpage
 %%Page: 10 10
+
 %%BeginPageSetup
 /pgsave save def
 %%EndPageSetup
+portraitPage begin
+8 drawFooter
 22 31 27 19 showShareTablePage
 
+end
 pgsave restore
 showpage
 %%Page: 11 11
+
 %%BeginPageSetup
 /pgsave save def
 %%EndPageSetup
+portraitPage begin
+9 drawFooter
 1 0 3 16 showShareTablePage
 
+end
 pgsave restore
 showpage
 %%Page: 12 12
+
 %%BeginPageSetup
 /pgsave save def
 %%EndPageSetup
+portraitPage begin
+10 drawFooter
 11 28 12 14 showShareTablePage
 
+end
 pgsave restore
 showpage
 %%Page: 13 13
+
 %%BeginPageSetup
 /pgsave save def
 %%EndPageSetup
+portraitPage begin
+11 drawFooter
 6 4 2 15 showShareTablePage
 
+end
 pgsave restore
 showpage
 %%Page: 14 14
+
 %%BeginPageSetup
 /pgsave save def
 %%EndPageSetup
+portraitPage begin
+12 drawFooter
 10 17 21 20 showShareTablePage
 
+end
 pgsave restore
 showpage
 %%Page: 15 15
+
 %%BeginPageSetup
 /pgsave save def
 %%EndPageSetup
+portraitPage begin
+13 drawFooter
 26 30 7 5 showShareTablePage
 
+end
 pgsave restore
 showpage
 %%Page: 16 16
+
 %%BeginPageSetup
 /pgsave save def
 %%EndPageSetup
+portraitPage begin
+
 recoveryDisc begin
 % Draw assembly diagram
 10 dict begin
@@ -2168,12 +2231,16 @@ pgsize aload pop 2 div exch 2 div exch translate
   drawTopDisc
 end
 
+end
 pgsave restore
 showpage
 %%Page: 17 17
+
 %%BeginPageSetup
 /pgsave save def
 %%EndPageSetup
+portraitPage begin
+
 % Draw assembly diagram
 gsave
   60 700 translate
@@ -2229,12 +2296,16 @@ translationDisc begin
    drawBottomDisc
 end
 
+end
 pgsave restore
 showpage
 %%Page: 18 18
+
 %%BeginPageSetup
 /pgsave save def
 %%EndPageSetup
+portraitPage begin
+
 % Draw assembly diagram
 gsave
   60 700 translate
@@ -2357,79 +2428,69 @@ translationDisc begin
   drawTopDisc
 end
 
+end
 pgsave restore
 showpage
 %%Page: 19 19
 %%PageOrientation: Landscape
+
 %%BeginPageSetup
 /pgsave save def
 %%EndPageSetup
-90 rotate
-10 dict begin
-pgsize aload pop
-/pageW exch def
-/pageH exch def
-
-0 pageH neg translate
-
+landscapePage begin
+17 drawFooter
 /Helvetica-Bold findfont 10 scalefont setfont
 pageW 2 div pageH 48 sub moveto (MS32 Checksum Table) centreshow
 
 /Courier findfont 8.5 scalefont setfont
 36 pageH 64 sub  % x y
-pageW 64 sub pageH 144 sub 2 div % w h
+pageW 64 sub pageH 148 sub 2 div % w h
 0 drawChecksumTable
 
 36 pageH 2 div 16 sub % x y
-pageW 64 sub pageH 144 sub 2 div % w h
+pageW 64 sub pageH 148 sub 2 div % w h
 8 drawChecksumTable
-end
 
+end
 pgsave restore
 showpage
 %%Page: 20 20
 %%PageOrientation: Landscape
+
 %%BeginPageSetup
 /pgsave save def
 %%EndPageSetup
-90 rotate
-10 dict begin
-pgsize aload pop
-/pageW exch def
-/pageH exch def
-
-0 pageH neg translate
-
+landscapePage begin
+18 drawFooter
 /Helvetica-Bold findfont 10 scalefont setfont
 pageW 2 div pageH 48 sub moveto (MS32 Checksum Table) centreshow
 
 /Courier findfont 8.5 scalefont setfont
 36 pageH 64 sub  % x y
-pageW 64 sub pageH 144 sub 2 div % w h
+pageW 64 sub pageH 148 sub 2 div % w h
 16 drawChecksumTable
 
 36 pageH 2 div 16 sub % x y
-pageW 64 sub pageH 144 sub 2 div % w h
+pageW 64 sub pageH 148 sub 2 div % w h
 24 drawChecksumTable
-end
 
+end
 pgsave restore
 showpage
 %%Page: 21 21
 %%PageOrientation: Landscape
+
 %%BeginPageSetup
 /pgsave save def
 %%EndPageSetup
-90 rotate
-% 0 pgsize aload pop pop neg translate
-0 -750 translate
-
+landscapePage begin
+19 drawFooter
 /Helvetica-Bold findfont 10 scalefont setfont
 pgsize aload pop exch pop 2 div 700
 moveto (ms32 Checksum Worksheet) centreshow
 
 gsave
-50 680 translate
+50 560 translate
 ladder begin
  drawgrid
 % (2NAMES5GS8YDXGMLUW34LEN0PRDAK9GLF307N04SN6SKL) fillgrid
@@ -2437,54 +2498,53 @@ ladder begin
 end
 grestore
 
-100 420 moveto
+100 320 moveto
 /Helvetica-Bold findfont 10 scalefont setfont
 (Verifying Checksums) show
-100 400 moveto
+100 300 moveto
 /Helvetica findfont 9 scalefont setfont
 (Write out the 45 character data portion in the) show
-100 390 moveto
+100 290 moveto
 (bold boxes, two at a time, starting on the top) show
-100 380 moveto
+100 280 moveto
 (row.  Working from the top row down, look up) show
-100 370 moveto
+100 270 moveto
 (the first two characters of each odd row in the) show
-100 360 moveto
-(ms32 Checksum Table and write the ) polymodulus length 10 string cvs concatstrings show
-100 350 moveto
-(character word into the even row below it.  Fill) show
-100 340 moveto
-(in the odd rows by adding the two characters) show
-100 330 moveto
-(above each cell.  You may use either the) show
-100 320 moveto
-(addition wheel table.  The first few boxes are) show
-100 310 moveto
-(already filled in for you.  The last row will sum) show
-100 300 moveto
-(to ) show checksumstring {glyphshow} forall ( if the checksum is valid.) show
 100 260 moveto
+(ms32 Checksum Table and write the ) polymodulus length 10 string cvs concatstrings show
+100 250 moveto
+(character word into the even row below it.  Fill) show
+100 240 moveto
+(in the odd rows by adding the two characters) show
+100 230 moveto
+(above each cell.  You may use either the) show
+100 220 moveto
+(addition wheel table.  The first few boxes are) show
+100 210 moveto
+(already filled in for you.  The last row will sum) show
+100 200 moveto
+(to ) show checksumstring {glyphshow} forall ( if the checksum is valid.) show
+100 160 moveto
 /Helvetica-Bold findfont 10 scalefont setfont
 (Creating Checksums) show
-100 240 moveto
+100 140 moveto
 /Helvetica findfont 9 scalefont setfont
 (Follow the "Verifying Checksums" instructions) show
-100 230 moveto
+100 130 moveto
 (to fill in everything but the shaded cells. To fill in) show
-100 220 moveto
+100 120 moveto
 (the shaded cells, write ) show checksumstring {glyphshow} forall ( into the bottom) show
-100 210 moveto
+100 110 moveto
 (row.  Working from the bottom up, fill in the) show
-100 200 moveto
+100 100 moveto
 (shaded cells by adding the two characters below) show
-100 190 moveto
+100 90 moveto
 (each cell.  The ) polymodulus length 10 string cvs ( characters in the bold shaded) concatstrings concatstrings show
-100 180 moveto
+100 80 moveto
 (boxes will be the checksum.) show
 
-450 650
-/offsety exch def
-/offsetx exch def
+/offsety 550 def
+/offsetx 450 def
 /Courier findfont 10 scalefont setfont
 20 offsetx add offsety moveto (Addition Table) show
 /Courier-Bold findfont 8 scalefont setfont
@@ -2505,6 +2565,7 @@ perm exch get
 perm 2 index get gf32add code exch get glyphshow
 } for pop } for
 
+end
 pgsave restore
 showpage
 %%EOF
