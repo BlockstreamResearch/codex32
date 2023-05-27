@@ -43,6 +43,6 @@ This repository is actively being developed and does not cointain the latest exp
 
 * The color illustrations are available in [Pearlwort's "complete" branch](https://github.com/apoelstra/SSS32/tree/complete)
 * The mathematical companion can be found in [a separate repo](https://github.com/apoelstra/volvelle-math-companion)
-* The official website is at [not yet hosted]
+* The official website is at https://secretcodex32.com
 
 
