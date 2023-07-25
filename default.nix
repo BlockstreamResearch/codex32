@@ -4,9 +4,14 @@
 , ghostscript ? pkgs.ghostscript
 , ref ? null
 , doPdfGeneration ? true
+  # Attempts to render every page individually to make sure the dependencies
+  # are set correctly.
+, doCheck ? true
   # Checks whether the generated output matches the checked-in SSS32.ps.
   # When doing development you may want to shut this off to obtain the
   # output file that you need to check in.
+  #
+  # Has no effect if doChecks is not set.
 , doOutputDiff ? true
 }:
 
@@ -199,23 +204,50 @@ let
         %%EOF
       '';
     };
+  checkSinglePage = page: renderBooklet {
+    name = "test-single-page.ps";
+    pages = [ page ];
+  };
 in
 stdenv.mkDerivation {
   name = "codex32${shortId}";
 
   nativeBuildInputs = if doPdfGeneration then [ ghostscript ] else [ ];
 
-  phases = [ "buildPhase" ];
+  phases = [ "buildPhase" ] ++ lib.optionals doCheck [ "checkPhase" ];
+
   buildPhase = ''
     set -e
 
+    FULL_BW="${renderBooklet fullBooklet}"
+
+    # Copy output Postscript into place
     mkdir "$out"
     cd "$out"
-    ln -s ${renderBooklet fullBooklet} SSS32.ps
-
-    ${lib.optionalString doOutputDiff "diff -C 5 ${src}/SSS32.ps SSS32.ps"}
+    ln -s "$FULL_BW" SSS32.ps
+    # Patch to include version
     sed -i 's/(revision \(.*\))/(revision \1${shortId})/' ./SSS32.ps
+    # Produce PDF, if requested.
     ${lib.optionalString doPdfGeneration "ps2pdf -dPDFSETTINGS=/prepress SSS32.ps"}
+  '';
+
+  checkPhase = toString
+    (map
+      (page: "ghostscriptTest ${checkSinglePage page}")
+      fullBooklet.pages
+    ) + ''
+    ghostscriptTest() {
+      echo "Ghostscript testing $1"
+      local output;
+      if ! output="$(gs -dNOPAUSE -dNODISPLAY "$1" < /dev/null 2>&1)"; then
+        echo "Failed to run ghostscript on $1"
+        echo "$output"
+        exit 1
+      fi
+    }
+
+    ghostscriptTest "$FULL_BW"
+    ${lib.optionalString doOutputDiff "diff -C 5 ${src}/SSS32.ps SSS32.ps"}
   '';
 }
 
