@@ -45,4 +45,7 @@ This repository is actively being developed and does not cointain the latest exp
 * The mathematical companion can be found in [a separate repo](https://github.com/apoelstra/volvelle-math-companion)
 * The official website is at https://secretcodex32.com
 
+# For Wallet Developers
+
+See our [Wallet Developer Guide](./docs/wallets.md)
 
