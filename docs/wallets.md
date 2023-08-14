@@ -14,9 +14,9 @@ There are two levels of wallet support:
 * The ability to generate seeds/shares on the device; here our guidance is more involved.
 
 We encourage every wallet to support importing seeds and shares, since
-* the technial difficulty is low (roughly on par with that of supporting Segwit addresses, plus optional error-correction support);
+* the technical difficulty is low (roughly on par with that of supporting Segwit addresses, plus optional error-correction support);
 * the added functionality is isolated from the rest of the wallet (once the seed is imported you don't care where it came from); and
-* beyond correctness of the code, there is little risk (no need to source randomness or execute potentially variable-time algoritms).
+* beyond correctness of the code, there is little risk (no need to source randomness or execute potentially variable-time algorithms).
 
 Supporting seed generation is a little more involved so the tradeoff between
 implementation complexity and user value is less clear, especially since the
@@ -28,18 +28,18 @@ codex32 shares may be any length between 128 and 512 bits.
 Wallets should support import of 128- or 256-bit seeds; other lengths are optional.
 
 128-bit seeds are 48 characters in length, including the `MS1` prefix.
-256-bit seeds are 74. For other bitlengths, see the BIP.
+256-bit seeds are 74. For other bit-lengths, see the BIP.
 
 The process for entering shares is:
 
-1. The user should select the bit length of the import before entering any actual data.
-1. Then the user should enter the first share. To the entext possible given screen limitations, when entering share data, data should be displayed in uppercase, visually separated into four-character windows. The first four-character window should include the `MS1` prefix, which should be pre-filled.
+1. The user should enter the first share. To the extent possible given screen limitations, when entering share data, data should be displayed in uppercase, with visually distinct four-character windows. The first four-character window should include the `MS1` prefix, which should be pre-filled.
 1. Once the first share is fully entered, the wallet should validate the checksum and header before accepting it.
-   * The user should not be able to entire mixed-case or non-bech32 characters.
+   * The user should not be able to entire mixed-case characters. The user must be able to enter all bech32 characters as well as `?` indicating an erasure. Wallets may allow users to enter non-bech32 characters, at their discretion. (This may be useful to guide error correction, e.g. by attempting to replace all `B`s with `8`s.)
    * If the header is invalid, the wallet should highlight this and prevent the user from entering additional data until it is fixed. An invalid header is one that starts with a character other than `0` or `2` through `9`, or one which starts with `0` but whose share index is not `S`.
    * If the checksum is invalid, the wallet may use an error-correction algorithm to determine a corrected share, but the wallet MUST show these corrections to the user rather than silently applying them.
    * For substitution errors, the wallet may highlight the offending 4-character window or the offending character. It may also show the corrected character.
-   * If the wallet can determine insertion or deletion errors, it should highlight the offending 4-character window.
+   * If the wallet can determine insertion or deletion errors, it should highlight the offending 4-character window. When detecting insertion or deletion errors, the wallet may assume that the correct share length is a multiple of 16 bytes.
+1. If the share length is *not* 16, 32 or 64 bytes, but the checksum passes, the wallet should confirm that the user intends to import a non-standard share length.
 1. After the first share has been entered and accepted, the wallet now knows the seed ID and threshold value.
    * If the first share had index `S`, this was the actual seed and the import process is complete.
    * Otherwise, the first character of the share will be a numeric character between `2` and `9` inclusive. The user must enter this many shares in total.
