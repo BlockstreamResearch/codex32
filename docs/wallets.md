@@ -5,7 +5,7 @@ BIP39 or SLIP39 seed words, and the user workflow should be much the same, excep
 that:
 
 * The character set is different (bech32 characters rather than a wordlist).
-* Seeds may be encoded across multiple shares, rather than a single string.
+* Seeds may be split across multiple shares, rather than encoded as a single string.
 * It is possible to do specific error detection/correction during entry.
 
 There are two levels of wallet support:
@@ -34,8 +34,8 @@ The process for entering shares is:
 
 1. The user should enter the first share. To the extent possible given screen limitations, when entering share data, data should be displayed in uppercase, with visually distinct four-character windows. The first four-character window should include the `MS1` prefix, which should be pre-filled.
 1. Once the first share is fully entered, the wallet should validate the checksum and header before accepting it.
-   * The user should not be able to entire mixed-case characters. The user must be able to enter all bech32 characters as well as `?` indicating an erasure. Wallets may allow users to enter non-bech32 characters, at their discretion. (This may be useful to guide error correction, e.g. by attempting to replace all `B`s with `8`s.)
-   * If the header is invalid, the wallet should highlight this and prevent the user from entering additional data until it is fixed. An invalid header is one that starts with a character other than `0` or `2` through `9`, or one which starts with `0` but whose share index is not `S`.
+   * The user should not be able to enter mixed-case characters. The user must be able to enter all bech32 characters as well as `?` indicating an erasure. Wallets may allow users to enter non-bech32 characters, at their discretion. (This may be useful to guide error correction, e.g. by attempting to replace all `B`s with `8`s.)
+   * If the header is invalid, the wallet should highlight this and prevent the user from entering additional data until it is fixed. An invalid header is one that starts with a character other than `0` or `2` through `9`, or one which starts with `0` but whose share index is not `S`. For shares after the first, a header is also invalid if its threshold and identifier do not match those of the first share.
    * If the checksum is invalid, the wallet may use an error-correction algorithm to determine a corrected share, but the wallet MUST show these corrections to the user rather than silently applying them.
    * For substitution errors, the wallet may highlight the offending 4-character window or the offending character. It may also show the corrected character.
    * If the wallet can determine insertion or deletion errors, it should highlight the offending 4-character window. When detecting insertion or deletion errors, the wallet may assume that the correct share length is a multiple of 16 bytes.
@@ -45,7 +45,7 @@ The process for entering shares is:
    * Otherwise, the first character of the share will be a numeric character between `2` and `9` inclusive. The user must enter this many shares in total.
 1. The user should then enter the remaining shares, in the same manner as the first.
    * The wallet may pre-fill the header (threshold value and seed ID).
-   * If the user tries to repeat an already-entered share index, they should be prevented from entering additional data until it is corrected.
+   * If the user tries to repeat an already-entered share index, they should be prevented from entering additional data until it is corrected, with the exception that `?` may be used as a share index arbitrarily many times. The wallet may guide the user by indicating that a share index has been repeated; if the user indicates that they are not repeating the share, the share index should be replaced by `?`.
 1. Once all shares are entered, the wallet should derive the master seed and import this.
 
 **The master seed should be used directly as a master seed, as specified in BIP32.**
