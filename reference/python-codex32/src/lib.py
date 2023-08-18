@@ -4,7 +4,7 @@
 
 import hashlib
 import hmac
-# ChaCha20 used for shuffle keystream and encrypting identifier
+# ChaCha20 used for encrypting ident and a better keystream option for shuffle
 from cryptography.hazmat.primitives.ciphers import Cipher, algorithms
 
 CHARSET = "qpzry9x8gf2tvdw0s3jn54khce6mua7l"
@@ -198,7 +198,10 @@ def decode(hrp, codex_str):
         return (None, None, None, None)
     if k == "1":
         return (None, None, None, None)
-    return (k, ident, share_index, decoded)
+    return k, ident, share_index, bytes(decoded)
+
+
+### Beginning of Codex32 Generation Implementation ###
 
 
 def encode(hrp, k, ident, share_index, payload):
@@ -206,7 +209,7 @@ def encode(hrp, k, ident, share_index, payload):
     if share_index.lower() == 's':  # add double sha256 hash byte to pad seeds
         checksum = hashlib.sha256(hashlib.sha256(payload).digest()).digest()
     else:
-        checksum = b'' # TODO: use a reed solomon or bch binary ECCcode for padding.
+        checksum = b'0x00' # TODO: use a reed solomon or bch binary ECCcode for padding.
     data = convertbits(payload + checksum, 8, 5, False)[:len(convertbits(payload, 8, 5))]
     ret = ms32_encode(hrp, [CHARSET.find(x.lower()) for x in k + ident + share_index] + data)
     if decode(hrp, ret) == (None, None, None, None):
@@ -220,9 +223,6 @@ def recover_master_seed(share_list = []):
     return bytes(convertbits(ms32_recover(ms32_share_list)[6:],5,8, False))
 
 
-### BEGINNING OF BACKUP CREATION IMPLEMENTATION ###
-
-
 def derive_additional_share(codex32_string_list = [], fresh_share_index = "s"):
     """Derive additional share at distinct new index from a threshold of valid codex32 strings."""
     ms32_share_list = [ms32_decode(string)[4] for string in codex32_string_list]
@@ -230,21 +230,29 @@ def derive_additional_share(codex32_string_list = [], fresh_share_index = "s"):
     return ms32_encode('ms', ms32_interpolate(ms32_share_list, ms32_share_index))
 
 
-def fingerprint_ident(payload_list):
+def masterkey_identifier(master_seed):
+    """Get the 20 byte key identifier of the master pubkey"""
     from electrum.bip32 import BIP32Node
     from electrum.crypto import hash_160
-    pubkeys = b''
-    for data in payload_list:
-        root_node = BIP32Node.from_rootseed(data, xtype="stanadrd")
-        pubkeys += root_node.eckey.get_public_key_bytes(compressed=True)
-    return ''.join([CHARSET[d] for d in convertbits(hash_160(pubkeys), 8,5)])
-
+    root_node = BIP32Node.from_rootseed(master_seed, xtype="stanadrd")
+    return hash_160(root_node.eckey.get_public_key_bytes(compressed=True))
 
 def fingerprint(seed):
-    """Get the bip32 fingerprint of a seed in bech32."""
+    """Get the 4 byte bip32 fingerprint of a seed."""
     from electrum.bip32 import BIP32Node
-    fingerprint = BIP32Node.from_rootseed(seed, xtype="stanadrd").calc_fingerprint_of_this_node()
-    return ''.join([CHARSET[d] for d in convertbits(fingerprint, 8,5)])[:4]
+    bip32_fingerprint = BIP32Node.from_rootseed(seed, xtype="stanadrd").calc_fingerprint_of_this_node()
+    print(bip32_fingerprint)
+    bech32_fingerprint = ''.join([CHARSET[d] for d in convertbits(bip32_fingerprint, 8,5)])[:4]
+    return bip32_fingerprint, bech32_fingerprint
+
+
+def encrypt_ident(master_seed, k, unique_string):
+    salt = len(master_seed).to_bytes(1, 'big') + bytes('ms1' + k, 'utf')
+    encryption_key = hashlib.pbkdf2_hmac('sha512', password=bytes(unique_string, 'utf'),
+                                         salt=salt, iterations=2048, dklen=4)
+    ident_bytes = fingerprint(master_seed)[0]
+    new_ident_bytes = bytes([x ^ y for x, y in zip(ident_bytes, encryption_key)])
+    return ''.join([CHARSET[d] for d in convertbits(new_ident_bytes, 8, 5)])[:4]
 
 
 def relabel_shares(hrp, share_list, new_ident):
@@ -266,18 +274,18 @@ def fresh_master_seed(bitcoin_core_entropy, user_entropy = '', seed_length = 16,
     return existing_master_seed(master_seed, k, n, ident, False)
 
 
-def existing_master_seed(master_seed, k, n, ident = '', reshare = True):
+def existing_master_seed(master_seed, k, n, ident = '', unique_string = ''):
     """Derive n new set of n shares deterministically from master seed."""
     if k == "1" or not k.isdigit():
         return None
     if int(k) > n:
         return None
     if not ident:
-        ident = fingerprint(master_seed)
-    codex32_secret = encode('ms', k, n, ident, 's', master_seed)
+        ident = encrypt_ident(master_seed, k, unique_string)
+    codex32_secret = encode('ms', k, ident, 's', master_seed)
     if k == '0':
         return [codex32_secret] * n
-    return existing_codex32_secret(codex32_secret, new_k = k, n = n, reshare=reshare)
+    return existing_codex32_secret(codex32_secret, new_k = k, n = n, unique_string = unique_string)
 
 
 def shuffle_indices(index_seed, indexes = CHARSET.replace('s', '')):
@@ -303,6 +311,7 @@ def shuffle_indices(index_seed, indexes = CHARSET.replace('s', '')):
             counter += 1
         assigned_values[char] = value
     return sorted(assigned_values.keys(), key=lambda x: assigned_values[x])
+
 
 def shuffle_indices(index_seed, indexes = CHARSET.replace('s', '')):
     """Shuffle indices deterministically using provided entropy uses: ChaCha20.
@@ -331,62 +340,28 @@ def shuffle_indices(index_seed, indexes = CHARSET.replace('s', '')):
     return sorted(assigned_values.keys(), key=lambda x: assigned_values[x])
 
 
-def existing_codex32_secret(codex32_secret, n = 31, forgot = False):
-    """Derive a fresh set of n shares deterministically from a codex32 secret
-    This implementation uses the birthdate nonce if forgot = True
-    """
-    import datetime
-    codex32_string_list = [codex32_secret]
-    shuffled_share_list = []
-    k, ident, share_index, master_seed = decode('ms', codex32_secret)
-    seed_length = len(master_seed)
-    payload_list = [master_seed]
-    # date used to create a unique nonce if user forgets any past identifiers
-    date = datetime.date.today().strftime("%Y%m%d") if forgot else '19700101'
-    fingerprint = fingerprint_ident([master_seed])
-    salt = bytes(codex32_secret[:9] + fingerprint + date, 'utf')
-    derived_key = hashlib.pbkdf2_hmac('sha512', password=master_seed, salt=salt,
-                        iterations=2048, dklen=64)
-    index_seed = hmac.digest(derived_key, b'Index seed', hashlib.sha256)
-    shuffled_indices = shuffle_indices(index_seed, CHARSET.replace(share_index, ''))
-    for i in range(int(k - 1)):
-        info = bytes('Share ' + CHARSET[i], 'utf')
-        payload_list += [hmac.digest(derived_key, info, hashlib.sha512())[:seed_length]]
-        codex32_string_list += [encode('ms', k, ident, CHARSET[i], payload_list[i + 1])]
-    if forgot:
-        new_ident = fingerprint_ident(payload_list)[:4]
-        codex32_string_list = relabel_shares('ms', codex32_string_list, new_ident)
-    for j in range(n):
-        shuffled_share_list += [derive_additional_share(codex32_string_list, shuffled_indices[j])]
-    return shuffled_share_list
-
-def existing_codex32_secret(codex32_secret, new_k = '', new_ident = '', n = 31, reshare = True):
+def existing_codex32_secret(codex32_secret, new_k = '', new_ident = '', n = 31, unique_string = ''):
     """Derive a fresh set of n shares deterministically from master seed.
-    This implementation encrypts the identifier of the provided codex32 secret
-    with the birthdate if reshare = True.  Allows changing k.
-    """
-    import datetime
+    This implementation encrypts the fingerprint identifier of the provided
+    codex32 secret with a unique string. Allows changing k."""
     shuffled_share_list = []
     k, ident, share_index, master_seed = decode('ms', codex32_secret)
     k = new_k if new_k != k else k
-    if int(new_k) > n:
-        return None
     seed_length = len(master_seed)
-    # date used to create a unique nonce & identifier for reshares
-    date = datetime.date.today().strftime("%Y%m%d") if reshare else '19700101'
-    fingerprint = fingerprint_ident([master_seed]) # gets full hash160(pub_masterkey)
-    salt = bytes(codex32_secret[:9] + fingerprint + date, 'utf') # using old codex32 secret header in salt for reshare ident!
-    if reshare or new_k or new_ident:
+    header = codex32_secret[:9]
+    key_identifier = masterkey_identifier(master_seed) # gets full hash160(pub_masterkey)
+    salt = bytes(header + unique_string, 'utf') + key_identifier # using old codex32 secret header in salt for reshare ident!
+    if unique_string or new_k or new_ident:
         if not new_ident:
             # encrypt the old ident by the date
-            new_ident = encrypt_ident(ident, date, salt)
+            new_ident = encrypt_ident(master_seed, k, unique_string)
         ident = new_ident
         codex32_secret = encode('ms', k, ident, share_index, master_seed)
-        salt = bytes(codex32_secret[:9] + fingerprint + date, 'utf') # use the new header for derived key
+        salt = bytes(codex32_secret[:9] + unique_string, 'utf') + key_identifier # use the new header for derived key
     derived_key = hashlib.pbkdf2_hmac('sha512', password=master_seed, salt=salt,
                                       iterations=2048, dklen=64)
     codex32_string_list = [codex32_secret]
-    for i in range(int(k - 1)):
+    for i in range(int(k) - 1):
         info = bytes('Share ' + CHARSET[i], 'utf')
         payload = hmac.digest(derived_key, info, hashlib.sha512)[:seed_length]
         codex32_string_list += [encode('ms', k, ident, CHARSET[i], payload)]
@@ -397,36 +372,30 @@ def existing_codex32_secret(codex32_secret, new_k = '', new_ident = '', n = 31, 
     return shuffled_share_list
 
 
-def encrypt_ident(ident, date, salt):
-    new_ident_bytes = b''
-    encryption_key = hashlib.pbkdf2_hmac('sha512', password=date, salt=salt,
-                                         iterations=2048, dklen=32)
-    encryptor = Cipher(algorithms.ChaCha20(encryption_key, bytes(16)), mode=None).encryptor()
-    ident_bytes = convertbits([CHARSET.find(x) for x in ident], 5, 8, False)
-
-    while new_ident_bytes == ident_bytes or not new_ident_bytes:
-        new_ident_bytes = encryptor.update(ident_bytes)
-    return ''.join([CHARSET[d] for d in convertbits(new_ident_bytes, 8, 5)])[:4]
-
-
-### END OF REFERENCE IMPLEMENTATION ###
+def decrypt_ident(codex32_string, unique_string = ''):
+    """Returns bech32 fingerprint if unique string corresponds to the share and share is correct."""
+    k, ident, share_index, payload = decode('ms', codex32_string)
+    salt = len(payload).to_bytes(1, 'big') + bytes('ms1' + k, 'utf')
+    encryption_key = hashlib.pbkdf2_hmac('sha512', password=bytes(unique_string, 'utf'),
+                                         salt=salt, iterations=2048, dklen=4)
+    ciphertext = bytes(convertbits([CHARSET.find(x) for x in ident], 5, 8, True))
+    plaintext = bytes([x ^ y for x, y in zip(ciphertext, encryption_key)])
+    return ''.join([CHARSET[d] for d in convertbits(plaintext, 8,5)])[:4]
 
 
 
 def kdf_share(passphrase, codex32_share):
     """Derive codex32 share from a passphrase and the header of another share."""
     import random
-    salt = bytes(codex32_share[:8]), "utf")
-    seed_len = len(decode('ms1', codex32_share)[3])
+    salt = bytes(codex32_share[:8], "utf")
+    seed_length = len(decode('ms1', codex32_share)[3])
     pw_hash = hashlib.scrypt(password=bytes(passphrase, "utf"), salt=salt, n=2 ** 20, r=8, p=1, maxmem=1025 ** 3,
                              dklen=seed_length)
     passphrase_index_seed = hmac.digest(pw_hash, 'Passphrase Share Index Seed')
-    shuffle_indices(passphrase_index_seed ,CHARSET.replace('s', ''))
-    indices_free =
-    kdf_share_index = random.choice(indices_free)
-    indices_free = indices_free.replace(kdf_share_index, '')
+    shuffled_indices = shuffle_indices(passphrase_index_seed ,CHARSET.replace('s', ''))[0]
+    indices_free = shuffled_indices[1:]
     codex32_kdf_share = encode("ms", seed_length, k, ident, kdf_share_index, list(pw_hash))
-    return (codex32_kdf_share, salt, indices_free)
+    return (codex32_kdf_share, indices_free, salt)
 
 
 def recover_master_seed(share_list=[]):
@@ -444,78 +413,12 @@ def recover_master_seed(share_list=[]):
     return recover(share_list, 's')
 
 
-def ident_verify_checksum(codex32_secret):
-    """Verify an identifier checksum in a codex32 secret."""
-    k, ident, share_index, decoded = decode("ms", codex32_secret)
-    fp_id = fingerprint(bytes(decoded))
-    if share_index != 's' or fp_id[:4] != ident[:4]:
-        print('1')
-        return False
-    print('0')
-    return True
-
-
-def verify_checksum(codex32_string):
-    """Verify a codex32 checksum in a codex32 string."""
-    k, ident, share_index, decoded = decode("ms", codex32_string)
-    if decoded == None or len(decoded) < 16:
-        print('1')
-        return False
-    print('0')
-    return True
-
-
-# import secrets
 
 # master_seed = fresh_master_seed(16,'Walletasdfpassword34','L5EZftvrYaSudiozVRzTqLcHLNDoVn7H5HSfM9BAN6tMJX8oTWz6')
-master_seed = b"\x8a\xa0'm\xad\xa1\xf9\tY\xc5\x86r\xfd\x96\x1bY"
-id = 'cash'
-print(id)
-codex_secret = encode("ms", "0", id, 's', master_seed)
-print(codex_secret)
-# backup = existing_master_seed(master_seed,'3',id,4,'password')
-# new_backup = rotate_shares('ms13uccps32szwmdd58usjkw9see0m9smtydt6h374kxafvw','2',2,'password1')
-# print(backup)
-# print(new_backup)
-# new_backup = existing_master_seed(new_master_seed,'2','6666',4,'password')
-# print(new_backup)
-# print(recover_master_seed(new_backup[2:4]))
-# print(recover_master_seed(new_backup[3:5]))
-# print(recover_master_seed(new_backup[4:]))
-# print(recover_master_seed([new_backup[3]],'password'))
-# print(recover_master_seed([new_backup[5]],'password'))
-# codex_secret = recover_master_seed([new_backup[5]],'password')
-# print(verify_ident_checksum(codex_secret))
+seed = bytes(16)
+share_list = existing_master_seed(seed, k = '2', n=2, ident = '', unique_string = 'a')
+print(share_list)
+print(len(share_list[0]))
 
-# new_backup = existing_master_seed(new_master_seed,'2','0g0d',4,'password')
-# print(new_backup)
-# codex_secret = recover_master_seed([new_backup[5]],'password')
-# print(verify_ident_checksum(codex_secret))
+print(decrypt_ident('ms12mm2y8v7yuccjj2e0rvs8av2jlef3rvhmkem347ue40qr', 'a'))
 
-
-# test vector 1
-# test_vec1 = ['MS12NAMEA320ZYXWVUTSRQPNMLKJHGFEDCAXRPP870HKKQRM','MS12NAMECACDEFGHJKLMNPQRSTUVWXYZ023FTR2GDZMPY6PN']
-# print(recover_master_seed(test_vec1))
-# new_secret = recover_master_seed([test_vec1[0]],'a strong password')
-
-
-# ['ms126gpdszx8y0uuwrqtxfkdvxecqzm52ulrhkkhsn2d6704', 'ms126gpd2uen8lyvrl38wyfp6x6ae7rrd7ff09gp694a74mu', 'ms126gpdxru7qp4j9a4mpzva2xa5jujferem7uh3g4srdakf', 'ms126gpd5s9m79nkv6mcrt47mxrl7m5jxhgdcxyq7yf8vpnp', 'ms126gpd07yg0rks42jwqj5gkxj95t3szf9sa32drfgpenqd', 'ms126gpdadad38s5ududzmdt8xvwcvhtaa5xmteu4c39c099']
-# test vectors
-# seed = "dc5423251cb87175ff8110c8531d0952d8d73e1194e95b5f19d6f9df7c01111104c9baecdfea8cccc677fb9ddc8aec5553b86e528bcadfdcc201c17c638c47e9"
-# seed_bytes = list(bytes.fromhex(seed))
-# print(encode("ms","0","0C8V","S",seed_bytes))
-# print(decode("ms","MS100C8VSM32ZXFGUHPCHTLUPZRY9X8GF2TVDW0S3JN54KHCE6MUA7LQPZYGSFJD6AN074RXVCEMLH8WU3TK925ACDEFGHJKLMNPQRSTUVWXY06FHPV80UNDVARHRAK"))
-# print(encode("ms","0","0c8v","s",decode("ms","MS100C8VSM32ZXFGUHPCHTLUPZRY9X8GF2TVDW0S3JN54KHCE6MUA7LQPZYGSFJD6AN074RXVCEMLH8WU3TK925ACDEFGHJKLMNPQRSTUVWXY06FHPV80UNDVARHRAK")[3]))
-# seed = decode("ms","MS100C8VSM32ZXFGUHPCHTLUPZRY9X8GF2TVDW0S3JN54KHCE6MUA7LQPZYGSFJD6AN074RXVCEMLH8WU3TK925ACDEFGHJKLMNPQRSTUVWXY06FHPV80UNDVARHRAK")
-# print(encode("ms", '0', 'leet', 's', seed[3]))
-# print(seed_bytes)
-# print(encode("ms", seed_bytes))
-# print(decode("ms","ms10testsxxxxxxxxxxxxxxxxxxxxxxxxxx4nzvca9cmczlw")[3])
-# print(encode("ms","0","test", "s", seed_bytes))
-# ms_string = encode("ms","0","test","s",list(bytes.fromhex("318c6318c6318c6318c6318c6318c631")))
-# print(ms_string)
-# print(decode("ms","ms13cashsllhdmn9m42vcsamx24zrxgs3qqjzqud4m0d6nln"))
-# print(decode("ms","ms13cashsllhdmn9m42vcsamx24zrxgs3qpte35dvzkjpt0r"))
-# print(ms32_encode("ms",derive_new_share(["MS12NAMEA320ZYXWVUTSRQPNMLKJHGFEDCAXRPP870HKKQRM","MS12NAMECACDEFGHJKLMNPQRSTUVWXYZ023FTR2GDZMPY6PN"],"D")))
-
-# print(ms32_encode("ms",derive_new_share(["ms13cashsllhdmn9m42vcsamx24zrxgs3qqjzqud4m0d6nln","ms13casha320zyxwvutsrqpnmlkjhgfedca2a8d0zehn8a0t","ms13cashcacdefghjklmnpqrstuvwxyz023949xq35my48dr"],"f")))
