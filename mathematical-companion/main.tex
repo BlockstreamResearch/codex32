@@ -249,14 +249,22 @@ for fixed $\beta,\alpha_i\in \mathbb{F}$. Then this fixed affine relation
 \emph{will continue to hold for all derived shares}!
 
 This is not immediately obvious but can be shown by interpolating the polynomial
-		\[ q(x) = \sum_i \alpha_i p_i(x) - \beta \]
-which, by the assumption that the affine relation holds among all $f_i = p_i(x)$, must be zero everywhere.
+    \[ q(x) = \sum_i \alpha_i p_i(x) - \beta \]
+which, by the assumption that the affine relation holds among all $f_i = p_i(x)$,
+must be zero at each evaluation point $x$ and therefore zero everywhere.
 \end{itemize}
 
 This fact is so important that we term it the \textbf{Fundamental Theorem of
-Computing SSSS with Volvelles}. The Fundamental Theorem implies that if we
-apply any checksum derived from a linear code (or a linear code plus a
-constant) to our initial shares, that the derived shares will automatically
+Computing SSSS with Volvelles}.
+
+Error correcting codes can be characterized by a set of affine relations.
+For example, the codex32 error correcting code is computed by adding thirteen
+extra ``checksum'' characters to our data, each of which obeys an affine
+relation with all other characters. These thirteen relations characterize
+the code.
+
+The Fundamental Theorem implies that if we apply any checksum derived from
+such a code to our initial shares, that the derived shares will automatically
 be checksummed as well.
 
 For more information about volvelles, see the next two sections.
