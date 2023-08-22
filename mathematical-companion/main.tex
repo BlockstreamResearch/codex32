@@ -245,13 +245,13 @@ of $x$ in the correct place for all shares.
 \item Going even further, suppose that for each initial share $F_x=\{f_i\}$,
 a particular character can be described as a particular \textbf{affine
 transformation} of the others, like
-\[ f_j = \sum_{i\neq j} \alpha_i + \beta \]
+\[ f_j = \sum_{i\neq j} \alpha_i f_i + \beta \]
 for a fixed index $j$ and fixed $\beta,\alpha_i\in \mathbb{F}$.
 
 Then \emph{all derived shares will satisfy the same equation}!
 
 This is not immediately obvious but can be shown by interpolating the polynomial
-    \[ q(x) = \sum_i \alpha_i p_i(x) - \beta. \]
+    \[ q(x) = \sum_{i\neq j} \alpha_i p_i(x) + \beta - p_j(x). \]
 By assumption, this polynomial is zero at each evaluation point $x$ and is
 therefore zero everywhere.
 \end{itemize}
