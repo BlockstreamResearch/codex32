@@ -242,12 +242,13 @@ the secret-sharing mechanism.
 evaluation point in a fixed place in your sequence, then Lagrange interpolation
 will interpolate the polynomial $p(x) = x$ here and place the correct value
 of $x$ in the correct place for all shares.
-\item Going even further, suppose that each initial share $F_x=\{f_i\}$ lives
-in a particular \textbf{affine subspace}. That is, some equation holds among
-the $f_i$'s of the form
-\[ \sum_i \alpha_i f_i = \beta \]
-for fixed $\beta,\alpha_i\in \mathbb{F}$. Then \emph{all derived shares will
-lie in the same affine subspace}!
+\item Going even further, suppose that for each initial share $F_x=\{f_i\}$,
+a particular character can be described as a particular \textbf{affine
+transformation} of the others, like
+\[ f_j = \sum_{i\neq j} \alpha_i + \beta \]
+for a fixed index $j$ and fixed $\beta,\alpha_i\in \mathbb{F}$.
+
+Then \emph{all derived shares will satisfy the same equation}!
 
 This is not immediately obvious but can be shown by interpolating the polynomial
     \[ q(x) = \sum_i \alpha_i p_i(x) - \beta. \]
@@ -258,11 +259,10 @@ therefore zero everywhere.
 This fact is so important that we term it the \textbf{Fundamental Theorem of
 Computing SSSS with Volvelles}.
 
-Error correcting codes can be characterized as the intersection of a set of affine
-subspaces. For example, the codex32 error correcting code is computed by adding
-thirteen extra ``checksum'' characters to our data, each of which obeys an affine
-relation with all other characters and therefore defines an affine subspace.
-The code is exactly the set of strings which lie in every subspace.
+Error correcting codes can be characterized in terms of affine transformations.
+For example, the codex32 error correcting code is computed by adding
+thirteen extra ``checksum'' characters to our data, each of which is a particular
+affine transformation of the other characters.
 
 The Fundamental Theorem therefore implies that if we apply any checksum derived from
 such a code to our initial shares, that the derived shares will automatically
@@ -1073,8 +1073,8 @@ and the share index is produced by interpolating the polynomial $f(x) = x$.
 
 What is more mathematically impressive is that the last 13 symbols of the polynomial
 will constitute a valid checksum for the resulting share. This is because each checksum
-symbol is charactered by an affine subspace, and the Fundamental Theorem says that
-any affine subspaces will be preserved.
+symbol is defined as an affine transformation of the other characters, and the
+Fundamental Theorem says that any such relationships will be preserved.
 
 In fact, in a complete Checksum Worksheet, \emph{every single cell} that the user
 fills in is an affine function of the share data. This means that if you pick an
