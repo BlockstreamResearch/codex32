@@ -7,7 +7,7 @@ import hmac
 from electrum.bip32 import BIP32Node
 from electrum.crypto import hash_160
 
-# ChaCha20 used for encrypting ident and a better keystream option for shuffle
+# ChaCha20 used for better keystream option for shuffle
 from cryptography.hazmat.primitives.ciphers import Cipher, algorithms
 from cryptography.hazmat.primitives.hashes import SHA512_256
 
@@ -410,7 +410,7 @@ def generate_shares(master_key='', user_entropy='', n=31, k='2', ident='NOID',
     # If scrypt is unavailable OWASP Password Storage, use pbkdf2_hmac(
     # 'sha512', password, salt, iterations=210_000 * 64, dklen=128)
     derived_key = scrypt(password, salt=salt, n=2 ** 20, r=8, p=1,
-                         maxmem=2 ** 31 - 1, dklen=128)
+                         maxmem=1025 ** 3, dklen=128)
     # I hope this works! TODO: Verify that it works.
     index_seed = hmac.digest(derived_key, b'Index seed', 'SHA512_256')
     available_indices.remove('s')
@@ -450,8 +450,8 @@ def ident_encryption_key(payload, k, unique_string=''):
     """
     password = bytes(unique_string, 'utf')
     salt = len(payload).to_bytes(1, 'big') + bytes('ms1' + k, 'utf')
-    return convertbits(pbkdf2_hmac('sha512', password, salt, iterations=2048,
-                                   dklen=3), 8, 5, pad=False)
+    return convertbits(scrypt(password, salt, n=2**20, r=8, p=1,
+                              maxmem=1025 ** 3, dklen=3), 8, 5, pad=False)
 
 
 def encrypt_fingerprint(master_seed, k, unique_string=''):
@@ -487,14 +487,6 @@ def regenerate_shares(existing_codex32_strings, unique_string,
     if not new_id or new_id != ident:
         new_id = encrypt_fingerprint(master_seed, k, unique_string)
     return relabel_codex32_strings('ms', new_shares, new_id=new_id)
-
-
-    password = bytes(unique_string, 'utf')
-    salt = len(master_seed).to_bytes(1, 'big') + bytes('ms' + k, 'utf')
-    enc_key = convertbits(pbkdf2_hmac('sha512', password=password, salt=salt,
-                                      iterations=2048, dklen=3), 8, 5, False)
-    ident = [x ^ y for x, y in zip(ms32_fingerprint(master_seed), enc_key)]
-    return ''.join([CHARSET[d] for d in ident])
 
 
 def decrypt_ident(codex32_string, unique_string=''):
@@ -544,17 +536,16 @@ def shuffle_indexes(index_seed, indices=CHARSET.replace('s', '')):
 
 
 def kdf_share(passphrase, codex32_share):
-    """Derive codex32 share from a passphrase and the header of another share."""
-    import random
-    salt = bytes(codex32_share[:8], "utf")
+    """Derive codex32 share from a passphrase and the share set header."""
+    salt = len(codex32_share).to_bytes(1, 'big') + codex32_share[:8], "utf")
     seed_length = len(decode('ms1', codex32_share)[3])
     pw_hash = scrypt(password=bytes(passphrase, "utf"), salt=salt, n=2 ** 20, r=8, p=1, maxmem=1025 ** 3,
                      dklen=seed_length)
     passphrase_index_seed = hmac.digest(pw_hash, 'Passphrase Share Index Seed')
-    shuffled_indices = shuffle_indices(passphrase_index_seed, CHARSET.replace('s', ''))[0]
+    shuffled_indices = shuffle_indices(passphrase_index_seed))[0]
     indices_free = shuffled_indices[1:]
-    codex32_kdf_share = encode("ms", seed_length, k, ident, kdf_share_index, list(pw_hash))
-    return (codex32_kdf_share, indices_free, salt)
+    codex32_kdf_share = encode("ms", k, ident, kdf_share_index, pw_hash)
+    return codex32_kdf_share
 
 
 def ident_verify_checksum(codex32_secret):
