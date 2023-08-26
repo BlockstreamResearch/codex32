@@ -227,30 +227,24 @@ def decode(hrp, codex_str):
     return k, ident, share_index, bytes(decoded)
 
 
-def ecc_padding(payload):
+def ecc_padding(data):
     """
     Calculate and return a byte with concatenated parity bits.
 
-    :param payload: Input byte data.
+    :param data: Bytes of seed_len, hrp, k, ident, index and payload.
     :return: Byte with concatenated parity bits.
     """
-    # Count the number of set (1) bits in the byte data
-    num_set_bits = sum(bin(byte)[2:].count("1") for byte in payload)
-    # Count the number of set (1) even bits in the byte data
-    num_set_even_bits = sum(bin(byte)[2::2].count("1") for byte in payload)
-    # Count the number of set (1) odd bits in the byte data
-    num_set_odd_bits = sum(bin(byte)[3::2].count("1") for byte in payload)
-    # Count the number of set (1) third bits in the byte data
-    num_set_third_bits = sum(bin(byte)[2::3].count("1") for byte in payload)
+    # Count mod 2 the number of set (1) bits in the byte data
+    parity_bit = sum(bin(byte)[2:].count("1") for byte in data) % 2
+    # Count mod 2 the number of set (1) even bits in the byte data
+    even_parity_bit = sum(bin(byte)[2::2].count("1") for byte in data) % 2
+    # Count mod 2 the number of set (1) odd bits in the byte data
+    odd_parity_bit = sum(bin(byte)[3::2].count("1") for byte in data) % 2
+    # Count mod 2 the number of set (1) third bits in the byte data
+    third_parity_bit = sum(bin(byte)[2::3].count("1") for byte in data) % 2
 
-    # Determine the parity (even or odd)
-    parity_bit = num_set_bits % 2
-    even_parity_bit = (num_set_even_bits % 2) << 1
-    odd_parity_bit = (num_set_odd_bits % 2) << 2
-    third_parity_bit = (num_set_third_bits % 2) << 3
-
-    combined_parity = (third_parity_bit | odd_parity_bit | even_parity_bit
-                       | parity_bit)
+    combined_parity = (parity_bit + even_parity_bit * 2 + odd_parity_bit * 4
+                       + third_parity_bit * 8)
     return combined_parity.to_bytes(1, 'little')
 
 
@@ -436,17 +430,17 @@ def generate_shares(master_key="", user_entropy="", n=31, k="2", ident="NOID",
     index_seed = hmac.digest(derived_key, b"Index seed", "sha512")[:32]
     available_indices.remove("s")
     available_indices = shuffle_indices(index_seed, available_indices)
-    ident = "temp" if ident == "NOID" else ident
+    new_ident = "temp" if ident == "NOID" else ident
 
     # Generate new shares, if necessary, to reach a threshold.
     for i in range(num_strings, int(k)):
         share_index = available_indices.pop()
         info = "Share payload with index " + share_index
         payload = hmac.digest(derived_key, info, "sha512")[:seed_length]
-        new_shares.append(encode("ms", k, ident, share_index, payload))
+        new_shares.append(encode("ms", k, new_ident, share_index, payload))
     existing_codex32_strings.extend(new_shares)
     master_seed = recover_master_seed(existing_codex32_strings)
-    if ident == "temp":
+    if new_ident == "temp":
         ident = "".join([CHARSET[d] for d in ms32_fingerprint(master_seed)])
         relabel_codex32_strings("ms", existing_codex32_strings, k, ident)
 
@@ -470,9 +464,9 @@ def ident_encryption_key(payload, k, unique_string=""):
     """
     password = bytes(unique_string, "utf")
     salt = len(payload).to_bytes(1, "big") + bytes("ms1" + k, "utf")
-    return convertbits(hashlib.scrypt(password, salt=salt, n=2 ** 20, r=8,
-                                      p=1, maxmem=1025 ** 3, dklen=3),
-                       8, 5, pad=False)
+    return convertbits(hashlib.scrypt(
+        password, salt=salt, n=2 ** 20, r=8, p=1, maxmem=1025 ** 3, dklen=3),
+        8, 5, pad=False)
 
 
 def encrypt_fingerprint(master_seed, k, unique_string=""):
