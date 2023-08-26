@@ -226,8 +226,6 @@ def decode(hrp, codex_str):
     decoded = convertbits(data[6:], 5, 8, False)
     if decoded is None or len(decoded) < 16 or len(decoded) > 64:
         return None, None, None, None
-    if k == "1":
-        return None, None, None, None
     return k, ident, share_index, bytes(decoded)
 
 
