@@ -88,6 +88,7 @@ def bech32_mul(a, b):
     return res
 
 
+# noinspection PyPep8
 def bech32_lagrange(l, x):
     n = 1
     c = []
@@ -430,26 +431,27 @@ def generate_shares(master_key="", user_entropy="", n=31, k="2", ident="NOID",
     index_seed = hmac.digest(derived_key, b"Index seed", "sha512")[:32]
     available_indices.remove("s")
     available_indices = shuffle_indices(index_seed, available_indices)
-    new_id = "temp" if ident == "NOID" else ident
+    tmp_id = "temp" if ident == "NOID" else ident
 
     # Generate new shares, if necessary, to reach a threshold.
     for i in range(num_strings, int(k)):
         share_index = available_indices.pop()
-        info = "Share payload with index " + share_index
+        info = bytes("Share payload with index: " + share_index, "utf")
         payload = hmac.digest(derived_key, info, "sha512")[:seed_length]
-        new_shares.append(encode("ms", k, new_id, share_index, payload))
+        new_shares.append(encode("ms", k, tmp_id, share_index, payload))
     existing_codex32_strings.extend(new_shares)
-    master_seed = recover_master_seed(existing_codex32_strings)
-    if new_id == "temp":
-        ident = "".join([CHARSET[d] for d in ms32_fingerprint(master_seed)])
-        existing_codex32_strings = relabel_codex32_strings(
-            "ms", existing_codex32_strings, k, ident)
 
     # Derive new shares using ms32_interpolate.
     for i in range(int(k), n):
         fresh_share_index = available_indices.pop()
         new_share = derive_share(existing_codex32_strings, fresh_share_index)
         new_shares.append(new_share)
+
+    # Relabel the new shares with default ID.
+    master_seed = recover_master_seed(existing_codex32_strings)
+    if tmp_id == "temp":
+        ident = "".join([CHARSET[d] for d in ms32_fingerprint(master_seed)])
+        new_shares = relabel_codex32_strings("ms", new_shares, k, ident)
 
     return master_seed, new_shares
 
