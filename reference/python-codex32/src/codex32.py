@@ -490,7 +490,7 @@ def regenerate_shares(existing_codex32_strings, unique_string,
     """
     Regenerate fresh shares for an existing master seed & update ident.
 
-    :param existing_codex32_strings: List of existing codex32 strings.
+    :param existing_codex32_strings: List of codex32 strings to reuse.
     :param unique_string: Unique string for entropy.
     :param monotonic_counter: Hardware or app monotonic counter value.
     :param n: Number of shares to generate, default is 31.
@@ -552,11 +552,21 @@ def shuffle_indexes(index_seed, indices=CHARSET.replace("s", "")):
     return sorted(assigned_values.keys(), key=lambda x: assigned_values[x])
 
 
-def kdf_share(passphrase, codex32_share):
-    """Derive codex32 share from a passphrase and the share set header."""
-    k, ident, _, payload = decode("ms", codex32_share)
+def kdf_share(passphrase, codex32_str):
+    """
+    Derive codex32 share from a passphrase and the codex32 header.
+
+    Args:
+        passphrase: a seed backup passphrase as a string
+        codex32_str: a valid codex32 string to derive kdf share with.
+
+    Returns:
+        the string encoded kdf_share
+
+    """
+    k, ident, _, payload = decode("ms", codex32_str)
     password = bytes(passphrase, "utf")
-    salt = len(payload).to_bytes(1, "big") + bytes(codex32_share[:8], "utf")
+    salt = len(payload).to_bytes(1, "big") + bytes(codex32_str[:8], "utf")
     derived_key = hashlib.scrypt(password, salt=salt, n=2 ** 20, r=8, p=1,
                                  maxmem=1025 ** 3, dklen=128)
     passphrase_index_seed = hmac.digest(
@@ -566,24 +576,3 @@ def kdf_share(passphrase, codex32_share):
     payload = hmac.digest(derived_key, b"Passphrase share payload with index "
                           + bytes(share_index, "utf"), "sha512")[:len(payload)]
     return encode("ms", k, ident, share_index, payload)
-
-
-def ident_verify_checksum(codex32_secret):
-    """Verify an identifier checksum in a codex32 secret."""
-    k, ident, share_index, decoded = decode("ms", codex32_secret)
-    fingerprint_id = "".join([CHARSET[d] for d in ms32_fingerprint(decoded)])
-    if share_index != "s" or fingerprint_id[:3] != ident[:3]:
-        print("1")
-        return False
-    print("0")
-    return True
-
-
-def verify_checksum(codex32_string):
-    """Verify a codex32 checksum in a codex32 string."""
-    k, ident, share_index, decoded = decode("ms", codex32_string)
-    if decoded is None or len(decoded) < 16:
-        print("1")
-        return False
-    print("0")
-    return True
