@@ -32,21 +32,23 @@ Wallets should support import of 128- or 256-bit seeds; other lengths are option
 
 The process for entering shares is:
 
-1. The user should enter the first share. To the extent possible given screen limitations, when entering share data, data should be displayed in uppercase, with visually distinct four-character windows. The first four-character window should include the `MS1` prefix, which should be pre-filled.
-1. Once the first share is fully entered, the wallet should validate the checksum and header before accepting it.
-   * The user should not be able to enter mixed-case characters. The user must be able to enter all bech32 characters as well as `?` indicating an erasure. Wallets may allow users to enter non-bech32 characters, at their discretion. (This may be useful to guide error correction, e.g. by attempting to replace all `B`s with `8`s.)
-   * If the header is invalid, the wallet SHOULD highlight this and request confirmation from the user before allowing additional data to be entered. An invalid header is one that starts with a character other than `0` or `2` through `9`, or one which starts with `0` but whose share index is not `S`. For shares after the first, a header is also invalid if its threshold and identifier do not match those of the first share.
-   * If the checksum is invalid, the wallet SHOULD use an error-correction algorithm to locate errors in the share and show these to the user. It MAY additinally determine corrected share data, but if so, the wallet MUST show these corrections to the user rather than silently applying them.
+1. The user should enter the first string. To the extent possible given screen limitations, data should be displayed in uppercase with visually distinct four-character windows. The first four-character window should include the `MS1` prefix, which should be pre-filled.
+1. Once the first string is fully entered, the wallet should validate the checksum and header before accepting it.
+   * The user should not be able to enter mixed-case characters. The user must be able to enter all bech32 characters as well as `?` indicating an erasure. Wallets may allow users to enter non-bech32 characters, at their discretion. (This may be useful to guide error correction, by attempting to replace commonly confused characters.)
+   * If the header is invalid, the wallet SHOULD highlight this and request confirmation from the user before allowing additional data to be entered. An invalid header is one that starts with a character other than `0` or `2` through `9`, or one which starts with `0` but whose share index is not `S`. For shares after the first, a header is also invalid if its threshold and identifier do not match those of the first string.
+   * If the checksum is invalid, the wallet SHOULD use an error-correction algorithm to locate errors in the string and show these to the user. It MAY additionally determine corrected data, but if so, the wallet MUST show these corrections to the user rather than silently applying them.
    * To show locations of substitution errors, the wallet SHOULD highlight the offending 4-character window or the specific offending character.
-   * If the wallet can determine insertion or deletion errors, it SHOULD highlight the offending 4-character window or the specific location of the inserted or missing character. When detecting insertion or deletion errors, the wallet MAY assume that the correct share length is 16, 32 or (optionally) 64 bytes.
-1. If the share length is *not* 16, 32 or 64 bytes, but the checksum passes, the wallet should confirm that the user intends to import a non-standard share length.
-1. After the first share has been entered and accepted, the wallet now knows the seed ID and threshold value.
-   * If the first share had index `S`, this was the actual seed and the import process is complete.
+   * If the wallet can determine insertion or deletion errors, it SHOULD highlight the offending 4-character window or the specific location of the inserted or missing character. When detecting insertion or deletion errors, the wallet MAY assume that the correct string length is 48, 74 or (optionally) 127 characters (corresponding to 16-, 32- or 64-byte seeds).
+1. If the string length is *not* 48, 74 or 127 characters, but the checksum passes, the wallet should confirm that the user intends to import a non-standard string length.
+   * If the string length is *not* 48, 74 or 127 bytes, and the checksum does *not* pass, then the wallet MAY attempt correction by deleting or inserting up to 3 characters.
+1. After the first string has been entered and accepted, the wallet now knows the identifier and threshold value.
+   * If the first string had index `S`, this was the codex32 secret and the import process is complete.
    * Otherwise, the first character of the share will be a numeric character between `2` and `9` inclusive. The user must enter this many shares in total.
    * Wallets MAY encrypt and store recovery progress, to allow recovery without having all shares available at once. The details of this are currently outside of the scope of this specification.
 1. The user should then enter the remaining shares, in the same manner as the first.
-   * The wallet may pre-fill the header (threshold value and seed ID).
-   * If the user tries to repeat an already-entered share index, they should be prevented from entering additional data until it is corrected, with the exception that `?` may be used as a share index arbitrarily many times. The wallet may guide the user by indicating that a share index has been repeated; if the user indicates that they are not repeating the share, the share index should be replaced by `?`.
+   * The wallet SHOULD pre-fill the header (threshold value and identifier).
+   * If the user tries to repeat an already-entered share index, they should be prevented from entering additional data until it is corrected, with the exception that `?` may be used as a share index arbitrarily many times. The wallet may guide the user by indicating that a share index has been repeated; if the user indicates that they are not repeating the share, the share index SHOULD be replaced by `?`.
+   * The wallet MUST assume the valid length of all subsequent strings is equal to the valid length of the first string. If the lengths do not match, the wallet MAY attempt correction by deleting or inserting characters.
 1. Once all shares are entered, the wallet should derive the master seed and import this.
 
 **The master seed should be used directly as a master seed, as specified in BIP32.**
