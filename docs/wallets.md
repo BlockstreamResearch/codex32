@@ -48,7 +48,7 @@ The process for entering codex32 strings is:
 1. The user should then enter the remaining shares, in the same manner as the first.
    * The wallet SHOULD pre-fill the header (threshold value and identifier).
    * If the user tries to repeat an already-entered share index, they should be prevented from entering additional data until it is corrected, with the exception that `?` may be used as a share index arbitrarily many times. The wallet may guide the user by indicating that a share index has been repeated; if the user indicates that they are not repeating the share, the share index SHOULD be replaced by `?`.
-   * The wallet MUST assume the valid length of all subsequent shares is equal to the valid length of the first share. If the lengths do not match, the wallet MAY attempt correction by deleting or inserting characters to match the length of the first share.
+   * If the checksum fails, the wallet MAY attempt correction by deleting and/or inserting up to 3 characters. However, the wallet MUST assume the valid length of all subsequent shares is equal to the valid length of the first share, so the number of characters inserted and deleted must net out to the correct length.
 1. Once all shares are entered, the wallet should recover the master seed and import this.
 
 **The master seed should be used directly as a master seed, as specified in BIP32.**
