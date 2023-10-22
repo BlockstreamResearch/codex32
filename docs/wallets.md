@@ -24,13 +24,13 @@ Codex provides users instructions on doing generation themselves.
 
 ## Import Support
 
-Codex32 shares may be any length between 128 and 512 bits.
-Wallets should support import of 128- or 256-bit seeds; other lengths are optional.
+Wallets MAY accept seeds whose length is any multiple of 8 between 128 and 512 bits, inclusive.
+Wallets SHOULD support import of 128- and 256-bit seeds; other lengths are optional.
 
-128-bit seeds are 48 characters in length, including the `MS1` prefix.
-256-bit seeds are 74. For other bit-lengths, see the BIP.
+128-bit seeds encode as length-48 codex32 strings, including the `MS1` prefix.
+256-bit seeds encode as length-74 codex32 strings. For other bit-lengths, see the BIP.
 
-The process for entering shares is:
+The process for entering codex32 strings is:
 
 1. The user should enter the first string. To the extent possible given screen limitations, data should be displayed in uppercase with visually distinct four-character windows. The first four-character window should include the `MS1` prefix, which should be pre-filled.
 1. Once the first string is fully entered, the wallet should validate the checksum and header before accepting it.
@@ -39,16 +39,16 @@ The process for entering shares is:
    * If the checksum is invalid, the wallet SHOULD use an error-correction algorithm to locate errors in the string and show these to the user. It MAY additionally determine corrected data, but if so, the wallet MUST show these corrections to the user rather than silently applying them.
    * To show locations of substitution errors, the wallet SHOULD highlight the offending 4-character window or the specific offending character.
    * If the wallet can determine insertion or deletion errors, it SHOULD highlight the offending 4-character window or the specific location of the inserted or missing character. When detecting insertion or deletion errors, the wallet MAY assume that the correct string length is 48, 74 or (optionally) 127 characters (corresponding to 16-, 32- or 64-byte seeds).
-1. If the string length is *not* 48, 74 or 127 bytes, and the checksum does *not* pass, then the wallet MAY attempt correction by deleting or inserting up to 3 characters.
+1. If the string length is *not* 48, 74 or 127 characters, and the checksum does *not* pass, then the wallet MAY attempt correction by deleting and/or inserting up to 3 characters, as long as the resulting string has a valid length for a codex32 string.
    * If the wallet succeeds in error correction by deleting or inserting characters, it MUST ask the user for confirmation that they have a nonstandard-length string.
 1. After the first string has been entered and accepted, the wallet now knows the identifier, threshold value and valid length.
    * If the first string had index `S`, this was the codex32 secret and the import process is complete.
-   * Otherwise, the first character of the share will be a numeric character between `2` and `9` inclusive. The user must enter this many shares in total.
+   * Otherwise, the fourth character of the share will be a numeric character between `2` and `9` inclusive. The user must enter this many shares in total.
    * Wallets MAY encrypt and store recovery progress, to allow recovery without having all shares available at once. The details of this are currently outside of the scope of this specification.
 1. The user should then enter the remaining shares, in the same manner as the first.
    * The wallet SHOULD pre-fill the header (threshold value and identifier).
    * If the user tries to repeat an already-entered share index, they should be prevented from entering additional data until it is corrected, with the exception that `?` may be used as a share index arbitrarily many times. The wallet may guide the user by indicating that a share index has been repeated; if the user indicates that they are not repeating the share, the share index SHOULD be replaced by `?`.
-   * The wallet MUST assume the valid length of all subsequent shares is equal to the valid length of the first share. If the lengths do not match, the wallet MAY attempt correction by deleting or inserting characters.
+   * The wallet MUST assume the valid length of all subsequent shares is equal to the valid length of the first share. If the lengths do not match, the wallet MAY attempt correction by deleting or inserting characters to match the length of the first share.
 1. Once all shares are entered, the wallet should recover the master seed and import this.
 
 **The master seed should be used directly as a master seed, as specified in BIP32.**
