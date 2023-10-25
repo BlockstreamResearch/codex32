@@ -33,13 +33,13 @@ Wallets SHOULD support import of 128- and 256-bit seeds; other lengths are optio
 The process for entering codex32 strings is:
 
 1. The user should enter the first string. To the extent possible given screen limitations, data should be displayed in uppercase with visually distinct four-character windows. The first four-character window should include the `MS1` prefix, which should be pre-filled.
-1. Once the first string is fully entered, the wallet should validate the checksum and header before accepting it.
    * The user should not be able to enter mixed-case characters. The user must be able to enter all bech32 characters as well as `?` indicating an erasure. Wallets may allow users to enter non-bech32 characters, at their discretion. (This may be useful to guide error correction, by attempting to replace commonly confused characters.)
    * If the header is invalid, the wallet SHOULD highlight this and request confirmation from the user before allowing additional data to be entered. An invalid header is one that starts with a character other than `0` or `2` through `9`, or one which starts with `0` but whose share index is not `S`. For shares after the first, a header is also invalid if its threshold and identifier do not match those of the first share.
+1. Once the first string is fully entered, the wallet should validate the checksum and header before accepting it.
+   * If the checksum does not pass, then the wallet MAY attempt correction by deleting and/or inserting up to 3 characters, as long as the resulting string has a valid length for a codex32 string.
    * If the checksum is invalid, the wallet SHOULD use an error-correction algorithm to attempt to correct errors in the string. If a valid candidate correction is found, the wallet MUST show it to the user for confirmation rather than silently applying it.
    * To show locations of substitution errors, the wallet MAY highlight the offending 4-character window or the specific offending character.
    * If the wallet can determine insertion or deletion errors, it MAY highlight the offending 4-character window or the specific location of the inserted or missing character. When detecting insertion or deletion errors, the wallet MAY assume that the correct string length is 48, 74 or (optionally) 127 characters (corresponding to 16-, 32- or 64-byte seeds).
-1. If the checksum does not pass, then the wallet MAY attempt correction by deleting and/or inserting up to 3 characters, as long as the resulting string has a valid length for a codex32 string.
 1. After the first string has been entered and accepted, the wallet now knows the identifier, threshold value and valid length.
    * If the first string had index `S`, this was the codex32 secret and the import process is complete.
    * Otherwise, the fourth character of the share will be a numeric character between `2` and `9` inclusive. The user must enter this many shares in total.
