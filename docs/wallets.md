@@ -27,8 +27,8 @@ Codex provides users instructions on doing generation themselves.
 Wallets MAY accept seeds whose length is any multiple of 8 between 128 and 512 bits, inclusive.
 Wallets SHOULD support import of 128- and 256-bit seeds; other lengths are optional.
 
-128-bit seeds encode as length-48 codex32 strings, including the `MS1` prefix.
-256-bit seeds encode as length-74 codex32 strings. For other bit-lengths, see the BIP.
+128-bit seeds encode as 48-character codex32 strings, including the `MS1` prefix.
+256-bit seeds encode as 74-character codex32 strings. For other bit-lengths, see the BIP.
 
 The process for entering codex32 strings is:
 
