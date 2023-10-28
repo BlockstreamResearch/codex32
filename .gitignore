@@ -6,3 +6,5 @@ mathematical-companion/*.log
 mathematical-companion/*.out
 mathematical-companion/*.pdf
 mathematical-companion/*.toc
+reference/python-codex32/src/__pycache__/codex32.cpython-310.pyc
+__pycache__/codex32.cpython-310.pyc
