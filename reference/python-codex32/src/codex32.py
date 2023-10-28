@@ -4,8 +4,6 @@
 
 import hashlib
 import hmac
-
-# ChaCha20 used for better keystream option for shuffle
 from cryptography.hazmat.primitives.ciphers import Cipher, algorithms
 from electrum.bip32 import BIP32Node
 from electrum.crypto import hash_160
@@ -110,10 +108,6 @@ def ms32_interpolate(l, x):
             n ^= bech32_mul(w[j], l[j][i])
         res.append(n)
     return res
-
-
-def ms32_recover(l):
-    return ms32_interpolate(l, 16)
 
 
 # Copyright (c) 2023 Ben Westgate
@@ -576,3 +570,8 @@ def kdf_share(passphrase, codex32_str):
     payload = hmac.digest(derived_key, b"Passphrase share payload with index "
                           + bytes(share_index, "utf"), "sha512")[:len(payload)]
     return encode("ms", k, ident, share_index, payload)
+
+
+
+def ms32_recover(l):
+    return ms32_interpolate(l, 16)
