@@ -37,21 +37,24 @@ If a wallet is unable to meet these specifications, it is not an ECW and it SHOU
 
 ## Import Support
 
-Wallets MAY accept seeds whose length is any multiple of 8 between 128 and 512 bits, inclusive.
-Wallets SHOULD support import of 128- and 256-bit seeds; other lengths are optional.
-
-128-bit seeds encode as 48-character codex32 strings, including the `MS1` prefix.
-256-bit seeds encode as 74-character codex32 strings. For other bit-lengths, see the BIP.
+Wallets SHOULD support import of 128- and 256-bit seeds; other lengths are optional. 128-bit seeds encode as 48-character codex32 strings, including the `MS1` prefix. 256-bit seeds encode as 74-character codex32 strings. For other bit-lengths, see the BIP.
 
 The process for entering codex32 strings is:
 
-1. The user should enter the first string. To the extent possible given screen limitations, data should be displayed in uppercase with visually distinct four-character windows. The first four-character window should include the `MS1` prefix, which should be pre-filled.
-   * The user SHOULD NOT be able to enter mixed-case characters.
+1. The user should enter the first string. To the extent possible given screen limitations, data should be displayed in uppercase with visually distinct four-character windows. The first four-character window should include the `MS1` prefix, which SHOULD be pre-filled.
    * The user MUST be able to enter all bech32 characters.
    * ECWs MUST also allow entry of `?` which indicates an erasure (unknown character).
-   * Wallets MAY allow users to enter non-bech32 characters, at their discretion. (This may be useful to guide error correction, by attempting to replace commonly confused characters.)
-   * If the header is invalid, the wallet SHOULD highlight this and request confirmation from the user before allowing additional data to be entered.
-     * An invalid header is one that starts with a character other than `0` or `2` through `9`, or one which starts with `0` but whose share index is not `S`. For shares after the first, a header is also invalid if its threshold and identifier do not match those of the first share.
+   * The user SHOULD NOT be able to enter mixed-case characters.
+   * If the header is invalid, the wallet SHOULD highlight this problem and request confirmation from the user before allowing additional data to be entered.
+     * An invalid header is one that starts with a character other than `0` or `2` through `9`, or one which starts with `0` but whose share index is not `S`. For shares after the first, a header is also invalid if its threshold and identifier do not match those of the first share or whose share index matches any previous share.
+     * ECWs MAY replace the offending characters of the header with '?'.
+   * Wallets MAY:
+     * Allow users to enter invalid characters, at their discretion. (This may be useful to guide error correction, by attempting to replace commonly confused characters.)
+     * Use predictive text for on-screen keyboards to suggest the codex32 checksum characters but if so MUST require user to manually accept the prediction.
+     * Indicate when the entry has a valid checksum, e.g. by highlighting the string green or displaying the 'Submit' option but they MUST NOT submit a string with a valid checksum without user request.
+   * ECWs MAY additionally indicate when an entry of sufficient length to correct has an invalid checksum, e.g. by highlighting the string red or displaying a "Attempt Correction" option.
+
+
 1. Once the first string is fully entered, the wallet MUST validate the checksum and header before accepting it.
    * If the checksum does not pass, then an ECW:
       * MUST attempt error correction of substitution errors and erasures.
