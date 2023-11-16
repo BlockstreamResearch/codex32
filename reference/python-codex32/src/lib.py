@@ -167,7 +167,7 @@ def ms32_decode(ms32_str):
         return None, None, None, None, None
     hrp = ms32_str[:pos]
     k = ms32_str[pos + 1]
-    if not k.isdigit():
+    if k == "1" or not k.isdigit():
         return None, None, None, None, None
     ident = ms32_str[pos + 2: pos + 6]
     share_index = ms32_str[pos + 6]
