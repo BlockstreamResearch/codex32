@@ -51,7 +51,7 @@ The process for entering codex32 strings is:
 1. Once the first string is fully entered, the wallet MUST validate the checksum and header before accepting it.
    * If the checksum does not pass, then an ECW:
       * MUST attempt error correction of substitution errors and erasures.
-      * MAY attempt correction by deleting and/or inserting characters, as long as the resulting string has a valid length for a codex32 string. ECWs MAY assume the correct length is the closer of 48 or 74.
+      * MAY attempt correction by deleting and/or inserting characters, as long as the resulting string has a valid length for a codex32 string.
       * MUST show a valid correction candidate, if found, to the user for confirmation rather than silently applying it.
          * If insertion and/or deletion correction candidates are found, the shortest edit distance valid string SHOULD be displayed.
          * ECWs displaying a candidate correction MAY highlight corrected 4-character windows and/or specific correction locations.
