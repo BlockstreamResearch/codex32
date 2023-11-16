@@ -2,14 +2,10 @@
 # Author: Leon Olsson Curr and Pearlwort Sneed <pearlwort@wpsoftware.net>
 # License: BSD-3-Clause
 
-from hashlib import scrypt, pbkdf2_hmac, sha256, sha512
+import hashlib
 import hmac
-from electrum.bip32 import BIP32Node
-from electrum.crypto import hash_160
-
 # ChaCha20 used for encrypting ident and a better keystream option for shuffle
 from cryptography.hazmat.primitives.ciphers import Cipher, algorithms
-from cryptography.hazmat.primitives.hashes import SHA512_256
 
 CHARSET = "qpzry9x8gf2tvdw0s3jn54khce6mua7l"
 MS32_CONST = 0x10ce0795c2fd1e62a
@@ -138,43 +134,31 @@ def ms32_recover(l):
 
 
 def ms32_encode(hrp, data):
-    """
-    Compute an MS32 string.
-
-    :param hrp: Human-readable part of the ms32 string, usually 'ms'.
-    :param data: List of base32 integers representing data to encode.
-    :return: MS32 encoded string with the given HRP and data.
-    """
+    """Compute a MS32 string given HRP and data values."""
     combined = data + ms32_create_checksum(data)
     return hrp + '1' + ''.join([CHARSET[d] for d in combined])
 
 
-def ms32_decode(ms32_str):
-    """
-    Validate an MS32 string and extract components.
-
-    :param ms32_str: The MS32 encoded string to be validated.
-    :return: Tuple: HRP, k, ident, share index, data. If invalid,
-             (None, None, None, None, None)
-    """
-    if ((any(ord(x) < 33 or ord(x) > 126 for x in ms32_str)) or
-            (ms32_str.lower() != ms32_str and ms32_str.upper() != ms32_str)):
+def ms32_decode(bech):
+    """Validate a MS32 string, and determine HRP and data."""
+    if ((any(ord(x) < 33 or ord(x) > 126 for x in bech)) or
+            (bech.lower() != bech and bech.upper() != bech)):
         return (None, None, None, None, None)
-    ms32_str = ms32_str.lower()
-    pos = ms32_str.rfind('1')
-    if pos < 1 or pos + 46 > len(ms32_str):
+    bech = bech.lower()
+    pos = bech.rfind('1')
+    if pos < 1 or pos + 46 > len(bech):
         return (None, None, None, None, None)
-    if not all(x in CHARSET for x in ms32_str[pos + 1:]):
+    if not all(x in CHARSET for x in bech[pos + 1:]):
         return (None, None, None, None, None)
-    hrp = ms32_str[:pos]
-    k = ms32_str[pos + 1]
+    hrp = bech[:pos]
+    k = bech[pos + 1]
     if k == "1" or not k.isdigit():
         return (None, None, None, None, None)
-    ident = ms32_str[pos + 2:pos + 6]
-    share_index = ms32_str[pos + 6]
+    ident = bech[pos + 2:pos + 6]
+    share_index = bech[pos + 6]
     if k == "0" and share_index != "s":
         return (None, None, None, None, None)
-    data = [CHARSET.find(x) for x in ms32_str[pos + 1:]]
+    data = [CHARSET.find(x) for x in bech[pos + 1:]]
     checksum_length = 13 if len(data) < 95 else 15
     if not ms32_verify_checksum(data):
         return (None, None, None, None, None)
@@ -182,15 +166,7 @@ def ms32_decode(ms32_str):
 
 
 def convertbits(data, frombits, tobits, pad=True):
-    """
-    General power-of-2 base conversion.
-
-    :param data: List of integers to be converted.
-    :param frombits: Original base's bit size.
-    :param tobits: Target base's bit size.
-    :param pad: Whether to pad the result, defaults to True.
-    :return: List of integers in target base, or None on failure.
-    """
+    """General power-of-2 base conversion."""
     acc = 0
     bits = 0
     ret = []
@@ -213,15 +189,7 @@ def convertbits(data, frombits, tobits, pad=True):
 
 
 def decode(hrp, codex_str):
-    """
-    Decode a codex32 string.
-
-    :param hrp: Human-readable part of the codex32 string. i.e.: 'ms'.
-    :param codex_str: Codex32 string to be decoded.
-    :return: Tuple: k, ident, share index, decoded bytes.
-             If decoding fails, (None, None, None, None).
-    """
-
+    """Decode a codex32 string."""
     hrpgot, k, ident, share_index, data = ms32_decode(codex_str)
     if hrpgot != hrp:
         return (None, None, None, None)
@@ -233,21 +201,15 @@ def decode(hrp, codex_str):
     return k, ident, share_index, bytes(decoded)
 
 
-def encode(hrp, k, ident, share_index, payload):
-    """
-    Encode a codex32 string.
+### Beginning of Codex32 Generation Implementation ###
 
-    :param hrp: Human-readable part of the codex32 string.
-    :param k: Threshold parameter as a string.
-    :param ident: Identifier as a string.
-    :param share_index: Share index as a string.
-    :param payload: Payload data to be encoded.
-    :return: Codex32 string or None if encoding fails during validation.
-    """
+
+def encode(hrp, k, ident, share_index, payload):
+    """Encode a codex32 string"""
     if share_index.lower() == 's':  # add double sha256 hash byte to pad seeds
-        checksum = sha256(sha256(payload).digest()).digest()
+        checksum = hashlib.sha256(hashlib.sha256(payload).digest()).digest()
     else:
-        checksum = b'0x00'  # TODO: use a reed solomon or bch binary ECCcode for padding.
+        checksum = b'0x00' # TODO: use a reed solomon or bch binary ECCcode for padding.
     data = convertbits(payload + checksum, 8, 5, False)[:len(convertbits(payload, 8, 5))]
     ret = ms32_encode(hrp, [CHARSET.find(x.lower()) for x in k + ident + share_index] + data)
     if decode(hrp, ret) == (None, None, None, None):
@@ -255,292 +217,171 @@ def encode(hrp, k, ident, share_index, payload):
     return ret
 
 
-def validate_codex32_string_list(string_list, k_must_equal_list_length=True):
-    """
-    Validate uniform threshold, identifier, length, and unique indices.
-
-    :param string_list: List of codex32 strings to be validated.
-    :param k_must_equal_list_length: Flag for k must match list length.
-    :return: List of decoded data if valid, else None.
-    """
-    list_len = len(string_list)
-    headers = set()
-    share_indices = set()
-    lengths = set()
-
-    for codex32_string in string_list:
-        headers.add(tuple(decode("ms", codex32_string)[:2]))
-        share_indices.add(decode("ms", codex32_string)[2])
-        lengths.add(len(codex32_string))
-        if len(headers) > 1 or len(lengths) > 1:
-            return None
-
-    if (len(share_indices) < list_len
-            or k_must_equal_list_length and int(headers.pop()[0]) != list_len):
-        return None
-
-    return [ms32_decode(codex32_string)[4] for codex32_string in string_list]
+def recover_master_seed(share_list = []):
+    """Recover a master seed from a threshold of valid codex32 shares."""
+    ms32_share_list = [ms32_decode(share)[4] for share in share_list]
+    return bytes(convertbits(ms32_recover(ms32_share_list)[6:],5,8, False))
 
 
-def recover_master_seed(share_list=[]):
-    """
-    Derive master seed from a list of threshold valid codex32 shares.
-
-    :param share_list: List of codex32 shares to recover master seed.
-    :return: The master seed as bytes, or None if share set is invalid.
-    """
-    ms32_share_list = validate_codex32_string_list(share_list)
-    if not ms32_share_list:
-        return None
-    return bytes(convertbits(ms32_recover(ms32_share_list)[6:], 5, 8, False))
-
-
-def derive_share(string_list, fresh_share_index="s"):
-    """
-    Derive an additional share at a distinct new index from a threshold
-    of valid codex32 strings.
-
-    :param string_list: List of codex32 strings to derive from.
-    :param fresh_share_index: New index character for derived share.
-    :return: Derived codex32 share string or None if derivation fails.
-    """
+def derive_additional_share(codex32_string_list = [], fresh_share_index = "s"):
+    """Derive additional share at distinct new index from a threshold of valid codex32 strings."""
+    ms32_share_list = [ms32_decode(string)[4] for string in codex32_string_list]
     ms32_share_index = CHARSET.find(fresh_share_index.lower())
-    if ms32_share_index < 0:
+    return ms32_encode('ms', ms32_interpolate(ms32_share_list, ms32_share_index))
+
+
+def masterkey_identifier(master_seed):
+    """Get the 20 byte key identifier of the master pubkey"""
+    from electrum.bip32 import BIP32Node
+    from electrum.crypto import hash_160
+    root_node = BIP32Node.from_rootseed(master_seed, xtype="stanadrd")
+    return hash_160(root_node.eckey.get_public_key_bytes(compressed=True))
+
+def fingerprint(seed):
+    """Get the 4 byte bip32 fingerprint of a seed."""
+    from electrum.bip32 import BIP32Node
+    bip32_fingerprint = BIP32Node.from_rootseed(seed, xtype="stanadrd").calc_fingerprint_of_this_node()
+    print(bip32_fingerprint)
+    bech32_fingerprint = ''.join([CHARSET[d] for d in convertbits(bip32_fingerprint, 8,5)])[:4]
+    return bip32_fingerprint, bech32_fingerprint
+
+
+def encrypt_ident(master_seed, k, unique_string):
+    salt = len(master_seed).to_bytes(1, 'big') + bytes('ms1' + k, 'utf')
+    encryption_key = hashlib.pbkdf2_hmac('sha512', password=bytes(unique_string, 'utf'),
+                                         salt=salt, iterations=2048, dklen=4)
+    ident_bytes = fingerprint(master_seed)[0]
+    new_ident_bytes = bytes([x ^ y for x, y in zip(ident_bytes, encryption_key)])
+    return ''.join([CHARSET[d] for d in convertbits(new_ident_bytes, 8, 5)])[:4]
+
+
+def relabel_shares(hrp, share_list, new_ident):
+    """Change the ident on a list of shares."""
+    new_share_list = []
+    for share in share_list:
+        k, ident, share_index, decoded = decode(hrp, share)
+        new_share_list += [encode(hrp, k, new_ident, share_index, decoded)]
+    return new_share_list
+
+
+def fresh_master_seed(bitcoin_core_entropy, user_entropy = '', seed_length = 16, k = '2', ident = '', n = 31):
+    """Derive a fresh master seed of seed length bytes with optional user-provided entropy."""
+    # implementations must unconditionally display "App Entropy" for auditing
+    if 16 > seed_length > 64:
         return None
-    ms32_string_list = validate_codex32_string_list(string_list)
-    return ms32_encode('ms', ms32_interpolate(ms32_string_list, ms32_share_index))
+    master_seed = hashlib.scrypt(password=bytes(user_entropy + str(seed_length) + k + ident, "utf"),
+                                 salt=bytes(bitcoin_core_entropy, "utf"), n=2 ** 20, r=8, p=1, maxmem=1025 ** 3, dklen=seed_length)
+    return existing_master_seed(master_seed, k, n, ident, False)
 
 
-def ms32_fingerprint(seed):
-    """
-    Calculate and convert the BIP32 fingerprint of a seed to MS32.
-
-    :param seed: The master seed used to derive the fingerprint.
-    :return: List of 4 base32 integers representing the fingerprint.
-    """
-    return convertbits(BIP32Node.from_rootseed(
-        seed, xtype='standard').calc_fingerprint_of_this_node(), 8, 5)[:4]
-
-
-def relabel_codex32_strings(hrp, string_list, new_k='', new_id=''):
-    """
-    Change the k and ident on a list of codex32 strings.
-
-    :param hrp: Human-readable part of the codex32 strings.
-    :param string_list: List of codex32 strings to be relabeled.
-    :param new_k: New threshold parameter as a string, if provided.
-    :param new_id: New identifier as a string, if provided.
-    :return: List of relabeled codex32 strings.
-    """
-    new_strings = []
-    for codex32_string in string_list:
-        k, ident, share_index, decoded = decode(hrp, codex32_string)
-        new_k = k if not new_k else new_k
-        new_id = ident if not new_id else new_id
-        new_strings.append(encode(hrp, new_k, new_id, share_index, decoded))
-    return new_strings
-
-
-def shuffle_indices(index_seed, indices=CHARSET.replace('s', '')):
-    """
-    Shuffle indices deterministically using provided key with ChaCha20.
-    
-    :param index_seed: The ChaCha20 key for deterministic shuffling.
-    :param indices: Characters to be shuffled as a string.
-    :return: List of shuffled characters sorted by assigned values.
-    """
-
-    algorithm = algorithms.ChaCha20(index_seed, bytes(16))
-    keystream = Cipher(algorithm, mode=None).encryptor()
-    counter = 0  # Counter to track current position in the keystream.
-    value = b''  # Storage for the assigned random byte.
-    assigned_values = {}  # Dictionary to store chars and their values.
-    for char in indices:
-        # Ensure new random value is generated if there is a collision.
-        while value in assigned_values.values() or not value:
-            if not counter % 64:  # Get new 64-byte block per 64 count.
-                block = keystream.update(bytes(64))  # ChaCha20 block.
-            value = block[counter % 64: counter % 64 + 1]  # Rand byte.
-            counter += 1
-        assigned_values[char] = value
-    return sorted(assigned_values.keys(), key=lambda x: assigned_values[x])
-
-
-def generate_shares(master_key='', user_entropy='', n=31, k='2', ident='NOID',
-                    seed_length=16, existing_codex32_strings=[]):
-    """
-    Generate new codex32 shares from provided or derived entropy.
-
-    :param master_key: BIP32 extended private master key from bitcoind.
-    :param user_entropy: User-provided entropy for improved security.
-    :param n: Total number of codex32 shares to generate (default: 31).
-    :param k: Threshold parameter (default: 2).
-    :param ident: Identifier (4 bech32 characters) or 'NOID' (default).
-    :param seed_length: Length of seed (16 to 64 bytes, default: 16).
-    :param existing_codex32_strings: List of existing codex32 strings.
-    :return: Tuple: master_seed (bytes), list of new codex32 shares.
-    """
-    new_shares = []
-    num_strings = len(existing_codex32_strings)
-    if existing_codex32_strings and not validate_codex32_string_list(
-            existing_codex32_strings, False):
+def existing_master_seed(master_seed, k, n, ident = '', unique_string = ''):
+    """Derive n new set of n shares deterministically from master seed."""
+    if k == "1" or not k.isdigit():
         return None
-    available_indices = list(CHARSET)
-    for string in existing_codex32_strings:
-        k, ident, share_index, payload = decode('ms', string)
-        available_indices.remove(share_index)
-        if share_index == 's':
-            master_seed = payload
-        seed_length = len(payload)
-
-    if num_strings == int(k) and not master_seed:
-        master_seed = recover_master_seed(existing_codex32_strings)
-    if master_seed:
-        master_key = BIP32Node.from_rootseed(master_seed, xtype='standard')
-    elif master_key:
-        master_key = BIP32Node.from_xkey(master_key)
-    else:
+    if int(k) > n:
         return None
-    key_identifier = hash_160(master_key.eckey.get_public_key_bytes())
-    entropy_header = (seed_length.to_bytes(length=1, byteorder='big')
-                      + bytes('ms' + k + ident + 's', 'utf') + key_identifier)
-    salt = entropy_header + bytes(CHARSET[n] + user_entropy, 'utf')
-    # This is equivalent to hmac-sha512(b"Bitcoin seed", master_seed).
-    password = master_key.eckey.get_secret_bytes() + master_key.chaincode
-    # If scrypt is unavailable OWASP Password Storage, use pbkdf2_hmac(
-    # 'sha512', password, salt, iterations=210_000 * 64, dklen=128)
-    derived_key = scrypt(password, salt=salt, n=2 ** 20, r=8, p=1,
-                         maxmem=2 ** 31 - 1, dklen=128)
-    # I hope this works! TODO: Verify that it works.
-    index_seed = hmac.digest(derived_key, b'Index seed', 'SHA512_256')
-    available_indices.remove('s')
-    available_indices = shuffle_indices(index_seed, available_indices)
-    ident = 'temp' if ident == 'NOID' else ident
-
-    # Generate new shares, if necessary, to reach a threshold.
-    for i in range(num_strings, int(k)):
-        share_index = available_indices.pop()
-        info = 'Share payload with index ' + share_index
-        # TODO: If sha512/256 works use it here if seed_length < 33.
-        payload = hmac.digest(derived_key, info, 'sha512')[:seed_length]
-        new_shares.append(encode('ms', k, ident, share_index, payload))
-    existing_codex32_strings.extend(new_shares)
-    master_seed = recover_master_seed(existing_codex32_strings)
-    if ident == 'temp':
-        ident = ''.join([CHARSET[d] for d in ms32_fingerprint(master_seed)])
-        relabel_codex32_strings('ms', existing_codex32_strings, k, ident)
-
-    # Derive new shares using ms32_interpolate.
-    for i in range(int(k), n):
-        fresh_share_index = available_indices.pop()
-        new_share = derive_share(existing_codex32_strings, fresh_share_index)
-        new_shares.append(new_share)
-
-    return master_seed, new_shares
+    if not ident:
+        ident = encrypt_ident(master_seed, k, unique_string)
+    codex32_secret = encode('ms', k, ident, 's', master_seed)
+    if k == '0':
+        return [codex32_secret] * n
+    return existing_codex32_secret(codex32_secret, new_k = k, n = n, unique_string = unique_string)
 
 
-def ident_encryption_key(payload, k, unique_string=''):
-    """
-    Generate an MS32 encryption key from unique string and header data.
-
-    :param payload: Payload for getting the length component of header.
-    :param k: Threshold component of header for key generation.
-    :param unique_string: Optional unique string to avoid ident reuse.
-    :return: Four symbol MS32 Encryption key derived from parameters.
-    """
-    password = bytes(unique_string, 'utf')
-    salt = len(payload).to_bytes(1, 'big') + bytes('ms1' + k, 'utf')
-    return convertbits(pbkdf2_hmac('sha512', password, salt, iterations=2048,
-                                   dklen=3), 8, 5, pad=False)
-
-
-def encrypt_fingerprint(master_seed, k, unique_string=''):
-    """
-    Encrypt the MS32 fingerprint using a unique string and header data.
-
-    :param master_seed: The master seed used for fingerprint.
-    :param k: The threshold parameter as a string.
-    :param unique_string: Optional unique string encryption password.
-    :return: Encrypted fingerprint as a bech32 string.
-    """
-    enc_key = ident_encryption_key(master_seed, k, unique_string)
-    new_id = [x ^ y for x, y in zip(ms32_fingerprint(master_seed), enc_key)]
-    return ''.join([CHARSET[d] for d in new_id])
-
-
-def regenerate_shares(existing_codex32_strings, unique_string,
-                      monotonic_counter, n=31, new_id=''):
-    """
-    Regenerate fresh shares for an existing master seed & update ident.
-
-    :param existing_codex32_strings: List of existing codex32 strings.
-    :param unique_string: Unique string for entropy.
-    :param monotonic_counter: Hardware or app monotonic counter value.
-    :param n: Number of shares to generate, default is 31.
-    :param new_ident: New identifier, if provided.
-    :return: List of regenerated codex32 shares.
-    """
-    master_seed, new_shares = generate_shares(
-        user_entropy=unique_string + f'{monotonic_counter:016x}', n=n,
-        existing_codex32_strings=existing_codex32_strings)
-    k, ident, _, _ = decode('ms', new_shares[0])
-    if not new_id or new_id != ident:
-        new_id = encrypt_fingerprint(master_seed, k, unique_string)
-    return relabel_codex32_strings('ms', new_shares, new_id=new_id)
-
-
-    password = bytes(unique_string, 'utf')
-    salt = len(master_seed).to_bytes(1, 'big') + bytes('ms' + k, 'utf')
-    enc_key = convertbits(pbkdf2_hmac('sha512', password=password, salt=salt,
-                                      iterations=2048, dklen=3), 8, 5, False)
-    ident = [x ^ y for x, y in zip(ms32_fingerprint(master_seed), enc_key)]
-    return ''.join([CHARSET[d] for d in ident])
-
-
-def decrypt_ident(codex32_string, unique_string=''):
-    """
-    Decrypt a codex32 string identifier ciphertext using unique string.
-
-    :param codex32_string: Codex32 string with an encrypted identifier.
-    :param unique_string: Optional unique string encryption password.
-    :return: Tuple with decrypted identifier (hex and MS32 string).
-    """
-    k, ident, _, data = decode('ms', codex32_string)
-    enc_key = ident_encryption_key(data, k, unique_string)
-    ciphertext = [CHARSET.find(x) for x in ident]
-    plaintext = [x ^ y for x, y in zip(ciphertext, enc_key)]
-    return (convertbits(plaintext, 5, 8).hex()[:5],
-            ''.join([CHARSET[d] for d in plaintext]))
-
-
-
-
-def shuffle_indexes(index_seed, indices=CHARSET.replace('s', '')):
+def shuffle_indices(index_seed, indexes = CHARSET.replace('s', '')):
     """Shuffle indices deterministically using provided entropy uses: HMAC-SHA256.
 
     Args:
         index_seed (bytes): The seed used for deterministic shuffling.
-        indices (str): Characters to be shuffled (default: CHARSET without 's').
+        indexes (str): Characters to be shuffled (default: CHARSET without 's').
 
     Returns:
         list: Shuffled characters sorted based on assigned values.
-
-    Provided only as a reference in case ChaCha20 is unavailable.
     """
-    counter = 0  # Counter to track current position in the keystream.
-    digest = b''  # Storage for HMAC-SHA256 digest
-    value = b''  # Storage for the assigned random value
-    assigned_values = {}  # Dictionary to store characters and values.
-    for char in indices:
-        # Generates a new random value when there's a collision.
+    counter = 0  # Counter to track the current position in the keystream
+    digest = b''  # Storage for HMAC digest
+    value = b''   # Storage for the assigned random value
+    assigned_values = {}  # Dictionary to store characters and their values
+    for char in indexes:
+        # Ensure a new random value is generated whenever there is a collision
         while value in assigned_values.values() or not value:
-            if not counter % 32:  # Generate new digest every 32 bytes.
-                digest = hmac.digest(
-                    index_seed, (counter // 32).to_bytes(8, "big"), sha256)
-            value = digest[counter % 32: counter % 32 + 1]  # rand byte
+            if not counter % 32: # Generate a new digest every 32 bytes
+                digest = hmac.new(index_seed, (counter // 32).to_bytes(8, "big"), hashlib.sha256).digest()
+            value = digest[counter % 32 : counter % 32 + 1] # assign 1 random byte per count
             counter += 1
         assigned_values[char] = value
     return sorted(assigned_values.keys(), key=lambda x: assigned_values[x])
+
+
+def shuffle_indices(index_seed, indexes = CHARSET.replace('s', '')):
+    """Shuffle indices deterministically using provided entropy uses: ChaCha20.
+
+    Args:
+        index_seed (bytes): The seed used for deterministic shuffling.
+        indexes (str): Characters to be shuffled (default: CHARSET without 's').
+
+    Returns:
+        list: Shuffled characters sorted based on assigned values.
+    """
+    from cryptography.hazmat.primitives.ciphers import Cipher, algorithms
+    algorithm = algorithms.ChaCha20(index_seed, bytes(16))
+    keystream = Cipher(algorithm, mode=None).encryptor()
+    counter = 0  # Counter to track the current position in the keystream
+    value = b''   # Storage for the assigned random value
+    assigned_values = {}  # Dictionary to store characters and their values
+    for char in indexes:
+        # Ensure a new random value is generated whenever there is a collision
+        while value in assigned_values.values() or not value:
+            if not counter % 64: # Generate a new 64-byte block every 64 bytes
+                block = keystream.update(bytes(64)) # Storage for ChaCha20 block
+            value = block[counter % 64 : counter % 64 + 1] # assign 1 random byte per count
+            counter += 1
+        assigned_values[char] = value
+    return sorted(assigned_values.keys(), key=lambda x: assigned_values[x])
+
+
+def existing_codex32_secret(codex32_secret, new_k = '', new_ident = '', n = 31, unique_string = ''):
+    """Derive a fresh set of n shares deterministically from master seed.
+    This implementation encrypts the fingerprint identifier of the provided
+    codex32 secret with a unique string. Allows changing k."""
+    shuffled_share_list = []
+    k, ident, share_index, master_seed = decode('ms', codex32_secret)
+    k = new_k if new_k != k else k
+    seed_length = len(master_seed)
+    header = codex32_secret[:9]
+    key_identifier = masterkey_identifier(master_seed) # gets full hash160(pub_masterkey)
+    salt = bytes(header + unique_string, 'utf') + key_identifier # using old codex32 secret header in salt for reshare ident!
+    if unique_string or new_k or new_ident:
+        if not new_ident:
+            # encrypt the old ident by the date
+            new_ident = encrypt_ident(master_seed, k, unique_string)
+        ident = new_ident
+        codex32_secret = encode('ms', k, ident, share_index, master_seed)
+        salt = bytes(codex32_secret[:9] + unique_string, 'utf') + key_identifier # use the new header for derived key
+    derived_key = hashlib.pbkdf2_hmac('sha512', password=master_seed, salt=salt,
+                                      iterations=2048, dklen=64)
+    codex32_string_list = [codex32_secret]
+    for i in range(int(k) - 1):
+        info = bytes('Share ' + CHARSET[i], 'utf')
+        payload = hmac.digest(derived_key, info, hashlib.sha512)[:seed_length]
+        codex32_string_list += [encode('ms', k, ident, CHARSET[i], payload)]
+    index_seed = hmac.digest(derived_key, b'Index seed', hashlib.sha256)
+    shuffled_indices = shuffle_indices(index_seed, CHARSET.replace(share_index, ''))
+    for j in range(n):
+        shuffled_share_list += [derive_additional_share(codex32_string_list, shuffled_indices[j])]
+    return shuffled_share_list
+
+
+def decrypt_ident(codex32_string, unique_string = ''):
+    """Returns bech32 fingerprint if unique string corresponds to the share and share is correct."""
+    k, ident, share_index, payload = decode('ms', codex32_string)
+    salt = len(payload).to_bytes(1, 'big') + bytes('ms1' + k, 'utf')
+    encryption_key = hashlib.pbkdf2_hmac('sha512', password=bytes(unique_string, 'utf'),
+                                         salt=salt, iterations=2048, dklen=4)
+    ciphertext = bytes(convertbits([CHARSET.find(x) for x in ident], 5, 8, True))
+    plaintext = bytes([x ^ y for x, y in zip(ciphertext, encryption_key)])
+    return ''.join([CHARSET[d] for d in convertbits(plaintext, 8,5)])[:4]
+
 
 
 def kdf_share(passphrase, codex32_share):
@@ -548,31 +389,36 @@ def kdf_share(passphrase, codex32_share):
     import random
     salt = bytes(codex32_share[:8], "utf")
     seed_length = len(decode('ms1', codex32_share)[3])
-    pw_hash = scrypt(password=bytes(passphrase, "utf"), salt=salt, n=2 ** 20, r=8, p=1, maxmem=1025 ** 3,
-                     dklen=seed_length)
+    pw_hash = hashlib.scrypt(password=bytes(passphrase, "utf"), salt=salt, n=2 ** 20, r=8, p=1, maxmem=1025 ** 3,
+                             dklen=seed_length)
     passphrase_index_seed = hmac.digest(pw_hash, 'Passphrase Share Index Seed')
-    shuffled_indices = shuffle_indices(passphrase_index_seed, CHARSET.replace('s', ''))[0]
+    shuffled_indices = shuffle_indices(passphrase_index_seed ,CHARSET.replace('s', ''))[0]
     indices_free = shuffled_indices[1:]
     codex32_kdf_share = encode("ms", seed_length, k, ident, kdf_share_index, list(pw_hash))
     return (codex32_kdf_share, indices_free, salt)
 
 
-def ident_verify_checksum(codex32_secret):
-    """Verify an identifier checksum in a codex32 secret."""
-    k, ident, share_index, decoded = decode("ms", codex32_secret)
-    hash_id = seed_ident(bytes(decoded))
-    if share_index != 's' or hash_id[:3] != ident[:3]:
-        print('1')
-        return False
-    print('0')
-    return True
+def recover_master_seed(share_list=[]):
+    """Derive codex32 secret from a threshold of shares."""
+    k = [None] * len(share_list)
+    ident = [None] * len(share_list)
+    share_index = [None] * len(share_list)
+    decoded = [None] * len(share_list)
+    for i in range(len(share_list)):
+        k[i], ident[i], share_index[i], decoded[i] = decode("ms", share_list[i])
+    if k.count(k[0]) != len(k) or ident.count(ident[0]) != len(ident):
+        return (None)
+    if len({len(i) for i in decoded}) != 1:
+        return (None)
+    return recover(share_list, 's')
 
 
-def verify_checksum(codex32_string):
-    """Verify a codex32 checksum in a codex32 string."""
-    k, ident, share_index, decoded = decode("ms", codex32_string)
-    if decoded == None or len(decoded) < 16:
-        print('1')
-        return False
-    print('0')
-    return True
+
+# master_seed = fresh_master_seed(16,'Walletasdfpassword34','L5EZftvrYaSudiozVRzTqLcHLNDoVn7H5HSfM9BAN6tMJX8oTWz6')
+seed = bytes(16)
+share_list = existing_master_seed(seed, k = '2', n=2, ident = '', unique_string = 'a')
+print(share_list)
+print(len(share_list[0]))
+
+print(decrypt_ident('ms12mm2y8v7yuccjj2e0rvs8av2jlef3rvhmkem347ue40qr', 'a'))
+
