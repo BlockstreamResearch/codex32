@@ -180,7 +180,7 @@ def ms32_decode(ms32_str):
 
 def convertbits(data, frombits, tobits, pad=True):
     """
-    Perform general power-of-2 base conversion.
+    General power-of-2 base conversion.
 
     :param data: List of integers to be converted.
     :param frombits: Original base's bit size.
