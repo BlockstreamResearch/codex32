@@ -52,7 +52,7 @@ The process for entering codex32 strings is:
      * Allow users to enter invalid characters, at their discretion. (This may be useful to guide error correction, by attempting to replace commonly confused characters.)
      * Use predictive text for on-screen keyboards to suggest the codex32 checksum characters but if so MUST require user to manually accept the prediction.
      * Indicate when the entry has a valid checksum, e.g. by highlighting the string green or displaying the 'Submit' option but they MUST NOT submit a string with a valid checksum without user request.
-   * ECWs MAY additionally indicate when an entry of sufficient length to correct has an invalid checksum, e.g. by highlighting the string red or displaying an "Attempt Correction" option.
+   * ECWs MAY additionally indicate when an entry of sufficient length to correct has an invalid checksum, e.g. by highlighting the string red or displaying a "Attempt Correction" option.
 
 
 1. Once the first string is fully entered, the wallet MUST validate the checksum and header before accepting it.
