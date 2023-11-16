@@ -440,17 +440,18 @@ def generate_shares(master_key="", user_entropy="", n=31, k="2", ident="NOID",
         payload = hmac.digest(derived_key, info, "sha512")[:seed_length]
         new_shares.append(encode("ms", k, tmp_id, share_index, payload))
     existing_codex32_strings.extend(new_shares)
-    # Relabel existing codex32 strings, if necessary, with default ID.
-    if tmp_id == "temp":
-        master_seed = recover_master_seed(existing_codex32_strings)
-        ident = "".join([CHARSET[d] for d in ms32_fingerprint(master_seed)])
-        existing_codex32_strings = relabel_codex32_strings(
-            "ms", existing_codex32_strings, k, ident)
+
     # Derive new shares using ms32_interpolate.
     for i in range(int(k), n):
         fresh_share_index = available_indices.pop()
         new_share = derive_share(existing_codex32_strings, fresh_share_index)
         new_shares.append(new_share)
+
+    # Relabel the new shares with default ID.
+    master_seed = recover_master_seed(existing_codex32_strings)
+    if tmp_id == "temp":
+        ident = "".join([CHARSET[d] for d in ms32_fingerprint(master_seed)])
+        new_shares = relabel_codex32_strings("ms", new_shares, k, ident)
 
     return master_seed, new_shares
 
