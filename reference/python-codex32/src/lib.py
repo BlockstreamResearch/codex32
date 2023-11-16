@@ -259,7 +259,7 @@ def encode(hrp, k, ident, share_index, payload):
     :param payload: Payload data to be encoded.
     :return: Codex32 string or None if validation fails.
     """
-    checksum = ecc_padding(bytes(k + ident + share_index, "utf") + payload)
+    checksum = ecc_padding(payload)
     data = convertbits(
         payload + checksum, 8, 5, False)[:len(convertbits(payload, 8, 5))]
     ret = ms32_encode(hrp, [CHARSET.find(x.lower()) for x in
@@ -398,8 +398,8 @@ def generate_shares(master_key="", user_entropy="", n=31, k="2", ident="NOID",
         existing_codex32_strings = []
     new_shares = []
     num_strings = len(existing_codex32_strings)
-    if (not validate_codex32_string_list(existing_codex32_strings, False)
-            and existing_codex32_strings):
+    if (validate_codex32_string_list(existing_codex32_strings, False)
+            and not existing_codex32_strings):
         return None
     available_indices = list(CHARSET)
     for string in existing_codex32_strings:
@@ -430,20 +430,19 @@ def generate_shares(master_key="", user_entropy="", n=31, k="2", ident="NOID",
     index_seed = hmac.digest(derived_key, b"Index seed", "sha512")[:32]
     available_indices.remove("s")
     available_indices = shuffle_indices(index_seed, available_indices)
-    new_id = "temp" if ident == "NOID" else ident
+    new_ident = "temp" if ident == "NOID" else ident
 
     # Generate new shares, if necessary, to reach a threshold.
     for i in range(num_strings, int(k)):
         share_index = available_indices.pop()
         info = "Share payload with index " + share_index
         payload = hmac.digest(derived_key, info, "sha512")[:seed_length]
-        new_shares.append(encode("ms", k, new_id, share_index, payload))
+        new_shares.append(encode("ms", k, new_ident, share_index, payload))
     existing_codex32_strings.extend(new_shares)
     master_seed = recover_master_seed(existing_codex32_strings)
-    if new_id == "temp":
+    if new_ident == "temp":
         ident = "".join([CHARSET[d] for d in ms32_fingerprint(master_seed)])
-        existing_codex32_strings = relabel_codex32_strings(
-            "ms", existing_codex32_strings, k, ident)
+        relabel_codex32_strings("ms", existing_codex32_strings, k, ident)
 
     # Derive new shares using ms32_interpolate.
     for i in range(int(k), n):
