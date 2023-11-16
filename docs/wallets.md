@@ -61,7 +61,6 @@ The process for entering codex32 strings is:
       * MAY attempt correction by deleting and/or inserting characters, as long as the resulting string has a valid length for a codex32 string. ECWs MAY assume the correct length is the closest of 48 or 74.
       * MUST show any valid correction candidate found to the user for confirmation rather than silently applying it.
          * If insertion and/or deletion correction candidates are found, the shortest edit distance valid string SHOULD be displayed.
-           * This is the sum of all edits with erasures and deletes weighted 1 and substitutions and insertions weighted 2.
          * ECWs displaying a candidate correction MAY highlight corrected 4-character windows and/or specific correction locations.
 1. After the first string has been entered and accepted, the wallet now knows the identifier, threshold value and valid length.
    * If the first string had index `S`, this was the codex32 secret and the import process is complete.
