@@ -51,7 +51,7 @@ The process for entering codex32 strings is:
 1. Once the first string is fully entered, the wallet MUST validate the checksum and header before accepting it.
    * If the checksum does not pass, then an ECW:
       * MUST attempt error correction of substitution errors and erasures.
-      * MAY attempt correction by deleting and/or inserting characters, as long as the resulting string has a valid length for a codex32 string. ECWs MAY assume the correct length is the closest of 48 or 74.
+      * MAY attempt correction by deleting and/or inserting characters, as long as the resulting string has a valid length for a codex32 string. ECWs MAY assume the correct length is the closer of 48 or 74.
       * MUST show a valid correction candidate, if found, to the user for confirmation rather than silently applying it.
          * If insertion and/or deletion correction candidates are found, the shortest edit distance valid string SHOULD be displayed.
          * ECWs displaying a candidate correction MAY highlight corrected 4-character windows and/or specific correction locations.
@@ -65,9 +65,11 @@ The process for entering codex32 strings is:
       * The wallet MAY guide the user by indicating that a share index has been repeated;
       * ECWs may use `?` as a share index arbitrarily many times. If the user indicates above they are not repeating the share, the share index SHOULD be replaced by `?`.
    * If the checksum fails, the wallet MAY attempt correction by deleting and/or inserting characters. However, the wallet MUST assume the valid length of all subsequent shares is equal to the valid length of the first share, so the number of characters inserted and deleted must net out to the correct length.
-1. For all invalid codex32 strings entered, if an ECW is able to correct the errors (by deletion, insertion, substitution and/or filling erasures), the wallet MUST show the corrected string to the user and request confirmation that the corrected string **exactly matches** the user's copy of the data. The wallet MAY highlight the locations of corrected characters or corrected 4-character windows. The wallet MUST NOT silently apply corrections without approval from the user.
-   * If no valid string is found with a correct hrp, header and unique index within correction distance limits or within 10-30 seconds of search, give up.
+1. For all invalid codex32 strings entered, if an ECW is able to correct the errors (by deletion, insertion, substitution and/or filling erasures), the wallet MUST show the corrected string to the user and request confirmation that the corrected string **exactly matches** the user's copy of the data. The wallet MAY highlight the locations of changed characters or 4-character windows. The wallet MUST NOT silently apply corrections without approval from the user.
+   * If no valid string is found with a correct hrp, header and unique index within levenshtein distance 4 or within 30 seconds of search, give up.
       * ECWs MAY warn the user they've repeated a share if the only valid string found exactly matches a previously entered one.
+      * Otherwise all wallets MUST not accept an invalid string and SHOULD inform the user it is invalid. 
+
 1. Once all shares are entered, the wallet should recover the master seed and import this.
 
 **The master seed should be used directly as a master seed, as specified in BIP32.**
