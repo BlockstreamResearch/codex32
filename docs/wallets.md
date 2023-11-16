@@ -45,7 +45,7 @@ The process for entering codex32 strings is:
    * The user MUST be able to enter all bech32 characters.
    * ECWs MUST also allow entry of `?` which indicates an erasure (unknown character).
    * The user SHOULD NOT be able to enter mixed-case characters.
-   * If the header is invalid, the wallet SHOULD highlight the problem and request confirmation from the user before allowing additional data to be entered.
+   * If the header is invalid, the wallet SHOULD highlight this problem and request confirmation from the user before allowing additional data to be entered.
      * An invalid header is one that starts with a character other than `0` or `2` through `9`, or one which starts with `0` but whose share index is not `S`. For shares after the first, a header is also invalid if its threshold and identifier do not match those of the first share or whose share index matches any previous share.
      * ECWs MAY replace the offending characters of the header with '?'.
    * Wallets MAY:
