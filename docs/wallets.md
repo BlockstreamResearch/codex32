@@ -47,11 +47,11 @@ The process for entering codex32 strings is:
    * The user SHOULD NOT be able to enter mixed-case characters.
    * If the header is invalid, the wallet SHOULD highlight the problem and request confirmation from the user before allowing additional data to be entered.
      * An invalid header is one that starts with a character other than `0` or `2` through `9`, or one which starts with `0` but whose share index is not `S`. For shares after the first, a header is also invalid if its threshold and identifier do not match those of the first share or whose share index matches any previous share.
-     * ECWs MAY replace the offending characters of the header with '?'.
+     * ECWs MAY replace the offending characters of the header with `?`.
    * Wallets MAY:
      * Allow users to enter invalid characters, at their discretion. (This may be useful to guide error correction, by attempting to replace commonly confused characters.)
      * Use predictive text for on-screen keyboards to suggest the codex32 checksum characters but if so MUST require user to manually accept the prediction.
-     * Indicate when the entry has a valid checksum, e.g. by highlighting the string green or displaying the 'Submit' option but they MUST NOT submit a string with a valid checksum without user request.
+     * Indicate when the entry has a valid checksum, e.g. by highlighting the string green or displaying the "Submit" option but they MUST NOT submit a string with a valid checksum without user request.
    * ECWs MAY additionally indicate when an entry of sufficient length to correct has an invalid checksum, e.g. by highlighting the string red or displaying an "Attempt Correction" option.
 
 
