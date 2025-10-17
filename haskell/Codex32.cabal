@@ -1,0 +1,43 @@
+cabal-version:      3.0
+name:               codex32
+version:            0.0.0
+license:             MIT
+author:              Russell O'Connor
+maintainer:          roconnor@blockstream.com
+copyright:           (c) 2025 Blockstream
+build-type:          Simple
+
+library
+  exposed-modules: Codex32,
+                   Codex32.Error,
+                   Codex32.Lfsr,
+                   Codex32.Linear,
+                   Codex32.Polynomial,
+                   Codex32.Word10,
+                   Codex32.Word5,
+  build-depends: base >=4.18 && <4.22,
+                 array >= 0.5 && <0.6,
+                 comonad >= 5.0 && <5.1,
+                 streams >=3.3 && <3.4,
+  default-language: Haskell2010
+
+test-suite codex32-test
+  type:                exitcode-stdio-1.0
+  hs-source-dirs:      test
+  main-is:             Tests.hs
+  other-modules: TestVectors,
+  build-depends: base >=4.18 && <4.22,
+                 codex32,
+                 tasty,
+                 tasty-quickcheck,
+  default-language: Haskell2010
+
+executable codex32
+  hs-source-dirs: exec
+  main-is: Main.hs
+  build-depends: base
+               , codex32
+               , optparse-applicative
+               , prettyprinter
+               , text
+  default-language: Haskell2010
