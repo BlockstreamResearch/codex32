@@ -14,12 +14,12 @@
 
 //! codex32 Reference Implementation
 //!
-//! This project is a reference implementation of BIP-XXX "codex32", a project
+//! This project is a reference implementation of BIP-0093 "codex32", a project
 //! by Leon Olson Curr and Pearlwort Snead to produce checksummed and secret-shared
 //! BIP32 master seeds.
 //!
 //! References:
-//!   * BIP-XXX <https://github.com/apoelstra/bips/blob/2023-02--volvelles/bip-0000.mediawiki>
+//!   * BIP-0093 <https://github.com/bitcoin/bips/blob/master/bip-0093.mediawiki>
 //!   * The codex32 website <https://www.secretcodex32.com>
 //!   * BIP-0173 "bech32" <https://github.com/bitcoin/bips/blob/master/bip-0173.mediawiki>
 //!   * BIP-0032 "BIP 32" <https://github.com/bitcoin/bips/blob/master/bip-0032.mediawiki>
@@ -97,6 +97,15 @@ pub enum Case {
     Upper,
 }
 
+fn expanded_length(s: &str) -> usize {
+    match s.rsplit_once('1') {
+        Some((hrp, data)) => 2 * hrp.len() + 1 + data.len(),
+        None => 1 + s.len(),
+    }
+}
+
+const VALID_PAYLOAD_LENGTHS: [usize; 6] = [26, 32, 39, 45, 52, 103];
+
 /// A codex32 string, containing a valid checksum
 #[derive(Clone, PartialEq, Eq, Hash, Debug)]
 pub struct Codex32String(String);
@@ -110,6 +119,9 @@ impl fmt::Display for Codex32String {
 impl Codex32String {
     fn sanity_check(&self) -> Result<(), Error> {
         let parts = self.parts_inner()?;
+        if !VALID_PAYLOAD_LENGTHS.contains(&parts.payload.len()) {
+            return Err(Error::InvalidLength(self.0.len()));
+        }
         let incomplete_group = (parts.payload.len() * 5) % 8;
         if incomplete_group > 4 {
             return Err(Error::IncompleteGroup(incomplete_group));
@@ -119,8 +131,8 @@ impl Codex32String {
 
     /// Construct a codex32 string from a not-yet-checksummed string
     pub fn from_unchecksummed_string(mut s: String) -> Result<Self, Error> {
-        // Determine what checksum to use and extend the string
-        let (len, mut checksum) = if s.len() < 81 {
+        // The BIP's expanded-length limit includes the 13 checksum symbols.
+        let (len, mut checksum) = if expanded_length(&s) < 81 {
             (13, checksum::Engine::new_codex32_short())
         } else {
             (15, checksum::Engine::new_codex32_long())
@@ -135,6 +147,7 @@ impl Codex32String {
         // Compute the checksum
         checksum.input_hrp(hrp)?;
         checksum.input_data_str(real_string)?;
+        checksum.input_own_target();
         for ch in checksum.into_residue() {
             s.push(ch.to_char());
         }
@@ -146,19 +159,24 @@ impl Codex32String {
 
     /// Construct a codex32 string from an already-checksummed string
     pub fn from_string(s: String) -> Result<Self, Error> {
-        let (name, mut checksum) = if s.len() >= 48 && s.len() < 94 {
-            ("short", checksum::Engine::new_codex32_short())
-        } else if s.len() >= 125 && s.len() < 128 {
-            ("long", checksum::Engine::new_codex32_long())
-        } else {
-            return Err(Error::InvalidLength(s.len()));
-        };
-
         // Split out the HRP
         let (hrp, real_string) = match s.rsplit_once('1') {
             Some((s1, s2)) => (s1, s2),
             None => ("", &s[..]),
         };
+        let codeword_length = expanded_length(&s);
+        let (name, checksum_len, mut checksum) = if codeword_length <= 93 {
+            ("short", 13, checksum::Engine::new_codex32_short())
+        } else if codeword_length >= 96 && codeword_length <= 1023 {
+            ("long", 15, checksum::Engine::new_codex32_long())
+        } else {
+            return Err(Error::InvalidLength(s.len()));
+        };
+        if real_string.len() < 6 + checksum_len
+            || !VALID_PAYLOAD_LENGTHS.contains(&(real_string.len() - 6 - checksum_len))
+        {
+            return Err(Error::InvalidLength(s.len()));
+        }
         checksum.input_hrp(hrp)?;
         checksum.input_data_str(real_string)?;
         if !checksum.is_valid() {
@@ -179,7 +197,7 @@ impl Codex32String {
             Some((s1, s2)) => (s1, s2),
             None => ("", &self.0[..]),
         };
-        let checksum_len = if self.0.len() > 93 { 15 } else { 13 };
+        let checksum_len = if expanded_length(&self.0) > 93 { 15 } else { 13 };
         let ret = Parts {
             hrp,
             threshold: match s.as_bytes()[0] {
@@ -308,7 +326,7 @@ impl Codex32String {
         Ok(Codex32String(s))
     }
 
-    /// Creates a S share from bare seed data
+    /// Creates a secret from bare seed data
     pub fn from_seed(
         hrp: &str,
         threshold: usize,
@@ -318,6 +336,12 @@ impl Codex32String {
     ) -> Result<Codex32String, Error> {
         if id.len() != 4 {
             return Err(Error::IdNotLength4(id.len()));
+        }
+        if share_idx != Fe32::S {
+            return Err(Error::InvalidShareIndex(share_idx));
+        }
+        if ![16, 20, 24, 28, 32, 64].contains(&data.len()) {
+            return Err(Error::InvalidLength(data.len()));
         }
 
         let mut ret = String::with_capacity(hrp.len() + 6 + (data.len() * 8 + 4) / 5);
@@ -361,7 +385,7 @@ impl Codex32String {
         }
 
         // Initialize checksum engine with HRP and header
-        let mut checksum = if data.len() < 51 {
+        let mut checksum = if expanded_length(&ret) < 81 {
             checksum::Engine::new_codex32_short()
         } else {
             checksum::Engine::new_codex32_long()
@@ -455,6 +479,9 @@ mod tests {
         assert_eq!(c32_parts.payload, "xxxxxxxxxxxxxxxxxxxxxxxxxx");
         assert_eq!(c32_parts.checksum, "4nzvca9cmczlw");
         assert_eq!(hex(&c32_parts.data()), "318c6318c6318c6318c6318c6318c631");
+        let created = Codex32String::from_unchecksummed_string(secret[..secret.len() - 13].into())
+            .unwrap();
+        assert_eq!(Codex32String::from_string(created.to_string()).unwrap(), created);
         // Don't check master node xpriv; this is implied by the master seed
         // and would require extra dependencies to compute
     }
@@ -568,6 +595,36 @@ mod tests {
     }
 
     #[test]
+    fn bip_vectors_6_7_8() {
+        let vectors = [
+            ("ms10seedsqqqsyqcyq5rqwzqfpg9scrgwpugpzysn9vaqzzvs20xnl", "000102030405060708090a0b0c0d0e0f10111213"),
+            ("ms10seedsyqsjygeyy5nzw2pf9g4jctfw9ucrzv3nxs6nvdau84gz0632s0xs", "202122232425262728292a2b2c2d2e2f3031323334353637"),
+            ("ms10seedsgpq5ys6yg4rywjzfff95cn2wfag9z5jn2324v46ct9d9hrcduqw8c3lccl", "404142434445464748494a4b4c4d4e4f505152535455565758595a5b"),
+        ];
+        for (vector, expected) in vectors {
+            let seed = Codex32String::from_string(vector.into()).unwrap();
+            assert_eq!(hex(&seed.parts().data()), expected);
+        }
+    }
+
+    #[test]
+    fn seed_creation_lengths_and_index() {
+        for len in 16..=64 {
+            let seed = Codex32String::from_seed("ms", 0, "test", Fe32::S, &vec![0; len]);
+            if [16, 20, 24, 28, 32, 64].contains(&len) {
+                let seed = seed.unwrap();
+                assert!(Codex32String::from_string(seed.to_string()).is_ok());
+            } else {
+                assert!(matches!(seed, Err(Error::InvalidLength(..))));
+            }
+        }
+        assert!(matches!(
+            Codex32String::from_seed("ms", 2, "test", Fe32::A, &[0; 16]),
+            Err(Error::InvalidShareIndex(..))
+        ));
+    }
+
+    #[test]
     fn bip_invalid_bad_checksums() {
         let bad_checksums = [
             "ms10fauxsxxxxxxxxxxxxxxxxxxxxxxxxxxve740yyge2ghq",
@@ -604,14 +661,6 @@ mod tests {
 
         let wrong_checksums = [
             "ms10fauxsxxxxxxxxxxxxxxxxxxxxxxxxurfvwmdcmymdufv",
-            "ms10fauxsxxxxxxxxxxxxxxxxxxxxxxxxxxcsyppjkd8lz4hx3",
-            "ms10fauxsxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxu6hwvl5p0l9xf3c",
-            "ms10fauxsxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxwqey9rfs6smenxa",
-            "ms10fauxsxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxv70wkzrjr4ntqet",
-            "ms10fauxsxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx3hmlrmpa4zl0v",
-            "ms10fauxsxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxrfggf88znkaup",
-            "ms10fauxsxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxpt7l4aycv9qzj",
-            "ms10fauxsxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxus27z9xtyxyw3",
             "ms10fauxsxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxcwm4re8fs78vn",
         ];
         for chk in wrong_checksums {
@@ -632,6 +681,7 @@ mod tests {
     #[test]
     fn bip_invalid_improper_length() {
         let bad_length = [
+            "ms10fauxsxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxwqey9rfs6smenxa",
             "ms10fauxsxxxxxxxxxxxxxxxxxxxxxxxxw0a4c70rfefn4",
             "ms10fauxsxxxxxxxxxxxxxxxxxxxxxxxxxk4pavy5n46nea",
             "ms10fauxsxxxxxxxxxxxxxxxxxxxxxxxxxxx9lrwar5zwng4w",
