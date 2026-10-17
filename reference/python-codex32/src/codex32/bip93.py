@@ -29,6 +29,7 @@
 
 from codex32.bech32 import (
     CHARSET,
+    InvalidLength,
     chars_to_u5,
     convertbits,
     u5_to_chars,
@@ -130,6 +131,8 @@ def bech32_lagrange(pts, x):
 
 def codex32_decode(codex):
     """Validate a codex32 string, and determine HRP and data."""
+    if u5_parse(codex)[0] == "ms" and len(codex) not in (48, 54, 61, 67, 74, 127):
+        raise InvalidLength("'ms' strings must be 48, 54, 61, 67, 74 or 127 chars")
     return u5_decode(codex, [CODEX32_LONG, CODEX32])
 
 
@@ -147,7 +150,7 @@ def codex32_interpolate(strings, x):
 
 def codex32_encode(hrp: str, data):
     """Compute a codex32 string given HRP and data values."""
-    spec = CODEX32_LONG if len(hrp) + len(data) > 80 else CODEX32
+    spec = CODEX32_LONG if 2 * len(hrp) + 1 + len(data) + 13 > 93 else CODEX32
     return u5_encode(hrp, data, spec)
 
 
@@ -163,8 +166,8 @@ def decode(hrp: str, s: str, pad_val: int | str = "any"):
     if k == "0" and (idx := header[5]) != "s":
         raise InvalidShareIndex(f"share index '{idx}' must be 's' when k='0'")
     decoded = convertbits(data[6:], 5, 8, False, pad_val)
-    if hrp == "ms" and (not 16 <= (msl := len(decoded)) <= 64 or msl % 4):
-        raise InvalidSeedLength(f"Master seeds must be in 16..20..64 bytes, got {msl}")
+    if hrp == "ms" and (msl := len(decoded)) not in (16, 20, 24, 28, 32, 64):
+        raise InvalidSeedLength(f"Master seeds are 16-32 (by 4) or 64 bytes, got {msl}")
     if header[5] != "s":
         return header, None, None  # shares are not seeds: no bytes or padding
     pad = data[-1] % (1 << ((len(data[6:]) * 5) % 8))

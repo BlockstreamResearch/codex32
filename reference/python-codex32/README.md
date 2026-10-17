@@ -5,7 +5,7 @@ Reference implementation of BIP-0093 (codex32): checksummed, SSSS-aware BIP32 se
 This repository implements the codex32 string format described by BIP-0093.
 It provides encoding/decoding, regular/long codex32 checksums, CRC padding for base conversions,
 Shamir secret sharing scheme (SSSS) interpolation helpers and helpers to build codex32 secrets from seed bytes.
-Shares are made only by interpolation, never from bytes.
+Shares are never encoded from bytes: generate them from random characters or by interpolation.
 
 ## Features
 - Encode/decode codex32 data via `from_string` and `from_unchecksummed_string`.

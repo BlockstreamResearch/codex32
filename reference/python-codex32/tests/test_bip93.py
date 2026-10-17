@@ -7,7 +7,12 @@ from data.bip93_vectors import (
     VECTOR_3,
     VECTOR_4,
     VECTOR_5,
-    VECTOR_6,
+    VECTORS_6_7_8,
+    VECTOR_9,
+    VECTOR_10,
+    VECTOR_11,
+    VALID_NOT_MASTER_SEED,
+    INVALID_HRP_VECTORS,
     VALID_CODEX32,
     VALID_CODEX32_LONG,
     INVALID_CODEX32,
@@ -118,14 +123,35 @@ def test_long_string():
     assert long_seed.data.hex() == VECTOR_5["secret_hex"]
 
 
+def test_master_seed_sizes():
+    """Test Vectors 6, 7 and 8: 160-, 192- and 224-bit master seeds."""
+    for seed_hex, secret in VECTORS_6_7_8:
+        assert Codex32String(secret).data.hex() == seed_hex
+
+
 def test_alternate_hrp():
-    """Test Vector 6: codex32 strings with "cl" HRP."""
-    c0 = Codex32String(VECTOR_6["codex32_luea"])
-    assert str(c0) == VECTOR_6["codex32_luea"]
-    c1 = Codex32String(VECTOR_6["codex32_cln2"])
-    assert str(c1) == VECTOR_6["codex32_cln2"]
-    c2 = Codex32String.from_string("cl", VECTOR_6["codex32_peev"])
-    assert str(c2) == VECTOR_6["codex32_peev"]
+    """Test Vector 9: codex32 strings with "cl" HRP."""
+    c0 = Codex32String(VECTOR_9["codex32_luea"])
+    assert str(c0) == VECTOR_9["codex32_luea"]
+    c1 = Codex32String(VECTOR_9["codex32_cln2"])
+    assert str(c1) == VECTOR_9["codex32_cln2"]
+    c2 = Codex32String.from_string("cl", VECTOR_9["codex32_peev"])
+    assert str(c2) == VECTOR_9["codex32_peev"]
+    assert Codex32String(VECTOR_9["ms_peev"]).payload == c2.payload
+    for s in VALID_NOT_MASTER_SEED:
+        assert str(Codex32String(s)) == s
+
+
+def test_long_hrp():
+    """Test Vectors 10 and 11: long HRPs select the checksum by expanded length."""
+    a, c = Codex32String(VECTOR_10["share_a"]), Codex32String(VECTOR_10["share_c"])
+    assert len(a.checksum) == 15
+    assert str(Codex32String.interpolate_at([a, c], "d")) == VECTOR_10["derived_d"]
+    assert str(Codex32String.interpolate_at([a, c], "s")) == VECTOR_10["secret_s"]
+    assert len(Codex32String(VECTOR_11).hrp) == 83
+    for s in INVALID_HRP_VECTORS:
+        with pytest.raises((InvalidLength, InvalidChecksum)):
+            Codex32String(s)
 
 
 def test_valid_codex32():
@@ -185,6 +211,7 @@ def test_invalid_master_seed_enc():
                 InvalidDataValue,
                 InvalidThreshold,
                 InvalidShareIndex,
+                InvalidLength,
                 AssertionError,
             )
         ):

@@ -77,8 +77,8 @@ class Checksum:
 
 
 codex32_long_spec = (CODEX32_LONG_GEN, 15, CODEX32_LONG_CONST)  # detects 8 errors
-CODEX32_LONG = Checksum("Long codex32", codex32_long_spec, (81, 1008))
-CODEX32 = Checksum("codex32", (CODEX32_GEN, 13, CODEX32_CONST), (0, 80))
+CODEX32_LONG = Checksum("Long codex32", codex32_long_spec, (96, 1023))  # expanded
+CODEX32 = Checksum("codex32", (CODEX32_GEN, 13, CODEX32_CONST), (0, 93))
 CRC1 = Checksum("CRC1", ([1], 1, 0), (0, 0))
 CRC2 = Checksum("CRC2", ([3], 2, 0), (0, 1))  # detects 2 errors
 CRC3 = Checksum("CRC3", ([3], 3, 0), (0, 4))
