@@ -27,8 +27,6 @@
 """Reference implementation for codex32/Long codex32 and codex32-encoded master seeds."""
 
 
-from bip32 import BIP32
-
 from codex32.bech32 import (
     CHARSET,
     chars_to_u5,
@@ -41,11 +39,6 @@ from codex32.bech32 import (
 from codex32.checksums import CODEX32, CODEX32_LONG
 from codex32.errors import CodexError
 
-HRP_CODES = {
-    "ms": 0,  # BIP-0032 master seed
-    "cl": 1,  # CLN HSM secret
-}  # Registry: https://github.com/satoshilabs/slips/blob/master/slip-0173.md#uses-of-codex32
-IDX_ORDER = "sacdefghjklmnpqrstuvwxyz023456789"  # Canonical BIP93 share indices alphabetical order
 BECH32_INV = [
     0,
     1,
@@ -83,9 +76,6 @@ BECH32_INV = [
 
 
 # pylint: disable=missing-class-docstring
-
-
-class IdNotLength4(CodexError): ...
 
 
 class InvalidThreshold(CodexError): ...
@@ -175,12 +165,16 @@ def decode(hrp: str, s: str, pad_val: int | str = "any"):
     decoded = convertbits(data[6:], 5, 8, False, pad_val)
     if hrp == "ms" and (not 16 <= (msl := len(decoded)) <= 64 or msl % 4):
         raise InvalidSeedLength(f"Master seeds must be in 16..20..64 bytes, got {msl}")
+    if header[5] != "s":
+        return header, None, None  # shares are not seeds: no bytes or padding
     pad = data[-1] % (1 << ((len(data[6:]) * 5) % 8))
     return header, bytes(decoded), pad if pad_val == "any" else pad_val
 
 
 def encode(hrp: str, header: str, seed: bytes, pad_val: int | str = "CRC"):
-    """Encode a codex32 string given HRP, header, seed, and padding."""
+    """Encode a codex32 secret given HRP, header, seed, and padding."""
+    if header[5:] != "s":
+        raise InvalidShareIndex(f"only secrets ('s') encode bytes, got '{header}'")
     u5_payload = convertbits(seed, 8, 5, True, pad_val)
     ret = codex32_encode(hrp, chars_to_u5(header) + u5_payload)
     if len(header) != 6 or (header, seed, pad_val) != decode(hrp, ret, pad_val):
@@ -193,7 +187,7 @@ class Codex32String:
 
     def __init__(self, s: str) -> None:
         """Initialize Codex32String from a codex32 string."""
-        self.is_upper = s.isupper()
+        self.s, self.is_upper = s, s.isupper()
         self.hrp = codex32_decode(s)[0]
         header, self.data, self.pad_val = decode(self.hrp, s)
         self.k, self.ident, self.share_idx = header[0], header[1:5], header[5]
@@ -201,14 +195,7 @@ class Codex32String:
     @property
     def payload(self) -> str:
         """Return the payload part of the codex32 string."""
-        return u5_to_chars(convertbits(self.data, 8, 5, True, self.pad_val))
-
-    @property
-    def s(self) -> str:
-        """Return the full codex32 string."""
-        header = self.k + self.ident + self.share_idx
-        ret = encode(self.hrp, header, self.data, self.pad_val)
-        return ret.upper() if ret and self.is_upper else ret
+        return self.s[len(self.hrp) + 7 : len(self) - len(self.checksum)]
 
     def __str__(self) -> str:
         return self.s
@@ -263,16 +250,9 @@ class Codex32String:
 
     @classmethod
     def from_seed(
-        cls, data: bytes, prefix: str = "ms10", pad_val: int | str = "CRC"
+        cls, data: bytes, prefix: str, pad_val: int | str = "CRC"
     ) -> "Codex32String":
-        """Create Codex32String given prefix and bare seed data."""
+        """Create a secret Codex32String given prefix (HRP, k, ident) and seed."""
         hrp, data_part = u5_parse(prefix)
-        header = u5_to_chars(data_part)
-        k = "0" if not header else header[:1]
-        if not (ident := header[1 : max(5, len(header) - 1)]):
-            bip32_fingerprint = BIP32.from_seed(data).get_fingerprint()
-            ident = u5_to_chars(convertbits(bip32_fingerprint, 8, 5)[:4])
-        elif len(ident) != 4:
-            raise IdNotLength4(f"identifier had wrong length {len(ident)}")
-        share_idx = "s" if not header[5:] else header[5:6]
-        return cls(encode(hrp, k + ident + share_idx, data, pad_val))
+        header = u5_to_chars(data_part) + ("s" if len(data_part) == 5 else "")
+        return cls(encode(hrp, header, data, pad_val))

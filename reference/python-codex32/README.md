@@ -4,17 +4,15 @@ Reference implementation of BIP-0093 (codex32): checksummed, SSSS-aware BIP32 se
 
 This repository implements the codex32 string format described by BIP-0093.
 It provides encoding/decoding, regular/long codex32 checksums, CRC padding for base conversions,
-Shamir secret sharing scheme (SSSS) interpolation helpers and helpers to build codex32 strings from seed bytes.
+Shamir secret sharing scheme (SSSS) interpolation helpers and helpers to build codex32 secrets from seed bytes.
+Shares are made only by interpolation, never from bytes.
 
 ## Features
 - Encode/decode codex32 data via `from_string` and `from_unchecksummed_string`.
 - Regular and long codex32 checksum support.
-- Construct codex32 strings from raw seed bytes via `from_seed`.
-- `from_seed` uses default bech32-encoded BIP32 fingerprint identifier and CRC padding.
+- Construct codex32 secrets (share index `s`) from raw seed bytes via `from_seed`, with CRC padding by default.
 - Interpolate shares recover secrets via `interpolate_at`.
 - Parse codex32 strings and access parts via properties.
-- Mutate codex32 strings by reassigning `is_upper`, `hrp`, `k`, `ident`, `share_idx`, `data`, and `pad_val`.
-- Supports Bech32/Bech32m and segwit address format aswell.
 
 ## Security
 Caution: This is reference code. Verify carefully before using with real funds.
@@ -59,8 +57,8 @@ print(a.payload)        # payload part
 print(a.checksum)       # checksum part
 print(len(a))           # length of the codex32 string
 print(a.is_upper)       # case is upper True/False
-print(s.data.hex())     # raw seed bytes as hex
-print(a.pad_val)        # padding value integer, (MSB first)
+print(s.data.hex())     # raw seed bytes as hex (None for shares)
+print(s.pad_val)        # padding value integer, (MSB first) (None for shares)
 
 
 
@@ -76,15 +74,6 @@ print(derived_share_d.s)
 # Create Codex32String object from existing codex32 string and validate any HRP
 e = Codex32String.from_string("cl", "cl10lueasd35kw6r5de5kueedxyesqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqanvrktzhlhusz")
 print(e.ident)
-print(e.s)
-
-# Relabel a Codex32String object
-e.ident = "cln2"
-print(e.ident)
-print(e.s)
-
-# Uppercase a Codex32String object (for encoding in QR codes or handwriting)
-e.is_upper = True
 print(e.s)
 ```
 

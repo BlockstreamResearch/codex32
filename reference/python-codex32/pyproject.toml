@@ -31,7 +31,6 @@ classifiers = [
   "Topic :: Security :: Cryptography",
   "Topic :: Software Development :: Libraries",
 ]
-dependencies = ["bip32>=5.0.0"]
 
 [project.optional-dependencies]
 dev = ["pytest"]

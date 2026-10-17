@@ -64,6 +64,7 @@ def test_derive_and_recover():
     a = Codex32String(VECTOR_2["share_A"])
     c = Codex32String(VECTOR_2["share_C"])
     # interpolation target is 'D' (uppercase as inputs are uppercase)
+    assert a.data is None and c.pad_val is None  # shares have no seed bytes
     d = Codex32String.interpolate_at([a, c], "D")
     assert str(d) == VECTOR_2["derived_D"]
     s = Codex32String.interpolate_at([a, c], "S")
@@ -121,8 +122,6 @@ def test_alternate_hrp():
     """Test Vector 6: codex32 strings with "cl" HRP."""
     c0 = Codex32String(VECTOR_6["codex32_luea"])
     assert str(c0) == VECTOR_6["codex32_luea"]
-    c0.ident = VECTOR_6["ident_cln2"]
-    assert str(c0) == VECTOR_6["codex32_cln2"]
     c1 = Codex32String(VECTOR_6["codex32_cln2"])
     assert str(c1) == VECTOR_6["codex32_cln2"]
     c2 = Codex32String.from_string("cl", VECTOR_6["codex32_peev"])

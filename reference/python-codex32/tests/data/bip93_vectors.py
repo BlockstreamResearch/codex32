@@ -68,7 +68,6 @@ VECTOR_5 = {
 
 VECTOR_6 = {
     "codex32_luea": "cl10lueasd35kw6r5de5kueedxyesqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqanvrktzhlhusz",
-    "ident_cln2": "cln2",
     "codex32_cln2": "cl10cln2sd35kw6r5de5kueedxyesqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqn9lcvcu7cez4s",
     "codex32_peev": "cl10peevst6cqh0wu7p5ssjyf4z4ez42ks9jlt3zneju9uuypr2hddak6tlqsjhsks4laxts8q",
 }
@@ -163,6 +162,7 @@ INVALID_MASTER_SEED_ENC = [
     ("ms", "0fauxxxs", bytes(16)),  # Invalid identifier length
     ("ms", "fauxxs", bytes(32)),  # Invalid threshold
     ("ms", "0fauxx", bytes(64)),  # Invalid share idx
+    ("ms", "2fauxa", bytes(16)),  # Invalid share idx: shares are not encoded from bytes
     ("ms", "0fauxs", bytes(15)),  # Invalid seed length (<16 bytes)
     ("ms", "0fauxs", bytes(65)),  # Invalid seed length (>64 bytes)
     ("ms", "0fauxs", bytes(17)),  # Invalid seed length (non-multiple of 4 bytes)

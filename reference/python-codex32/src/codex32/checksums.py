@@ -1,5 +1,3 @@
-# Bech32/Bech32m constants in this file are derived from work by:
-#   Copyright (c) 2017, 2020 Pieter Wuille, MIT License
 # codex32 constants in this file are derived from work by:
 #   Author: Leon Olsson Curr and Pearlwort Sneed <pearlwort@wpsoftware.net>
 #   License: BSD-3-Clause
@@ -25,11 +23,10 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 # THE SOFTWARE.
 
-"""Checksum specs and utilities for Bech32, codex32, and CRC variants."""
+"""Checksum specs and utilities for codex32 and CRC variants."""
 
 
 # Generators are the reduction polynomials for polymod computations
-BECH32_GEN = [0x3B6A57B2, 0x26508E6D, 0x1EA119FA, 0x3D4233DD, 0x2A1462B3]
 CODEX32_GEN = [
     0x19DC500CE73FDE210,
     0x1BFAE00DEF77FE529,
@@ -44,8 +41,6 @@ CODEX32_LONG_GEN = [
     0x0C577EAECCF1990D13C,
     0x1887F74F8DC71B10651,
 ]
-BECH32_CONST = 1
-BECH32M_CONST = 0x2BC830A3
 CODEX32_CONST = 0x10CE0795C2FD1E62A
 CODEX32_LONG_CONST = 0x43381E570BF4798AB26
 
@@ -84,8 +79,6 @@ class Checksum:
 codex32_long_spec = (CODEX32_LONG_GEN, 15, CODEX32_LONG_CONST)  # detects 8 errors
 CODEX32_LONG = Checksum("Long codex32", codex32_long_spec, (81, 1008))
 CODEX32 = Checksum("codex32", (CODEX32_GEN, 13, CODEX32_CONST), (0, 80))
-BECH32 = Checksum("Bech32", (BECH32_GEN, 6, BECH32_CONST), (0, 83))  # detects 4 errors
-BECH32M = Checksum("Bech32m", (BECH32_GEN, 6, BECH32M_CONST), (0, 83))
 CRC1 = Checksum("CRC1", ([1], 1, 0), (0, 0))
 CRC2 = Checksum("CRC2", ([3], 2, 0), (0, 1))  # detects 2 errors
 CRC3 = Checksum("CRC3", ([3], 3, 0), (0, 4))
